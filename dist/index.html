@@ -82,6 +82,8 @@ a{color:var(--color-primary)}
 .field__label{display:block;margin-bottom:var(--space-2);font-size:var(--font-body);font-weight:700}
 .field__req{margin-left:var(--space-2);padding:2px var(--space-2);border-radius:var(--radius-small);background:var(--color-error-bg);color:var(--color-error);font-size:var(--font-caption);font-weight:700}
 .field__hint{margin-top:var(--space-2);font-size:var(--font-caption);color:var(--color-text-secondary)}
+.field__error{display:flex;gap:var(--space-2);margin-top:var(--space-2);padding:var(--space-2) var(--space-3);border-radius:var(--radius-small);background:var(--color-error-bg);color:var(--color-error);font-size:var(--font-caption);font-weight:700}
+.input[aria-invalid="true"],.select[aria-invalid="true"],.textarea[aria-invalid="true"]{border-color:var(--color-error);border-width:2px}
 .input,.select,.textarea{width:100%;min-height:48px;padding:var(--space-2) var(--space-3);border:1px solid var(--color-border);border-radius:var(--radius-small);font:inherit;font-size:var(--font-body);color:var(--color-text-primary);background:var(--color-background)}
 .textarea{min-height:96px;line-height:var(--line-height-body);resize:vertical}
 .radio-row{display:flex;align-items:flex-start;gap:var(--space-2);padding:var(--space-3);border:1px solid var(--color-border-light);border-radius:var(--radius-small);margin-bottom:var(--space-2);cursor:pointer}
@@ -117,6 +119,7 @@ tbody tr:last-child td{border-bottom:0}
 .cell-sub{font-size:var(--font-caption);color:var(--color-text-secondary)}
 .mono{font-family:var(--font-mono)}
 .table-wrap td .btn{white-space:nowrap}
+.libchip{display:inline-flex;align-items:center;gap:var(--space-1);padding:2px var(--space-2);border:1px solid var(--color-border-light);border-radius:var(--radius-small);background:var(--color-background-subtle);font-size:var(--font-caption);white-space:nowrap}
 .nowrap{white-space:nowrap}
 td.col-text{min-width:15em}
 
@@ -241,6 +244,19 @@ td.col-text{min-width:15em}
           <span class="demo-card__title">不具合ナレッジ横断検索AI</span>
           <span class="demo-card__desc">「似た不具合が過去にないか」を自然な言葉で聞くと、過去トラ・工程FMEA・設計変更を横断して根拠付きで返します。</span>
           <span class="demo-card__meta">想定業務：品質保証部 ／ 不具合対応・原因調査　／　所要 4分</span>
+        </span>
+        <span class="demo-card__go">開く
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </span>
+      </a>
+
+      <a class="demo-card" href="02-process-fmea.html">
+        <span class="demo-card__no">2</span>
+        <span class="demo-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg></span>
+        <span class="demo-card__main">
+          <span class="demo-card__title">製造FMEAドラフト生成AI</span>
+          <span class="demo-card__desc">工程を選ぶと、工程フローから機能を整理し、図面・条件表・作業標準から要求事項を抽出して、逸脱として故障モード候補を根拠付きで生成します。</span>
+          <span class="demo-card__meta">想定業務：生産技術部 ／ 工程FMEAの作成・改訂　／　所要 5分</span>
         </span>
         <span class="demo-card__go">開く
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>

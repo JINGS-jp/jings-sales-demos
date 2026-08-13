@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>不具合ナレッジ横断検索AI｜JINGS デモ</title>
+<title>製造FMEAドラフト生成AI｜JINGS デモ</title>
 <style>
 /* JINGS 営業標準デモ 共通スタイル — design-system.md 準拠 */
 :root{
@@ -209,25 +209,25 @@ td.col-text{min-width:15em}
   <button class="icon-btn" style="margin-left:0" id="navToggle" aria-label="メニューを開閉する" aria-expanded="false">
     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
   </button>
-  <span class="app-header__brand"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--color-primary)" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 9v12"/></svg>不具合ナレッジ横断検索AI</span>
-  <span class="app-header__context">品質保証部 ／ 不具合対応・原因調査</span>
+  <span class="app-header__brand"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--color-primary)" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 9v12"/></svg>製造FMEAドラフト生成AI</span>
+  <span class="app-header__context">生産技術部 ／ 工程FMEAの作成・改訂</span>
   <span class="env-badge">デモ環境・架空データ</span>
   <span class="app-header__spacer"></span>
   <span class="app-header__user">山田（品質保証部）</span>
 </header>
 
 <nav class="app-sidebar" id="sidebar" aria-label="メインメニュー">
-  <button class="nav-item" data-view="dashboard" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h8v8H3zM13 3h8v5h-8zM13 10h8v11h-8zM3 13h8v8H3z"/></svg>
-    ダッシュボード
+  <button class="nav-item" data-view="draft" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>
+    FMEAドラフト生成
   </button>
-  <button class="nav-item" data-view="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4.5-4.5"/></svg>
-    ナレッジ検索
+  <button class="nav-item" data-view="flow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="6" height="5" rx="1"/><rect x="15" y="3" width="6" height="5" rx="1"/><rect x="9" y="16" width="6" height="5" rx="1"/><path d="M6 8v3a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8M12 13v3"/></svg>
+    工程フロー
   </button>
-  <button class="nav-item" data-view="list"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-    不具合記録一覧
+  <button class="nav-item" data-view="existing"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+    既存の工程FMEA
   </button>
-  <button class="nav-item" data-view="docs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>
-    登録文書
+  <button class="nav-item" data-view="docs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 9v11M12 13h5M12 16h3"/></svg>
+    参照文書
   </button>
   <a class="nav-back" href="index.html">
     <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
@@ -236,197 +236,160 @@ td.col-text{min-width:15em}
 </nav>
 
 <main class="app-main" id="main">
-<!-- ========== ダッシュボード ========== -->
-<section class="view" data-view="dashboard">
-  <p class="breadcrumb">ホーム</p>
+<!-- ========== FMEAドラフト生成（中核） ========== -->
+<section class="view" data-view="draft">
+  <p class="breadcrumb">製造FMEAドラフト生成</p>
   <div class="page-head">
     <div>
-      <h1 class="page-title">ダッシュボード</h1>
-      <p class="page-lead">登録済みの不具合記録・工程FMEA・設計変更の状態と、対応が必要な項目を表示しています。</p>
-    </div>
-    <div class="page-head__actions">
-      <button class="btn btn--primary" data-goto="search">ナレッジを検索する</button>
+      <h1 class="page-title">FMEAドラフト生成</h1>
+      <p class="page-lead">工程を選択すると、工程フローから機能を整理し、図面・条件表・作業標準から要求事項を抽出します。要求事項を満たせない状態を逸脱として整理し、製造FMEAの故障モード候補を生成します。S・O・Dは自動確定せず、担当者が判断します。</p>
     </div>
   </div>
 
-  <div class="section">
-    <div class="grid grid--kpi" id="kpiGrid"></div>
-  </div>
-
-  <div class="section">
-    <h2 class="section__title">対応が必要な不具合</h2>
-    <p class="section__lead">恒久対策が未完了の記録です。影響度Sの高いものから表示しています。</p>
-    <div class="table-meta" id="openMeta"></div>
-    <div class="table-wrap">
-      <table>
-        <caption class="visually-hidden">対応が必要な不具合の一覧</caption>
-        <thead><tr>
-          <th scope="col">管理番号</th><th scope="col">発生日</th><th scope="col">製品・工程</th>
-          <th scope="col">現象</th><th scope="col">S</th><th scope="col">状態</th><th scope="col">操作</th>
-        </tr></thead>
-        <tbody id="openBody"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="section">
-    <h2 class="section__title">工程別の発生件数</h2>
-    <p class="section__lead">登録済みの不具合記録を発生工程で集計しています。件数が多い工程は、工程FMEAの見直し対象の候補になります。</p>
-    <div class="card">
-      <div id="procDist"></div>
-      <p style="margin-top:var(--space-4);font-size:var(--font-caption);color:var(--color-text-secondary)" id="procNote"></p>
-    </div>
-  </div>
-</section>
-
-<!-- ========== ナレッジ検索 ========== -->
-<section class="view" data-view="search" hidden>
-  <p class="breadcrumb"><a href="#" data-goto="dashboard">ホーム</a> ／ ナレッジ検索</p>
-  <div class="page-head">
-    <div>
-      <h1 class="page-title">ナレッジ検索</h1>
-      <p class="page-lead">発生した事象を普段の言葉で入力してください。過去の不具合記録・工程FMEA・設計変更通知を横断して検索し、根拠となる記録を示します。結論の採否は担当者が判断します。</p>
-    </div>
-  </div>
-
-  <div class="grid split-grid" style="grid-template-columns:380px 1fr;align-items:start">
-    <form class="card" id="qForm" style="position:sticky;top:calc(var(--header-height) + var(--space-5))">
+  <div class="grid split-grid" style="grid-template-columns:370px 1fr;align-items:start">
+    <form class="card" id="genForm" novalidate style="position:sticky;top:calc(var(--header-height) + var(--space-5))">
       <div class="field">
-        <label class="field__label" for="q">発生している事象<span class="field__req">必須</span></label>
-        <textarea class="textarea" id="q" rows="4" aria-describedby="qHint"></textarea>
-        <p class="field__hint" id="qHint">製品名・工程名・現象を含めると精度が上がります。文章のままで構いません。</p>
+        <label class="field__label" for="procSelect">対象工程<span class="field__req">必須</span></label>
+        <select class="select" id="procSelect" required aria-describedby="procHint">
+          <option value="">工程番号・工程名で選択してください</option>
+        </select>
+        <p class="field__error" id="procError" hidden>対象工程が選択されていません。工程を選択してから、製造FMEAドラフトを生成してください。</p>
+        <p class="field__hint" id="procHint">ACT-220 第一工場 組立ライン（工程10〜19）を工程フロー順に表示しています。</p>
       </div>
+
       <div class="field">
-        <span class="field__label">よく聞かれる事象から選ぶ</span>
-        <div class="chip-row" id="qChips"></div>
+        <span class="field__label" id="modeLabel">展開モード</span>
+        <label class="radio-row">
+          <input type="radio" name="genMode" value="std">
+          <span><strong>標準生成</strong><span>選択した工程の工程フロー・図面・条件表・作業標準から製造FMEAドラフトを作成します</span></span>
+        </label>
+        <label class="radio-row">
+          <input type="radio" name="genMode" value="wide" checked>
+          <span><strong>抜け漏れ展開</strong><span id="wideNote">標準生成に加え、既存の工程FMEA・類似工程・過去不具合の実績を横断し、抜け漏れ候補を提示します</span></span>
+        </label>
       </div>
+
       <div class="field">
-        <span class="field__label">検索範囲</span>
-        <label class="check-row"><input type="checkbox" id="scTr" checked> 不具合記録（過去トラ）</label>
-        <label class="check-row"><input type="checkbox" id="scFm" checked> 工程FMEA</label>
-        <label class="check-row"><input type="checkbox" id="scEc" checked> 設計変更通知（ECN）</label>
+        <span class="field__label">参照範囲</span>
+        <label class="check-row"><input type="checkbox" checked> 工程フロー（ACT-220 組立ライン）</label>
+        <label class="check-row"><input type="checkbox" checked> 図面・条件表</label>
+        <label class="check-row"><input type="checkbox" checked> 作業要領書・検査基準書</label>
+        <label class="check-row"><input type="checkbox" checked> 既存の工程FMEA</label>
+        <label class="check-row"><input type="checkbox" checked> 過去不具合の記録</label>
       </div>
-      <button class="btn btn--primary" type="submit" style="width:100%">類似する記録を検索する</button>
+
+      <button class="btn btn--primary" type="submit" style="width:100%">製造FMEAドラフトを生成する</button>
+      <p class="field__hint" id="critNote"></p>
     </form>
 
     <div>
-      <div class="empty" id="qIdle">
-        <h2 class="empty__title">事象を入力して検索してください</h2>
+      <div class="empty" id="genIdle">
+        <h2 class="empty__title">工程を選択して、製造FMEAドラフトを生成してください</h2>
         <div class="empty__body">
-          <p>検索すると、次の内容を根拠付きで表示します。</p>
+          <p>工程フローから機能を整理し、図面・条件表・作業標準から要求事項を抽出します。要求事項からの逸脱として故障モードを生成し、根拠資料とともに表示します。</p>
           <ul>
-            <li>類似する過去の不具合記録と、その原因・対策</li>
-            <li>同じ工程の工程FMEAに登録済みの故障モード</li>
-            <li>関連する設計変更通知</li>
-            <li>今回確認すべき項目の候補</li>
+            <li>工程 → 機能 → 要求事項 → 逸脱 → 故障モードの順に、画面上で追跡できます</li>
+            <li>要求事項は出典の文書名と該当箇所を表示します</li>
+            <li>S・O・Dは社内評価基準に照らした候補値で、確定は担当者が行います</li>
           </ul>
         </div>
       </div>
 
-      <div class="card" id="qLoading" hidden aria-live="polite">
-        <h2 style="font-size:var(--font-subsection-title);margin-bottom:var(--space-2)">類似する記録を検索しています</h2>
-        <p style="font-size:var(--font-caption);color:var(--color-text-secondary);margin-bottom:var(--space-4)" id="qLoadMeta"></p>
-        <ol class="stepper" id="qStepper">
-          <li class="step" data-state="todo"><span class="step__mark">1</span><span class="step__text">入力内容から製品・工程・現象を整理しています</span></li>
-          <li class="step" data-state="todo"><span class="step__mark">2</span><span class="step__text">過去の不具合記録を検索しています</span></li>
-          <li class="step" data-state="todo"><span class="step__mark">3</span><span class="step__text">工程FMEAの故障モードと照合しています</span></li>
-          <li class="step" data-state="todo"><span class="step__mark">4</span><span class="step__text">原因と対策の傾向を比較しています</span></li>
-          <li class="step" data-state="todo"><span class="step__mark">5</span><span class="step__text">確認すべき項目をまとめています</span></li>
+      <div class="card" id="genLoading" hidden aria-live="polite">
+        <h2 style="font-size:var(--font-subsection-title);margin-bottom:var(--space-2)">製造FMEAドラフトを生成しています</h2>
+        <p style="font-size:var(--font-caption);color:var(--color-text-secondary);margin-bottom:var(--space-4)" id="genLoadMeta"></p>
+        <ol class="stepper" id="genStepper">
+          <li class="step" data-state="todo"><span class="step__mark">1</span><span class="step__text">選択した工程の情報を読み込んでいます</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">2</span><span class="step__text">工程フローから機能・作業を整理しています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">3</span><span class="step__text">図面・条件表・作業標準から要求事項を抽出しています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">4</span><span class="step__text">要求事項からの逸脱を整理しています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">5</span><span class="step__text">故障モードと影響候補を生成しています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">6</span><span class="step__text">類似工程のFMEAから抜け漏れ候補を検索しています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">7</span><span class="step__text">製造FMEAドラフトをまとめています</span></li>
         </ol>
       </div>
 
-      <div id="qResult" hidden></div>
+      <div id="genResult" hidden></div>
     </div>
   </div>
 </section>
 
-<!-- ========== 不具合記録一覧 ========== -->
-<section class="view" data-view="list" hidden>
-  <p class="breadcrumb"><a href="#" data-goto="dashboard">ホーム</a> ／ 不具合記録一覧</p>
+<!-- ========== 工程フロー ========== -->
+<section class="view" data-view="flow" hidden>
+  <p class="breadcrumb"><a href="#" data-goto="draft">FMEAドラフト生成</a> ／ 工程フロー</p>
   <div class="page-head">
     <div>
-      <h1 class="page-title">不具合記録一覧</h1>
-      <p class="page-lead">登録済みの不具合記録です。製品・工程・状態で絞り込めます。</p>
-    </div>
-    <div class="page-head__actions">
-      <button class="btn btn--quiet" id="btnListCsv">一覧をCSVで出力する</button>
+      <h1 class="page-title">工程フロー</h1>
+      <p class="page-lead">ACT-220 第一工場 組立ラインの工程フローです。工程ごとの機能と、抽出済みの要求事項の件数を表示しています。</p>
     </div>
   </div>
-
-  <div class="card" style="margin-bottom:var(--space-5)">
-    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--space-4)">
-      <div class="field" style="margin:0">
-        <label class="field__label" for="fProd">製品</label>
-        <select class="select" id="fProd"><option value="">すべて</option></select>
-      </div>
-      <div class="field" style="margin:0">
-        <label class="field__label" for="fProc">発生工程</label>
-        <select class="select" id="fProc"><option value="">すべて</option></select>
-      </div>
-      <div class="field" style="margin:0">
-        <label class="field__label" for="fStat">対応状態</label>
-        <select class="select" id="fStat">
-          <option value="">すべて</option><option>完了</option><option>対応中</option><option>未着手</option>
-        </select>
-      </div>
-      <div class="field" style="margin:0">
-        <label class="field__label" for="fLeak">顧客流出</label>
-        <select class="select" id="fLeak">
-          <option value="">すべて</option><option value="1">流出あり</option><option value="0">流出なし</option>
-        </select>
-      </div>
-    </div>
-  </div>
-
-  <div class="table-meta" id="listMeta"></div>
+  <div class="table-meta" id="flowMeta"></div>
   <div class="table-wrap">
     <table>
-      <caption class="visually-hidden">不具合記録の一覧</caption>
+      <caption class="visually-hidden">工程フローの一覧</caption>
       <thead><tr>
-        <th scope="col">管理番号</th><th scope="col">発生日</th><th scope="col">製品</th>
-        <th scope="col">工程</th><th scope="col">現象</th>
-        <th scope="col">S</th><th scope="col">O</th><th scope="col">D</th>
-        <th scope="col">状態</th><th scope="col">操作</th>
+        <th scope="col">工程</th><th scope="col">工程の機能</th><th scope="col">特性記号</th>
+        <th scope="col">要求事項</th><th scope="col">既存FMEA</th><th scope="col">不具合実績</th><th scope="col">操作</th>
       </tr></thead>
-      <tbody id="listBody"></tbody>
+      <tbody id="flowBody"></tbody>
     </table>
   </div>
-  <div class="empty" id="listEmpty" hidden>
-    <h2 class="empty__title">該当する記録が見つかりませんでした</h2>
-    <div class="empty__body">
-      <p>追加で試せること:</p>
-      <ul>
-        <li>絞り込み条件を「すべて」に戻して範囲を広げる</li>
-        <li>製品ではなく工程で絞り込む</li>
-        <li>ナレッジ検索で事象の文章から探す</li>
-      </ul>
+</section>
+
+<!-- ========== 既存の工程FMEA ========== -->
+<section class="view" data-view="existing" hidden>
+  <p class="breadcrumb"><a href="#" data-goto="draft">FMEAドラフト生成</a> ／ 既存の工程FMEA</p>
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">既存の工程FMEA</h1>
+      <p class="page-lead">登録済みの工程FMEAです。ドラフト生成時は、この内容と重複しない候補を提示します。</p>
     </div>
+    <div class="page-head__actions">
+      <button class="btn btn--quiet" id="btnExCsv">一覧をCSVで出力する</button>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:var(--space-5)">
+    <div class="field" style="margin:0;max-width:360px">
+      <label class="field__label" for="exProc">工程で絞り込む</label>
+      <select class="select" id="exProc"><option value="">すべての工程</option></select>
+    </div>
+  </div>
+  <div class="table-meta" id="exMeta"></div>
+  <div class="table-wrap">
+    <table>
+      <caption class="visually-hidden">既存の工程FMEAの一覧</caption>
+      <thead><tr>
+        <th scope="col">工程</th><th scope="col">故障モード</th><th scope="col">故障影響</th>
+        <th scope="col">現行の予防</th><th scope="col">現行の検出</th>
+        <th scope="col">S・O・D</th><th scope="col">RPN</th><th scope="col">根拠</th>
+      </tr></thead>
+      <tbody id="exBody"></tbody>
+    </table>
   </div>
 </section>
 
-<!-- ========== 登録文書 ========== -->
+<!-- ========== 参照文書 ========== -->
 <section class="view" data-view="docs" hidden>
-  <p class="breadcrumb"><a href="#" data-goto="dashboard">ホーム</a> ／ 登録文書</p>
+  <p class="breadcrumb"><a href="#" data-goto="draft">FMEAドラフト生成</a> ／ 参照文書</p>
   <div class="page-head">
     <div>
-      <h1 class="page-title">登録文書</h1>
-      <p class="page-lead">検索対象として取り込んでいる文書です。取り込み後に追加された文書は、次回の解析で反映されます。</p>
+      <h1 class="page-title">参照文書</h1>
+      <p class="page-lead">要求事項の抽出元として取り込んでいる文書です。文書ごとに、抽出できた要求事項の件数を表示しています。</p>
     </div>
   </div>
   <div class="table-wrap">
     <table>
-      <caption class="visually-hidden">登録文書の一覧</caption>
+      <caption class="visually-hidden">参照文書の一覧</caption>
       <thead><tr>
-        <th scope="col">文書</th><th scope="col">種別</th><th scope="col">件数・版</th>
-        <th scope="col">取り込み</th><th scope="col">状態</th>
+        <th scope="col">文書</th><th scope="col">種別</th><th scope="col">抽出した要求事項</th><th scope="col">状態</th>
       </tr></thead>
       <tbody id="docsBody"></tbody>
     </table>
   </div>
-  <div class="callout callout--warn" style="margin-top:var(--space-5)">
+  <div class="callout callout--info" style="margin-top:var(--space-5)">
     <div>
-      <p class="callout__title">未登録の文書があります</p>
-      <p>作業要領書と検査記録は今回の取り込み対象に含まれていません。登録すると、原因調査で「作業条件」まで遡れるようになります。</p>
+      <p class="callout__title">S・O・Dの判定基準について</p>
+      <p id="critDoc"></p>
     </div>
   </div>
 </section>
@@ -833,15 +796,17 @@ function today() {
 }
 
 (function(){
-/* デモ1：不具合ナレッジ横断検索 — 埋め込み実データに対してJSで実検索する */
+/* デモ2：製造FMEAドラフト生成
+   起点は必ず「工程」。工程 → 機能 → 要求事項 → 逸脱 → 故障モードの連鎖を画面上で追跡できるようにする。
+   影響・原因・予防・検出は既存の工程FMEA行から引き当て、出典を示す。引き当てできない場合は推定と明示する。 */
+
 const PROC_BY_NO = {};
 DATA.PROCESSES.forEach(p => PROC_BY_NO[p.no] = p);
 const TR_BY_ID = {};
 DATA.TROUBLES.forEach(t => TR_BY_ID[t.id] = t);
-
 const procLabel = no => PROC_BY_NO[no] ? `工程${no} ${PROC_BY_NO[no].name}` : `工程${no}`;
 
-/* ---- 日本語向けの類似度（2-gram の Dice 係数） ---- */
+/* ---- 類似度（2-gram Dice） ---- */
 function norm(s) {
   return String(s || '').normalize('NFKC').toLowerCase()
     .replace(/[\s・,.、。（）()「」【】\/：:；;＋+\-–—]/g, '');
@@ -857,456 +822,719 @@ function dice(a, b) {
   a.forEach(g => { if (b.has(g)) inter++; });
   return (2 * inter) / (a.size + b.size);
 }
-function boostFor(q, rec) {
-  const n = norm(q);
-  let bump = 0;
-  if (rec.prod && n.includes(norm(rec.prod))) bump += 0.18;
-  const p = PROC_BY_NO[rec.proc];
-  if (p && n.includes(norm(p.name))) bump += 0.14;
-  if (rec.part && n.includes(norm(rec.part))) bump += 0.10;
-  return bump;
+
+/* ---- 逸脱の型 → 故障モード文 ---- */
+const MODE_TPL = {
+  '未実施': s => `${s}が未実施となる`,
+  '欠落': s => `${s}が欠落する`,
+  '一部未実施': s => `${s}が一部未実施となる`,
+  '不足': s => `${s}が不足する`,
+  '過剰': s => `${s}が過剰になる`,
+  'ばらつき': s => `${s}がばらつき、規格を外れる`,
+  '位置違い': s => `${s}が指定位置から外れる`,
+  '方向違い': s => `${s}の向きが指定と異なる`,
+  '順序違い': s => `${s}の順序を誤る`,
+  '条件違い': s => `${s}が規定条件を外れる`,
+  '部品違い': s => `指定と異なる${s}を使用する`,
+  '形状違い': s => `${s}の形状が規格を外れる`,
+  '変形': s => `${s}が変形する`,
+  '破損': s => `${s}が破損する`,
+  'ねじれ': s => `${s}にねじれが生じる`,
+  '汚れ': s => `${s}に汚れが付着する`,
+  '異物付着': s => `${s}に異物が付着する`,
+  '誤判定': s => `${s}の判定を誤る`,
+  '検査漏れ': s => `${s}の確認が漏れる`
+};
+const modeText = (subj, dev) => (MODE_TPL[dev] || (s => `${s}が規格を外れる`))(subj);
+
+/* ---- S/O/Dの基準ラベル ---- */
+function critLabel(kind, v) {
+  const row = DATA.SOD_CRITERIA[kind].find(r => v >= r.v[0] && v <= r.v[1]);
+  return row ? row.label : '該当区分なし';
 }
 
-function searchTroubles(q) {
-  const g = grams(q);
-  return DATA.TROUBLES
-    .map(t => {
-      const text = [t.sym, t.cause, t.part, t.prod, procLabel(t.proc)].join(' ');
-      return { rec: t, score: Math.min(1, dice(g, grams(text)) + boostFor(q, t)) };
-    })
-    .filter(x => x.score >= 0.08)
-    .sort((a, b) => b.score - a.score);
-}
-function searchPfmea(q, proc) {
-  const g = grams(q);
-  return DATA.PFMEA
-    .map(r => {
-      const text = [r.mode, r.cause, r.eff, procLabel(r.proc)].join(' ');
-      let sc = dice(g, grams(text));
-      if (proc && r.proc === proc) sc += 0.22;
-      return { rec: r, score: Math.min(1, sc) };
-    })
-    .filter(x => x.score >= 0.12)
-    .sort((a, b) => b.score - a.score);
-}
-function searchEcn(q) {
-  const g = grams(q);
-  return DATA.ECNS
-    .map(e => ({ rec: e, score: dice(g, grams(e.title + ' ' + e.reason)) }))
-    .filter(x => x.score >= 0.10)
-    .sort((a, b) => b.score - a.score);
-}
+/* ---- 生成本体 ---- */
+function deriveRows(proc) {
+  const reqs = DATA.PROC_REQS[proc] || [];
+  const existing = DATA.PFMEA.filter(r => r.proc === proc);
+  const rows = [];
 
-/* ---- ダッシュボード ---- */
-function renderDashboard() {
-  const open = DATA.TROUBLES.filter(t => t.status !== '完了');
-  const leak = DATA.TROUBLES.filter(t => t.leak);
-  const kpis = [
-    { label: '登録済み不具合記録', value: DATA.TROUBLE_TOTAL.toLocaleString(), unit: ' 件',
-      note: `2019年以降の全記録。画面には代表 ${DATA.TROUBLES.length} 件を表示しています` },
-    { label: '恒久対策が未完了', value: open.length, unit: ' 件', warn: true,
-      note: `うち影響度S8以上 ${open.filter(t => t.s >= 8).length} 件` },
-    { label: '顧客流出に至った記録', value: leak.length, unit: ' 件', warn: true,
-      note: '再発防止の横展開が必要な事例' },
-    { label: '工程FMEA 登録行数', value: DATA.PFMEA_TOTAL.toLocaleString(), unit: ' 行',
-      note: `全4機種。画面には ACT-220 の ${DATA.PFMEA.length} 行を表示しています` },
-    { label: '設計変更通知', value: DATA.ECNS.length, unit: ' 件',
-      note: `審査中 ${DATA.ECNS.filter(e => e.status === '審査中').length} 件` }
-  ];
-  $('#kpiGrid').innerHTML = kpis.map(k => `
-    <div class="card">
-      <p class="kpi__label">${esc(k.label)}</p>
-      <p class="kpi__value"${k.warn ? ' style="color:var(--color-warning)"' : ''}>${esc(k.value)}<span class="kpi__unit">${esc(k.unit)}</span></p>
-      <p class="kpi__note">${esc(k.note)}</p>
-    </div>`).join('');
+  reqs.forEach((rq, ri) => {
+    // 故障モード文は逸脱の型のテンプレートから作る。
+    // 現場の言い方が定まっている場合だけ rq.modes で上書きする（型は画面にそのまま出すので連鎖は崩れない）。
+    const entries = (rq.devs || []).map(d =>
+      ({ dev: d, mode: (rq.modes && rq.modes[d]) || modeText(rq.subj, d) }));
+    entries.forEach(({ dev, mode }, di) => {
+      const g = grams(mode + ' ' + rq.subj);
 
-  const sorted = open.slice().sort((a, b) => b.s - a.s);
-  $('#openMeta').textContent = `${open.length} 件を影響度Sの高い順に表示しています`;
-  $('#openBody').innerHTML = sorted.map(t => `
-    <tr>
-      <td class="mono nowrap">${esc(t.id)}</td>
-      <td class="mono nowrap">${esc(t.date)}</td>
-      <td class="nowrap">${esc(t.prod)}<div class="cell-sub">${esc(procLabel(t.proc))}</div></td>
-      <td class="col-text">${esc(t.sym)}</td>
-      <td class="nowrap"><span class="sod-badge${t.s >= 8 ? ' sod-badge--hi' : ''}">S${t.s}</span></td>
-      <td><span class="status status--${t.status === '対応中' ? 'warn' : 'todo'}">${esc(t.status)}</span></td>
-      <td><button class="btn btn--quiet btn--small" data-tr="${esc(t.id)}">記録を確認する</button></td>
-    </tr>`).join('');
+      // 同工程の既存FMEAに同義の行があるか
+      let covered = null, cs = 0;
+      existing.forEach(r => {
+        const s = dice(g, grams(r.mode));
+        if (s > cs) { cs = s; covered = r; }
+      });
+      const isCovered = cs >= 0.42;
 
-  // 工程別の件数分布
-  const counts = {};
-  DATA.TROUBLES.forEach(t => counts[t.proc] = (counts[t.proc] || 0) + 1);
-  const max = Math.max(...Object.values(counts));
-  const order = DATA.PROCESSES.filter(p => counts[p.no]);
-  $('#procDist').innerHTML = `<div class="dist" style="height:120px">` + order.map(p => {
-    const n = counts[p.no];
-    return `<div class="dist__col" title="${esc(procLabel(p.no))}：${n}件">
-      <span>${n}</span>
-      <span class="dist__bar${n >= max ? ' dist__bar--warn' : ''}" style="height:${Math.round(n / max * 84)}px"></span>
-      <span class="dist__d mono">${esc(p.no)}</span>
-    </div>`;
-  }).join('') + `</div>`;
-  const top = order.slice().sort((a, b) => counts[b.no] - counts[a.no])[0];
-  $('#procNote').textContent =
-    `横軸は工程番号です。${procLabel(top.no)}が ${counts[top.no]} 件で最も多く、締結条件の管理と作業順序の指示方法に関する記録が繰り返し登録されています。`;
-}
+      // 影響・原因・予防・検出の引き当て元（同工程優先、なければ全工程から）
+      let basis = isCovered ? covered : null, bs = isCovered ? cs : 0;
+      if (!basis) {
+        DATA.PFMEA.forEach(r => {
+          let s = dice(g, grams(r.mode + ' ' + r.cause));
+          if (r.proc === proc) s += 0.12;
+          if (s > bs) { bs = s; basis = r; }
+        });
+        if (bs < 0.20) basis = null;
+      }
 
-/* ---- 検索結果 ---- */
-function pct(x) { return Math.round(x * 100); }
-
-function renderResult(q) {
-  const useTr = $('#scTr').checked, useFm = $('#scFm').checked, useEc = $('#scEc').checked;
-  const trs = useTr ? searchTroubles(q).slice(0, 5) : [];
-  const topProc = trs.length ? trs[0].rec.proc : '';
-  const fms = useFm ? searchPfmea(q, topProc).slice(0, 4) : [];
-  const ecs = useEc ? searchEcn(q).slice(0, 3) : [];
-
-  if (!trs.length && !fms.length && !ecs.length) {
-    $('#qResult').innerHTML = `
-      <div class="empty">
-        <h2 class="empty__title">該当する記録が見つかりませんでした</h2>
-        <div class="empty__body">
-          <p>追加で試せること:</p>
-          <ul>
-            <li>製品名を外して、現象だけで検索する</li>
-            <li>「異音」「リーク」「かみ込み」など、現象の表現を変える</li>
-            <li>検索範囲の工程FMEAと設計変更通知を有効にする</li>
-            <li>未登録の作業要領書・検査記録を取り込む（登録文書の画面を参照）</li>
-          </ul>
-        </div>
-      </div>`;
-    return;
-  }
-
-  const t0 = trs.length ? trs[0].rec : null;
-  const sameProc = t0 ? DATA.TROUBLES.filter(t => t.proc === t0.proc) : [];
-  const leaked = sameProc.filter(t => t.leak);
-
-  let concl = '';
-  if (t0) {
-    concl = `入力された事象に近い不具合記録が ${trs.length} 件見つかりました。最も近いのは `
-      + `<span class="mono">${esc(t0.id)}</span>（${esc(t0.date)}・${esc(t0.prod)}・${esc(procLabel(t0.proc))}）で、`
-      + `原因は「${esc(t0.cause)}」でした。`
-      + `同じ${esc(procLabel(t0.proc))}では過去に ${sameProc.length} 件が登録されており、`
-      + (leaked.length
-          ? `うち ${leaked.length} 件は顧客流出に至っています。出荷済み品の確認が必要かどうかを先に判断してください。`
-          : `顧客流出に至った記録はありません。`);
-  } else {
-    concl = `不具合記録では一致が見つかりませんでしたが、工程FMEAまたは設計変更通知に関連する内容があります。`;
-  }
-
-  const trTable = trs.length ? `
-    <div class="section">
-      <h2 class="section__title">類似する不具合記録</h2>
-      <p class="section__lead">関連度は入力された文章と記録内容の一致度です。順位は参考であり、採否は担当者が判断してください。</p>
-      <div class="table-wrap">
-        <table>
-          <caption class="visually-hidden">類似する不具合記録</caption>
-          <thead><tr>
-            <th scope="col">関連度</th><th scope="col">記録</th>
-            <th scope="col">現象</th><th scope="col">推定原因</th><th scope="col">根拠</th>
-          </tr></thead>
-          <tbody>${trs.map(x => `
-            <tr>
-              <td class="mono nowrap">${pct(x.score)}%</td>
-              <td class="nowrap">
-                <span class="mono">${esc(x.rec.id)}</span>
-                <div class="cell-sub mono">${esc(x.rec.date)}</div>
-                <div class="cell-sub">${esc(procLabel(x.rec.proc))}</div>
-                ${x.rec.leak ? '<div style="margin-top:var(--space-1)"><span class="status status--risk">流出あり</span></div>' : ''}
-              </td>
-              <td class="col-text">${esc(x.rec.sym)}</td>
-              <td class="col-text">${esc(x.rec.cause)}</td>
-              <td><button class="btn btn--quiet btn--small" data-tr="${esc(x.rec.id)}">根拠を確認する</button></td>
-            </tr>`).join('')}
-          </tbody>
-        </table>
-      </div>
-    </div>` : '';
-
-  const fmTable = fms.length ? `
-    <div class="section">
-      <h2 class="section__title">工程FMEAに登録済みの故障モード</h2>
-      <p class="section__lead">同じ工程の工程FMEAに、今回の事象に対応する故障モードが登録されているかを確認できます。登録済みであれば、予防・検出の手段が機能しなかった理由の調査に進めます。</p>
-      <div class="table-wrap">
-        <table>
-          <caption class="visually-hidden">関連する工程FMEAの行</caption>
-          <thead><tr>
-            <th scope="col">工程</th><th scope="col">故障モード</th><th scope="col">現行の予防</th>
-            <th scope="col">現行の検出</th><th scope="col">S・O・D</th><th scope="col">根拠</th>
-          </tr></thead>
-          <tbody>${fms.map(x => `
-            <tr>
-              <td class="nowrap">工程${esc(x.rec.proc)}<div class="cell-sub">${esc(PROC_BY_NO[x.rec.proc] ? PROC_BY_NO[x.rec.proc].name : '')}</div></td>
-              <td class="col-text">${esc(x.rec.mode)}</td>
-              <td class="col-text">${esc(x.rec.prev)}</td>
-              <td class="col-text">${esc(x.rec.det)}</td>
-              <td class="nowrap">
-                <span class="sod-badge${x.rec.s >= 8 ? ' sod-badge--hi' : ''}">S${x.rec.s}</span>
-                <span class="sod-badge">O${x.rec.o}</span>
-                <span class="sod-badge">D${x.rec.d}</span>
-              </td>
-              <td><button class="btn btn--quiet btn--small" data-fm="${esc(x.rec.proc)}|${esc(x.rec.mode)}">根拠を確認する</button></td>
-            </tr>`).join('')}
-          </tbody>
-        </table>
-      </div>
-    </div>` : '';
-
-  const ecTable = ecs.length ? `
-    <div class="section">
-      <h2 class="section__title">関連する設計変更通知</h2>
-      <p class="section__lead">同種の事象に対して、過去に設計変更で対応した記録です。今回も設計側の対応が必要かどうかの判断材料になります。</p>
-      <div class="table-wrap">
-        <table>
-          <caption class="visually-hidden">関連する設計変更通知</caption>
-          <thead><tr>
-            <th scope="col">通知番号</th><th scope="col">発行日</th><th scope="col">内容</th>
-            <th scope="col">発行理由</th><th scope="col">状態</th>
-          </tr></thead>
-          <tbody>${ecs.map(x => `
-            <tr>
-              <td class="mono">${esc(x.rec.no)}</td>
-              <td class="mono">${esc(x.rec.date)}</td>
-              <td>${esc(x.rec.title)}</td>
-              <td>${esc(x.rec.reason)}</td>
-              <td><span class="status status--${x.rec.status === '適用済み' ? 'done' : 'warn'}">${esc(x.rec.status)}</span></td>
-            </tr>`).join('')}
-          </tbody>
-        </table>
-      </div>
-    </div>` : '';
-
-  // 確認すべき項目（実データの恒久対策・予防手段から導出）
-  const checks = [];
-  if (t0) {
-    checks.push(`${procLabel(t0.proc)}で過去に実施した恒久対策「${t0.perm}」が、今回の対象ロットにも適用されているか`);
-    if (leaked.length) checks.push(`同工程で顧客流出の実績があるため、出荷済み品の範囲特定と顧客への連絡要否を先に判断する`);
-  }
-  fms.slice(0, 2).forEach(x => {
-    checks.push(`工程FMEAに登録済みの検出手段「${x.rec.det}」が今回機能しなかった理由（検出をすり抜けた条件）`);
+      const sameProcBasis = basis && basis.proc === proc;
+      rows.push({
+        key: `${proc}-${ri}-${di}`,
+        proc, req: rq, dev, mode,
+        eff: basis ? basis.eff : '要求事項を満たせないことによる影響を特定できていません',
+        cause: basis ? basis.cause : '',
+        prev: basis ? basis.prev : '',
+        det: basis ? basis.det : '',
+        s: basis ? basis.s : null, o: basis ? basis.o : null, d: basis ? basis.d : null,
+        basis, bs, sameProcBasis, isCovered,
+        state: isCovered ? 'covered' : 'new'
+      });
+    });
   });
-  if (t0 && DATA.TROUBLES.filter(t => t.proc === t0.proc && t.status !== '完了').length) {
-    checks.push(`同工程に恒久対策が未完了の記録が残っているため、今回の事象と同一原因かどうかの切り分け`);
-  }
-  checks.push(`作業要領書と検査記録が未登録のため、作業条件・測定値の実績はシステム外での確認が必要`);
+  return rows;
+}
 
-  $('#qResult').innerHTML = `
+/* 既存FMEA行の故障モード文から逸脱の型を推定する（具体的な語を先に判定する） */
+const DEV_HINTS = [
+  ['本数不足', '欠落'], ['欠落', '欠落'], ['同梱漏れ', '欠落'],
+  ['順序', '順序違い'], ['向き', '方向違い'], ['方向', '方向違い'],
+  ['芯ずれ', '位置違い'], ['位置', '位置違い'], ['段差', '位置違い'],
+  ['異機種', '部品違い'], ['異種', '部品違い'], ['品番', '部品違い'], ['誤使用', '部品違い'],
+  ['打痕', '破損'], ['割れ', '破損'], ['クラック', '破損'], ['破損', '破損'],
+  ['損傷', '破損'], ['かみ込み', '破損'], ['クラックが発生', '破損'],
+  ['ソリ', '変形'], ['変形', '変形'], ['ヒケ', '形状違い'], ['形状', '形状違い'],
+  ['はんだボール', '異物付着'], ['バリ', '異物付着'], ['異物', '異物付着'], ['付着', '異物付着'],
+  ['判定が', '誤判定'], ['判定を', '誤判定'], ['誤判定', '誤判定'],
+  ['基準値', '条件違い'], ['校正切れ', '検査漏れ'], ['確認が漏れ', '検査漏れ'], ['検査漏れ', '検査漏れ'],
+  ['プロファイル', '条件違い'], ['温度', '条件違い'], ['条件', '条件違い'],
+  ['半嵌合', '一部未実施'], ['一部', '一部未実施'],
+  ['ばらつき', 'ばらつき'], ['超過', '過剰'], ['過多', '過剰'], ['過剰', '過剰'],
+  ['不足', '不足'], ['規格外', 'ばらつき'], ['上限', '過剰'], ['下限', '不足']
+];
+function inferDev(text) {
+  const t = String(text || '');
+  for (const [k, d] of DEV_HINTS) if (t.includes(k)) return d;
+  return null;
+}
+
+/* 抜け漏れ候補
+   「他工程では登録されている逸脱の型が、本工程でも成立し得るのに未登録」を探す。
+   文章の類似ではなく逸脱の型で判定するため、工程をまたいだ観点の抜けを拾える。
+   （先方の「その工程の不具合が、その工程にしか入らない」という課題に対応する考え方） */
+function gapCandidates(proc, rows) {
+  const reqs = DATA.PROC_REQS[proc] || [];
+  // 本工程の要求事項に対して成立し得る逸脱の型
+  const plausible = new Map();
+  reqs.forEach(rq => (rq.devs || []).forEach(d => { if (!plausible.has(d)) plausible.set(d, rq); }));
+  // 本工程で既にカバーされている型（既存FMEA行＋今回生成して登録済み判定になった行）
+  const covered = new Set();
+  DATA.PFMEA.filter(r => r.proc === proc).forEach(r => {
+    const d = inferDev(r.mode);
+    if (d) covered.add(d);
+  });
+  rows.forEach(r => { if (r.state === 'covered') covered.add(r.dev); });
+
+  // 型ごとに、他工程の登録行のうち最も影響度が高いものを代表として出す
+  const best = new Map();
+  DATA.PFMEA.filter(r => r.proc !== proc).forEach(r => {
+    const d = inferDev(r.mode);
+    if (!d || !plausible.has(d) || covered.has(d)) return;
+    const cur = best.get(d);
+    if (!cur || r.s > cur.rec.s) best.set(d, { rec: r, dev: d, relReq: plausible.get(d) });
+  });
+  return Array.from(best.values()).sort((a, b) => b.rec.s - a.rec.s).slice(0, 4);
+}
+
+/* ---- 状態 ---- */
+let curProc = '', curRows = [], curGaps = [], draft = [];
+
+/* ---- 描画 ---- */
+function sodCell(r) {
+  if (r.s == null) {
+    return `<span class="status status--todo">未評価</span>
+      <div class="cell-sub">評価の根拠となる類似行がありません</div>`;
+  }
+  return `<span class="sod-badge${r.s >= 8 ? ' sod-badge--hi' : ''}">S${r.s}</span>
+    <span class="sod-badge">O${r.o}</span>
+    <span class="sod-badge">D${r.d}</span>
+    <div class="cell-sub">AI候補・要確認</div>`;
+}
+
+function renderResult() {
+  const p = PROC_BY_NO[curProc];
+  const reqs = DATA.PROC_REQS[curProc] || [];
+  const newRows = curRows.filter(r => r.state === 'new');
+  const coveredRows = curRows.filter(r => r.state === 'covered');
+  const docs = Array.from(new Set(reqs.map(r => r.src)));
+  const trs = DATA.TROUBLES.filter(t => t.proc === curProc);
+  const aiReqs = reqs.filter(r => r.conf === 'ai');
+  const wide = document.querySelector('input[name="genMode"]:checked').value === 'wide';
+
+  const summary = `
     <div class="card" style="border-left:4px solid var(--color-primary)">
       <div style="display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap;margin-bottom:var(--space-3)">
-        <span class="status status--ai">AIによる整理結果</span>
-        <span class="cell-sub">生成 ${today()}　／　検索対象 ${DATA.TROUBLE_TOTAL.toLocaleString()}件の不具合記録・${DATA.PFMEA_TOTAL.toLocaleString()}行の工程FMEA・${DATA.ECNS.length}件の設計変更通知</span>
+        <span class="status status--done">生成完了</span>
+        <span class="cell-sub">対象工程 ${esc(procLabel(curProc))}　／　生成 ${today()}</span>
       </div>
-      <h2 style="font-size:var(--font-subsection-title);margin-bottom:var(--space-2)">確認結果</h2>
-      <p style="line-height:var(--line-height-body)">${concl}</p>
-    </div>
+      <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:var(--space-4);margin-bottom:var(--space-4)">
+        <div><p class="kpi__label">整理した機能</p><p class="kpi__value" style="font-size:var(--font-section-title)">1<span class="kpi__unit"> 件</span></p></div>
+        <div><p class="kpi__label">抽出した要求事項</p><p class="kpi__value" style="font-size:var(--font-section-title)">${reqs.length}<span class="kpi__unit"> 件</span></p><p class="kpi__note">参照文書 ${docs.length} 件</p></div>
+        <div><p class="kpi__label">生成した故障モード</p><p class="kpi__value" style="font-size:var(--font-section-title)">${newRows.length}<span class="kpi__unit"> 件</span></p><p class="kpi__note">既に登録済み ${coveredRows.length} 件</p></div>
+      </div>
+      <p style="line-height:var(--line-height-body)">
+        ${esc(procLabel(curProc))}について、工程フローから機能を整理し、${esc(docs.join('・'))}から要求事項を抽出しました。
+        要求事項を満たせない状態を逸脱として展開し、製造FMEAの故障モード候補を生成しています。
+        ${aiReqs.length ? `うち ${aiReqs.length} 件の要求事項は資料に明記がなく、AIによる推定です。` : ''}
+      </p>
+    </div>`;
 
-    ${trTable}${fmTable}${ecTable}
-
+  const funcSec = `
     <div class="section">
-      <h2 class="section__title">今回確認すべき項目</h2>
-      <p class="section__lead">過去の対策内容と工程FMEAの記載から導いた確認項目です。AIによる提案であり、実施の判断は担当者が行います。</p>
-      <div class="card">
-        <ol style="margin:0;padding-left:1.3em;line-height:var(--line-height-body)">
-          ${checks.map(c => `<li style="margin-bottom:var(--space-2)">${esc(c)}</li>`).join('')}
-        </ol>
+      <h2 class="section__title">① 工程フローから機能・作業を整理</h2>
+      <p class="section__lead">工程が果たすべき機能を、対象物・動作・達成すべき状態の形で整理しています。</p>
+      <div class="table-wrap">
+        <table>
+          <caption class="visually-hidden">工程の機能</caption>
+          <thead><tr>
+            <th scope="col">工程</th><th scope="col">工程の機能</th><th scope="col">前工程 ／ 後工程</th>
+            <th scope="col">特性記号</th><th scope="col">出典</th>
+          </tr></thead>
+          <tbody><tr>
+            <td class="nowrap">工程${esc(curProc)}<div class="cell-sub">${esc(p.name)}</div></td>
+            <td class="col-text">${esc(p.func)}</td>
+            <td class="nowrap cell-sub">${esc(neighbor(curProc, -1))}<br>${esc(neighbor(curProc, 1))}</td>
+            <td class="nowrap">${p.mark ? `${esc(p.mark)}<div class="cell-sub">${esc(DATA.MARK_LEGEND[p.mark])}</div>` : '<span class="cell-empty">—</span>'}</td>
+            <td class="nowrap"><button class="btn btn--quiet btn--small" data-ev="flow">根拠資料を確認する</button></td>
+          </tr></tbody>
+        </table>
+      </div>
+    </div>`;
+
+  const reqSec = `
+    <div class="section">
+      <h2 class="section__title">② 図面・条件表・作業標準から要求事項を抽出</h2>
+      <p class="section__lead">工程が満たすべき「あるべき状態」です。資料に明記のない項目はAIによる推定として区別しています。推定した数値を確定した規格値として扱わないでください。</p>
+      <div class="table-wrap">
+        <table>
+          <caption class="visually-hidden">抽出した要求事項</caption>
+          <thead><tr>
+            <th scope="col">要求事項</th><th scope="col">規格値・条件</th>
+            <th scope="col">出典</th><th scope="col">確度</th><th scope="col">根拠</th>
+          </tr></thead>
+          <tbody>${reqs.map((r, i) => `
+            <tr>
+              <td class="col-text">${esc(r.req)}</td>
+              <td class="nowrap mono">${esc(r.spec)}</td>
+              <td class="col-text cell-sub">${esc(r.src)}<br>${esc(r.loc)}</td>
+              <td class="nowrap">${r.conf === 'doc'
+                ? '<span class="status status--done">資料に明記</span>'
+                : '<span class="status status--ai">AI推定・要確認</span>'}</td>
+              <td><button class="btn btn--quiet btn--small" data-ev="req:${i}">根拠資料を確認する</button></td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+
+  const modeSec = `
+    <div class="section">
+      <h2 class="section__title">③ 要求事項からの逸脱として故障モードを生成</h2>
+      <p class="section__lead">要求事項を満たせない具体的な状態を故障モードとしています。原因・影響とは区別しています。影響とS・O・Dは既存の工程FMEA行から引き当てた候補で、確定は担当者が行います。</p>
+      <div class="table-meta">新規候補 ${newRows.length} 件　／　既に登録済み ${coveredRows.length} 件　／　${esc(DATA.SOD_CRITERIA.doc)} に照らした候補値</div>
+      <div class="table-wrap">
+        <table>
+          <caption class="visually-hidden">生成した故障モード</caption>
+          <thead><tr>
+            <th scope="col">要求事項</th><th scope="col">逸脱の型</th><th scope="col">故障モード</th>
+            <th scope="col">故障影響</th><th scope="col">S・O・D候補</th>
+            <th scope="col">状態</th><th scope="col">操作</th>
+          </tr></thead>
+          <tbody>${curRows.map(r => `
+            <tr>
+              <td class="col-text cell-sub">${esc(r.req.req)}</td>
+              <td class="nowrap"><span class="libchip">${esc(r.dev)}</span></td>
+              <td class="col-text"><strong>${esc(r.mode)}</strong></td>
+              <td class="col-text">${esc(r.eff)}</td>
+              <td class="nowrap">${sodCell(r)}</td>
+              <td class="nowrap">${r.state === 'covered'
+                ? '<span class="status status--done">既に登録済み</span>'
+                : '<span class="status status--ai">AI提案</span>'}</td>
+              <td class="nowrap">
+                <button class="btn btn--quiet btn--small" data-ev="row:${esc(r.key)}">根拠資料を確認する</button>
+                ${r.state === 'new' ? `<button class="btn btn--quiet btn--small" data-adopt="${esc(r.key)}">ドラフトへ採用</button>` : ''}
+              </td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+
+  const gapSec = (wide && curGaps.length) ? `
+    <div class="section">
+      <h2 class="section__title">さらに、類似工程の実績から確認すべき候補</h2>
+      <p class="section__lead">他の工程では登録されている逸脱の型のうち、本工程の要求事項でも成立し得るのに登録がないものです。工程をまたいだ観点の抜けを拾うための候補で、採否は担当者が判断してください。</p>
+      <div class="table-wrap">
+        <table>
+          <caption class="visually-hidden">類似工程からの抜け漏れ候補</caption>
+          <thead><tr>
+            <th scope="col">逸脱の型</th><th scope="col">故障モード候補</th><th scope="col">想定される影響</th>
+            <th scope="col">出典の工程</th><th scope="col">本工程で確認すべき理由</th><th scope="col">操作</th>
+          </tr></thead>
+          <tbody>${curGaps.map((g, i) => `
+            <tr>
+              <td class="nowrap"><span class="libchip">${esc(g.dev)}</span></td>
+              <td class="col-text"><strong>${esc(g.rec.mode)}</strong></td>
+              <td class="col-text">${esc(g.rec.eff)}</td>
+              <td class="nowrap">工程${esc(g.rec.proc)}<div class="cell-sub">${esc(PROC_BY_NO[g.rec.proc].name)}</div></td>
+              <td class="col-text cell-sub">本工程の要求事項「${esc(g.relReq.req)}」にも「${esc(g.dev)}」が成立し得ますが、本工程には同じ型の登録がありません</td>
+              <td class="nowrap">
+                <button class="btn btn--quiet btn--small" data-ev="gap:${i}">根拠資料を確認する</button>
+                <button class="btn btn--quiet btn--small" data-gapadopt="${i}">ドラフトへ採用</button>
+                <button class="btn btn--quiet btn--small" data-gaphold="${i}">保留</button>
+              </td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>` : (wide ? `
+    <div class="section">
+      <h2 class="section__title">さらに、類似工程の実績から確認すべき候補</h2>
+      <div class="empty">
+        <h3 class="empty__title">追加の故障モード候補は見つかりませんでした</h3>
+        <div class="empty__body">
+          <p>現在の参照情報では、他工程の実績から本工程へ展開すべき候補はありません。範囲を広げる場合は、次を試せます。</p>
+          <ul>
+            <li>参照範囲に他機種（ACT-210／ACT-230）の工程FMEAを追加する</li>
+            <li>過去不具合の記録を対象期間を広げて再検索する</li>
+          </ul>
+        </div>
+      </div>
+    </div>` : '');
+
+  const draftSec = `
+    <div class="section">
+      <h2 class="section__title">製造FMEAドラフト</h2>
+      <p class="section__lead">採用した内容を製造FMEAドラフトとしてまとめています。行の状態はすべて未確定です。担当者の確認後に確定してください。</p>
+      <div class="table-meta" id="draftMeta"></div>
+      <div id="draftArea"></div>
+      <div style="display:flex;gap:var(--space-3);margin-top:var(--space-4);flex-wrap:wrap">
+        <button class="btn btn--primary" id="btnDraftCsv">製造FMEAドラフトをExcelで出力する</button>
+        <button class="btn btn--secondary" id="btnReview">レビューを依頼する</button>
       </div>
     </div>
 
     <div class="callout callout--warn">
       <div>
         <p class="callout__title">この結果を使うときの注意</p>
-        <p>関連度は文章の一致度による並び替えであり、原因の断定ではありません。作業要領書・検査記録が未登録のため、作業条件まで遡った確認はシステム外で行う必要があります。最終的な原因の特定と対策の決定は担当者が行ってください。</p>
+        <p>S・O・Dは ${esc(DATA.SOD_CRITERIA.doc)} に照らした候補値で、既存の工程FMEA行から引き当てています。引き当て元がない行は「未評価」としており、AIが点数を作ることはしません。要求事項のうち資料に明記のない項目はAI推定として区別しています。最終的な採否と評価の確定は担当者が行ってください。</p>
       </div>
+    </div>`;
+
+  $('#genResult').innerHTML = summary + funcSec + reqSec + modeSec + gapSec + draftSec;
+  renderDraft();
+  $('#btnDraftCsv').addEventListener('click', exportDraft);
+  $('#btnReview').addEventListener('click', () => {
+    if (!draft.length) { toast('採用された行がありません', 'ドラフトへ採用した行がないため、レビュー依頼は送れません。', 'warn'); return; }
+    toast('レビュー依頼を作成しました', `${draft.length} 行のドラフトについて、生産技術部の承認者へレビュー依頼を作成しました。`);
+  });
+}
+
+function neighbor(no, delta) {
+  const i = DATA.PROCESSES.findIndex(p => p.no === no) + delta;
+  const p = DATA.PROCESSES[i];
+  return (delta < 0 ? '前工程：' : '後工程：') + (p ? `工程${p.no} ${p.name}` : 'なし');
+}
+
+function renderDraft() {
+  const meta = $('#draftMeta'), area = $('#draftArea');
+  if (!meta) return;
+  meta.innerHTML = `採用 <strong>${draft.length} 行</strong>　／　状態はすべて未確定（担当者の確認が必要）`;
+  if (!draft.length) {
+    area.innerHTML = `
+      <div class="empty">
+        <h3 class="empty__title">まだ採用された行がありません</h3>
+        <div class="empty__body">
+          <p>上の「③ 要求事項からの逸脱として故障モードを生成」または「類似工程の実績から確認すべき候補」で、「ドラフトへ採用」を押した行がここに集まります。</p>
+        </div>
+      </div>`;
+    return;
+  }
+  area.innerHTML = `
+    <div class="table-wrap">
+      <table>
+        <caption class="visually-hidden">製造FMEAドラフト</caption>
+        <thead><tr>
+          <th scope="col">工程</th><th scope="col">要求事項</th><th scope="col">故障モード</th>
+          <th scope="col">故障影響</th><th scope="col">S・O・D</th>
+          <th scope="col">区分</th><th scope="col">状態</th><th scope="col">操作</th>
+        </tr></thead>
+        <tbody>${draft.map((d, i) => `
+          <tr>
+            <td class="nowrap">工程${esc(d.proc)}</td>
+            <td class="col-text cell-sub">${esc(d.req)}</td>
+            <td class="col-text"><strong>${esc(d.mode)}</strong></td>
+            <td class="col-text">${esc(d.eff)}</td>
+            <td class="nowrap">${d.s == null
+              ? '<span class="status status--todo">未評価</span>'
+              : `<span class="sod-badge${d.s >= 8 ? ' sod-badge--hi' : ''}">S${d.s}</span><span class="sod-badge">O${d.o}</span><span class="sod-badge">D${d.d}</span>`}</td>
+            <td class="nowrap"><span class="status status--ai">${esc(d.src)}</span></td>
+            <td class="nowrap"><span class="status status--todo">未確定</span></td>
+            <td class="nowrap"><button class="btn btn--quiet btn--small" data-drop="${i}">この行を削除する</button></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
     </div>`;
 }
 
-/* ---- 根拠パネル ---- */
-function openTroublePanel(id) {
-  const t = TR_BY_ID[id];
-  if (!t) return;
-  const related = DATA.PFMEA.filter(r => r.src === id);
-  const ecn = DATA.ECNS.filter(e => e.src === id);
-  openPanel('根拠資料：不具合記録 ' + t.id, `
-    <dl class="meta-list">
-      <dt>管理番号</dt><dd class="mono">${esc(t.id)}</dd>
-      <dt>発生日</dt><dd class="mono">${esc(t.date)}</dd>
-      <dt>製品・発生工程</dt><dd>${esc(t.prod)}　／　${esc(procLabel(t.proc))}</dd>
-      <dt>対象部位</dt><dd>${esc(t.part)}</dd>
-      <dt>影響度S ／ 発生度O ／ 検出度D</dt><dd class="mono">S${t.s}　O${t.o}　D${t.d}</dd>
-      <dt>担当 ／ 状態</dt><dd>${esc(t.owner)}　／　${esc(t.status)}${t.leak ? '　／　顧客流出あり' : ''}</dd>
-      <dt>関連する設計審査</dt><dd>${esc(t.dr)}</dd>
-    </dl>
-    <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">記録原文</h3>
-    <div class="quote">
-      <p><strong>発生事象</strong><br>${esc(t.sym)}</p>
-      <p style="margin-top:var(--space-3)"><strong>原因</strong><br>${esc(t.cause)}</p>
-      <p style="margin-top:var(--space-3)"><strong>暫定対策</strong><br>${esc(t.tmp)}</p>
-      <p style="margin-top:var(--space-3)"><strong>恒久対策</strong><br>${esc(t.perm)}</p>
-    </div>
-    ${related.length ? `
-      <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">この記録を出典とする工程FMEAの行</h3>
-      <ul style="margin:0;padding-left:1.2em;line-height:var(--line-height-body)">
-        ${related.map(r => `<li>${esc(procLabel(r.proc))}：${esc(r.mode)}</li>`).join('')}
-      </ul>` : ''}
-    ${ecn.length ? `
-      <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">この記録を理由とする設計変更</h3>
-      <ul style="margin:0;padding-left:1.2em;line-height:var(--line-height-body)">
-        ${ecn.map(e => `<li><span class="mono">${esc(e.no)}</span>　${esc(e.title)}</li>`).join('')}
-      </ul>` : ''}
-    <p style="margin-top:var(--space-5);font-size:var(--font-caption);color:var(--color-text-secondary)">出典：不具合記録データベース（架空データ）。原本の記載をそのまま表示しています。</p>`);
+function exportDraft() {
+  if (!draft.length) {
+    toast('出力できる行がありません', 'ドラフトへ採用した行がないため、出力する内容がありません。', 'warn');
+    return;
+  }
+  downloadCsv(`製造FMEAドラフト_工程${curProc}_${today()}.csv`, [
+    ['工程番号', '工程名', '工程機能', '要求事項', '規格値・条件', '逸脱の型', '故障モード', '故障影響',
+     '重大度S', '故障原因', '発生度O', '現在の予防管理', '現在の検出管理', '検出度D', 'RPN',
+     '推奨対応', '担当者', '参照資料', 'AI提案／人による確定の区分', '確認状態'],
+    ...draft.map(d => [
+      d.proc, PROC_BY_NO[d.proc].name, PROC_BY_NO[d.proc].func, d.req, d.spec || '', d.dev, d.mode, d.eff,
+      d.s == null ? '未評価' : d.s, d.cause || '', d.o == null ? '未評価' : d.o,
+      d.prev || '', d.det || '', d.d == null ? '未評価' : d.d,
+      (d.s != null ? d.s * d.o * d.d : '未評価'),
+      '', '', d.ref || '', d.src, '未確定'
+    ])
+  ]);
+  toast('製造FMEAドラフトを出力しました', `${draft.length} 行を20列の様式で出力しました。AI提案と人による確定の区分を列に含めています。`);
 }
 
-function openFmeaPanel(key) {
-  const [proc, mode] = key.split('|');
-  const r = DATA.PFMEA.find(x => x.proc === proc && x.mode === mode);
-  if (!r) return;
-  const p = PROC_BY_NO[proc];
-  const src = r.src ? TR_BY_ID[r.src] : null;
-  openPanel('根拠資料：工程FMEA ' + procLabel(proc), `
+/* ---- 根拠パネル ---- */
+function evFlow() {
+  const p = PROC_BY_NO[curProc];
+  openPanel('根拠資料：工程フロー', `
     <dl class="meta-list">
-      <dt>工程</dt><dd>${esc(procLabel(proc))}${p && p.mark ? `　／　特性記号 ${esc(p.mark)}（${esc(DATA.MARK_LEGEND[p.mark] || '')}）` : ''}</dd>
-      <dt>工程の機能</dt><dd>${esc(p ? p.func : '—')}</dd>
-      <dt>要求事項</dt><dd>${esc(p ? p.req : '—')}</dd>
+      <dt>文書名</dt><dd>工程フロー ACT-220 第一工場 組立ライン</dd>
+      <dt>文書種別</dt><dd>工程フローチャート</dd>
+      <dt>該当箇所</dt><dd>工程${esc(curProc)} の行</dd>
     </dl>
-    <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">工程FMEAの記載</h3>
+    <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">該当箇所の記載</h3>
     <div class="quote">
-      <p><strong>故障モード</strong><br>${esc(r.mode)}</p>
+      <p><strong>工程番号</strong>　${esc(curProc)}</p>
+      <p style="margin-top:var(--space-2)"><strong>工程名</strong>　${esc(p.name)}</p>
+      <p style="margin-top:var(--space-2)"><strong>作業内容・機能</strong>　<mark>${esc(p.func)}</mark></p>
+      <p style="margin-top:var(--space-2)"><strong>要求事項の記載</strong>　${esc(p.req)}</p>
+      <p style="margin-top:var(--space-2)"><strong>特性記号</strong>　${esc(p.mark || 'なし')}</p>
+    </div>
+    <p style="margin-top:var(--space-4);font-size:var(--font-caption);color:var(--color-text-secondary)">この情報を根拠とした理由：工程の機能は工程フローの作業内容欄から整理しています。工程FMEAの起点を工程に固定するため、機能の出典は必ず工程フローとしています。</p>`);
+}
+
+function evReq(i) {
+  const r = (DATA.PROC_REQS[curProc] || [])[i];
+  if (!r) return;
+  openPanel('根拠資料：' + r.src, `
+    <dl class="meta-list">
+      <dt>文書名</dt><dd>${esc(r.src)}</dd>
+      <dt>該当箇所</dt><dd>${esc(r.loc)}</dd>
+      <dt>工程</dt><dd>${esc(procLabel(curProc))}</dd>
+      <dt>情報の確度</dt><dd>${r.conf === 'doc' ? '資料に明記された内容' : 'AIによる推定（担当者による確認が必要）'}</dd>
+    </dl>
+    <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">該当箇所の記載</h3>
+    <div class="quote">
+      <p><strong>要求事項</strong><br>${esc(r.req)}</p>
+      <p style="margin-top:var(--space-3)"><strong>規格値・条件</strong><br><mark>${esc(r.spec)}</mark></p>
+    </div>
+    ${r.conf === 'ai' ? `
+      <div class="callout callout--warn" style="margin-top:var(--space-4)">
+        <div>
+          <p class="callout__title">この要求事項は資料で確認できていません</p>
+          <p>類似工程の記載と部品表からAIが推定した内容です。規格値は未確認として扱ってください。確認先：条件表または品質基準の原本。</p>
+        </div>
+      </div>` : `
+      <p style="margin-top:var(--space-4);font-size:var(--font-caption);color:var(--color-text-secondary)">この情報を根拠とした理由：${esc(r.src)} の ${esc(r.loc)} に規格値が明記されているため、確定した要求事項として扱っています。</p>`}`);
+}
+
+function evRow(key) {
+  const r = curRows.find(x => x.key === key);
+  if (!r) return;
+  const b = r.basis;
+  openPanel('根拠資料：' + r.mode, `
+    <dl class="meta-list">
+      <dt>工程</dt><dd>${esc(procLabel(r.proc))}</dd>
+      <dt>導出の連鎖</dt><dd>工程 → 機能 → 要求事項 → 逸脱 → 故障モード</dd>
+    </dl>
+    <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">この故障モードを導いた過程</h3>
+    <div class="quote">
+      <p><strong>工程の機能</strong><br>${esc(PROC_BY_NO[r.proc].func)}</p>
+      <p style="margin-top:var(--space-3)"><strong>要求事項</strong><br>${esc(r.req.req)}（${esc(r.req.spec)}）<br>
+        <span class="cell-sub">出典：${esc(r.req.src)}　${esc(r.req.loc)}</span></p>
+      <p style="margin-top:var(--space-3)"><strong>逸脱の型</strong><br>${esc(r.dev)}</p>
+      <p style="margin-top:var(--space-3)"><strong>故障モード</strong><br><mark>${esc(r.mode)}</mark></p>
+    </div>
+    ${b ? `
+      <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">影響・原因・管理の引き当て元</h3>
+      <p class="cell-sub" style="margin-bottom:var(--space-2)">
+        ${r.sameProcBasis ? '同工程' : '類似工程'}の既存FMEA行（${esc(procLabel(b.proc))}）から引き当てています。関連度 ${Math.round(r.bs * 100)}%。
+      </p>
+      <div class="quote">
+        <p><strong>故障影響</strong><br>${esc(b.eff)}</p>
+        <p style="margin-top:var(--space-3)"><strong>原因</strong><br>${esc(b.cause)}</p>
+        <p style="margin-top:var(--space-3)"><strong>現行の予防</strong><br>${esc(b.prev)}</p>
+        <p style="margin-top:var(--space-3)"><strong>現行の検出</strong><br>${esc(b.det)}</p>
+      </div>
+      <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">S・O・D候補の根拠</h3>
+      <dl class="meta-list">
+        <dt>重大度S：${b.s}（AI候補）</dt><dd>${esc(critLabel('s', b.s))}</dd>
+        <dt>発生度O：${b.o}（AI候補）</dt><dd>${esc(critLabel('o', b.o))}</dd>
+        <dt>検出度D：${b.d}（AI候補）</dt><dd>${esc(critLabel('d', b.d))}</dd>
+      </dl>
+      <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)">判定基準：${esc(DATA.SOD_CRITERIA.doc)}。引き当て元の行と同じ影響区分と仮定した候補値です。担当者による確認が必要です。</p>
+      ${b.src && TR_BY_ID[b.src] ? `
+        <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">引き当て元の登録契機となった不具合</h3>
+        <p><span class="mono">${esc(b.src)}</span>（${esc(TR_BY_ID[b.src].date)}）${esc(TR_BY_ID[b.src].sym)}</p>` : ''}
+    ` : `
+      <div class="callout callout--warn" style="margin-top:var(--space-4)">
+        <div>
+          <p class="callout__title">明示的な参照資料が見つかりませんでした</p>
+          <p>工程フローと要求事項から生成した候補です。既存の工程FMEAに同種の行がないため、故障影響とS・O・Dは提示していません。担当者による確認が必要です。</p>
+        </div>
+      </div>`}`);
+}
+
+function evGap(i) {
+  const g = curGaps[i];
+  if (!g) return;
+  const r = g.rec;
+  openPanel('根拠資料：' + r.mode, `
+    <dl class="meta-list">
+      <dt>出典</dt><dd>既存の工程FMEA　${esc(procLabel(r.proc))}</dd>
+      <dt>逸脱の型</dt><dd>${esc(g.dev)}</dd>
+      <dt>本工程での登録状況</dt><dd>この型の故障モードは本工程に登録がありません</dd>
+    </dl>
+    <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">出典の記載</h3>
+    <div class="quote">
+      <p><strong>故障モード</strong><br><mark>${esc(r.mode)}</mark></p>
       <p style="margin-top:var(--space-3)"><strong>影響</strong><br>${esc(r.eff)}</p>
       <p style="margin-top:var(--space-3)"><strong>原因</strong><br>${esc(r.cause)}</p>
-      <p style="margin-top:var(--space-3)"><strong>現行の予防</strong><br>${esc(r.prev)}</p>
-      <p style="margin-top:var(--space-3)"><strong>現行の検出</strong><br>${esc(r.det)}</p>
+      <p style="margin-top:var(--space-3)"><strong>現行の予防 ／ 検出</strong><br>${esc(r.prev)} ／ ${esc(r.det)}</p>
       <p style="margin-top:var(--space-3)"><strong>評価</strong><br><span class="mono">S${r.s}　O${r.o}　D${r.d}　RPN ${r.s * r.o * r.d}</span></p>
     </div>
-    ${src ? `
-      <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">この行の登録契機となった不具合</h3>
-      <p><span class="mono">${esc(src.id)}</span>（${esc(src.date)}）${esc(src.sym)}</p>
-      <p style="margin-top:var(--space-2)"><button class="btn btn--quiet btn--small" data-tr="${esc(src.id)}">この不具合記録を確認する</button></p>` : `
-      <p style="margin-top:var(--space-5);font-size:var(--font-caption);color:var(--color-text-secondary)">この行に紐づく不具合記録はありません。過去の設計知見または類似機種からの流用で登録された行です。</p>`}
-    <p style="margin-top:var(--space-5);font-size:var(--font-caption);color:var(--color-text-secondary)">出典：工程FMEA ACT-220（架空データ）。</p>`);
+    <p style="margin-top:var(--space-4);font-size:var(--font-caption);color:var(--color-text-secondary)">確認すべきと判断した理由：本工程の要求事項「${esc(g.relReq.req)}」に対しても「${esc(g.dev)}」の逸脱が成立し得るのに、本工程の工程FMEAには同じ型の行がありません。実際に成立するかどうかは担当者が判断してください。</p>`);
 }
 
-/* ---- 不具合記録一覧 ---- */
-function renderList() {
-  const prod = $('#fProd').value, proc = $('#fProc').value,
-        stat = $('#fStat').value, leak = $('#fLeak').value;
-  const rows = DATA.TROUBLES.filter(t =>
-    (!prod || t.prod === prod) && (!proc || t.proc === proc) &&
-    (!stat || t.status === stat) && (!leak || String(t.leak ? 1 : 0) === leak));
+/* ---- 工程フロー画面 ---- */
+function renderFlow() {
+  $('#flowMeta').textContent =
+    `全 ${DATA.PROCESSES.length} 工程　／　要求事項 ${Object.values(DATA.PROC_REQS).reduce((a, b) => a + b.length, 0)} 件を抽出済み`;
+  $('#flowBody').innerHTML = DATA.PROCESSES.map(p => {
+    const reqs = (DATA.PROC_REQS[p.no] || []).length;
+    const fm = DATA.PFMEA.filter(r => r.proc === p.no).length;
+    const tr = DATA.TROUBLES.filter(t => t.proc === p.no).length;
+    return `<tr>
+      <td class="nowrap">工程${esc(p.no)}<div class="cell-sub">${esc(p.name)}</div></td>
+      <td class="col-text">${esc(p.func)}</td>
+      <td class="nowrap">${p.mark ? esc(p.mark) : '<span class="cell-empty">—</span>'}</td>
+      <td class="nowrap mono">${reqs} 件</td>
+      <td class="nowrap mono">${fm} 行</td>
+      <td class="nowrap mono">${tr ? tr + ' 件' : '—'}</td>
+      <td class="nowrap"><button class="btn btn--quiet btn--small" data-pick="${esc(p.no)}">この工程でドラフトを生成する</button></td>
+    </tr>`;
+  }).join('');
+}
 
-  const filtered = [prod && `製品=${prod}`, proc && `工程=${proc}`, stat && `状態=${stat}`,
-                    leak && `流出=${leak === '1' ? 'あり' : 'なし'}`].filter(Boolean);
-  $('#listMeta').innerHTML = `全 ${DATA.TROUBLES.length} 件中 <strong>${rows.length} 件</strong>を表示`
-    + (filtered.length ? `　／　絞り込み中：${esc(filtered.join('、'))}` : '');
-  $('#listEmpty').hidden = rows.length > 0;
-  $('#listBody').closest('.table-wrap').hidden = rows.length === 0;
-  $('#listBody').innerHTML = rows.map(t => `
+/* ---- 既存FMEA画面 ---- */
+function renderExisting() {
+  const f = $('#exProc').value;
+  const rows = DATA.PFMEA.filter(r => !f || r.proc === f);
+  $('#exMeta').innerHTML = `全 ${DATA.PFMEA_TOTAL.toLocaleString()} 行のうち ACT-220 の ${DATA.PFMEA.length} 行を登録　／　`
+    + `<strong>${rows.length} 行</strong>を表示` + (f ? `　／　絞り込み中：${esc(procLabel(f))}` : '');
+  $('#exBody').innerHTML = rows.map(r => `
     <tr>
-      <td class="mono nowrap">${esc(t.id)}</td>
-      <td class="mono nowrap">${esc(t.date)}</td>
-      <td class="nowrap">${esc(t.prod)}</td>
-      <td class="nowrap">工程${esc(t.proc)}<div class="cell-sub">${esc(PROC_BY_NO[t.proc] ? PROC_BY_NO[t.proc].name : '')}</div></td>
-      <td class="col-text">${esc(t.sym)}${t.leak ? '<div class="cell-sub" style="color:var(--color-error)">顧客流出あり</div>' : ''}</td>
-      <td class="nowrap"><span class="sod-badge${t.s >= 8 ? ' sod-badge--hi' : ''}">${t.s}</span></td>
-      <td class="nowrap"><span class="sod-badge">${t.o}</span></td>
-      <td class="nowrap"><span class="sod-badge">${t.d}</span></td>
-      <td><span class="status status--${t.status === '完了' ? 'done' : t.status === '対応中' ? 'warn' : 'todo'}">${esc(t.status)}</span></td>
-      <td><button class="btn btn--quiet btn--small" data-tr="${esc(t.id)}">記録を確認する</button></td>
+      <td class="nowrap">工程${esc(r.proc)}<div class="cell-sub">${esc(PROC_BY_NO[r.proc].name)}</div></td>
+      <td class="col-text">${esc(r.mode)}</td>
+      <td class="col-text">${esc(r.eff)}</td>
+      <td class="col-text">${esc(r.prev)}</td>
+      <td class="col-text">${esc(r.det)}</td>
+      <td class="nowrap"><span class="sod-badge${r.s >= 8 ? ' sod-badge--hi' : ''}">S${r.s}</span><span class="sod-badge">O${r.o}</span><span class="sod-badge">D${r.d}</span></td>
+      <td class="nowrap mono">${r.s * r.o * r.d}</td>
+      <td class="nowrap">${r.src ? `<button class="btn btn--quiet btn--small" data-extr="${esc(r.src)}">不具合記録を確認する</button>` : '<span class="cell-empty">—</span>'}</td>
     </tr>`).join('');
   return rows;
 }
 
-/* ---- 登録文書 ---- */
+/* ---- 参照文書画面 ---- */
 function renderDocs() {
-  const docs = [
-    { doc: '不具合記録データベース', kind: '社内システム抽出', n: `${DATA.TROUBLE_TOTAL.toLocaleString()} 件`, at: '2026-08-01', st: 'done', stTxt: '解析完了' },
-    { doc: '工程FMEA（ACT-210／220／230／SNS-100）', kind: '様式1', n: `${DATA.PFMEA_TOTAL.toLocaleString()} 行`, at: '2026-08-01', st: 'done', stTxt: '解析完了' },
-    { doc: '設計変更通知（ECN）', kind: '変更管理帳票', n: `${DATA.ECNS.length} 件`, at: '2026-08-01', st: 'done', stTxt: '解析完了' },
-    { doc: '製品図面', kind: '図面', n: `${DATA.DRAWINGS.length} 件`, at: '2026-08-01', st: 'done', stTxt: '解析完了' },
-    { doc: '設計審査記録（DR1〜DR4）', kind: '審査記録', n: `${DATA.DR_FINDINGS.length} 件の指摘`, at: '2026-08-01', st: 'done', stTxt: '解析完了' },
-    { doc: '作業要領書', kind: '作業標準', n: '—', at: '—', st: 'todo', stTxt: '未登録' },
-    { doc: '検査記録（測定値）', kind: '検査記録', n: '—', at: '—', st: 'todo', stTxt: '未登録' }
-  ];
-  $('#docsBody').innerHTML = docs.map(d => `
+  const count = {};
+  Object.values(DATA.PROC_REQS).flat().forEach(r => count[r.src] = (count[r.src] || 0) + 1);
+  const kind = s => s.startsWith('図面') ? '図面' : s.startsWith('条件表') ? '条件表'
+    : s.startsWith('作業要領書') ? '作業標準' : s.startsWith('検査基準書') ? '検査基準' : 'その他';
+  $('#docsBody').innerHTML = Object.keys(count).sort().map(s => `
     <tr>
-      <td>${esc(d.doc)}</td>
-      <td>${esc(d.kind)}</td>
-      <td class="mono">${esc(d.n)}</td>
-      <td class="mono">${esc(d.at)}</td>
-      <td><span class="status status--${d.st}">${esc(d.stTxt)}</span></td>
-    </tr>`).join('');
+      <td>${esc(s)}</td>
+      <td class="nowrap">${esc(kind(s))}</td>
+      <td class="nowrap mono">${count[s]} 件</td>
+      <td><span class="status status--done">解析完了</span></td>
+    </tr>`).join('')
+    + `<tr>
+      <td>${esc(DATA.SOD_CRITERIA.doc)}</td>
+      <td class="nowrap">評価基準</td>
+      <td class="nowrap cell-sub">S・O・Dの判定区分</td>
+      <td><span class="status status--done">解析完了</span></td>
+    </tr>
+    <tr>
+      <td>設備仕様書</td>
+      <td class="nowrap">設備仕様</td>
+      <td class="cell-empty">—</td>
+      <td><span class="status status--todo">未登録</span></td>
+    </tr>`;
+  $('#critDoc').textContent =
+    `${DATA.SOD_CRITERIA.doc} を取り込んでいるため、S・O・Dは判定区分に照らした候補値を提示できます。基準を取り込めない場合、AIは点数を提示せず「未評価」として扱います。根拠のない点数は現場の判断を誤らせるためです。`;
 }
 
 /* ---- 初期化 ---- */
-const EXAMPLES = [
-  'ACT-220のケース締結部から異音が出ている',
-  'コネクタが半嵌合のまま組み付けられた',
-  'はんだのクラックで導通不良が起きた',
-  '気密検査でリーク量が規格を超えた',
-  '低温で作動角が規格下限を下回る'
-];
-
 wireShell();
-renderDashboard();
+renderFlow();
 renderDocs();
+renderExisting();
 
-$('#qChips').innerHTML = EXAMPLES.map(e =>
-  `<button class="chip" type="button" data-q="${esc(e)}">${esc(e)}</button>`).join('');
-$('#qChips').addEventListener('click', e => {
-  const b = e.target.closest('[data-q]');
-  if (!b) return;
-  $('#q').value = b.dataset.q;
-  $('#q').focus();
-});
-
-DATA.PRODUCTS.forEach(p => {
-  const o = document.createElement('option');
-  o.value = o.textContent = p.code;
-  $('#fProd').appendChild(o);
-});
 DATA.PROCESSES.forEach(p => {
-  const o = document.createElement('option');
-  o.value = p.no; o.textContent = procLabel(p.no);
-  $('#fProc').appendChild(o);
+  [$('#procSelect'), $('#exProc')].forEach((sel, i) => {
+    const o = document.createElement('option');
+    o.value = p.no;
+    o.textContent = i === 0 ? `${p.no}　${p.name}` : procLabel(p.no);
+    sel.appendChild(o);
+  });
 });
-['#fProd', '#fProc', '#fStat', '#fLeak'].forEach(s =>
-  $(s).addEventListener('change', renderList));
-renderList();
-
-$('#btnListCsv').addEventListener('click', () => {
-  const rows = renderList();
-  downloadCsv(`不具合記録一覧_${today()}.csv`, [
-    ['管理番号', '発生日', '製品', '発生工程', '対象部位', '現象', '原因', '暫定対策', '恒久対策', 'S', 'O', 'D', '担当', '状態', '顧客流出'],
-    ...rows.map(t => [t.id, t.date, t.prod, procLabel(t.proc), t.part, t.sym, t.cause, t.tmp, t.perm, t.s, t.o, t.d, t.owner, t.status, t.leak ? 'あり' : 'なし'])
+$('#exProc').addEventListener('change', renderExisting);
+$('#btnExCsv').addEventListener('click', () => {
+  const rows = renderExisting();
+  downloadCsv(`既存工程FMEA_${today()}.csv`, [
+    ['工程番号', '工程名', '故障モード', '故障影響', '故障原因', '現在の予防管理', '現在の検出管理', 'S', 'O', 'D', 'RPN', '登録契機の不具合'],
+    ...rows.map(r => [r.proc, PROC_BY_NO[r.proc].name, r.mode, r.eff, r.cause, r.prev, r.det, r.s, r.o, r.d, r.s * r.o * r.d, r.src || ''])
   ]);
-  toast('CSVを出力しました', `${rows.length} 件を出力しました。Excelでそのまま開けます。`);
+  toast('CSVを出力しました', `${rows.length} 行を出力しました。`);
 });
 
-$('#qForm').addEventListener('submit', e => {
+$('#wideNote').textContent =
+  `標準生成に加え、既存の工程FMEA ${DATA.PFMEA.length} 行・不具合記録 ${DATA.TROUBLES.length} 件・${DATA.DEVIATIONS.length} 種類の逸脱パターンを横断し、抜け漏れ候補を提示します`;
+$('#critNote').textContent = `S・O・Dの判定は ${DATA.SOD_CRITERIA.doc} を参照します。`;
+
+$('#genForm').addEventListener('submit', e => {
   e.preventDefault();
-  const q = $('#q').value.trim();
-  if (!q) {
-    toast('事象を入力してください', '「発生している事象」が未入力です。文章のままで構いません。', 'error');
-    $('#q').focus();
+  const proc = $('#procSelect').value;
+  if (!proc) {
+    $('#procError').hidden = false;
+    $('#procSelect').setAttribute('aria-invalid', 'true');
+    toast('対象工程を選択してください', '工程を選択すると、製造FMEAドラフトを生成できます。', 'error');
+    $('#procSelect').focus();
     return;
   }
-  $('#qIdle').hidden = true;
-  $('#qResult').hidden = true;
-  $('#qLoading').hidden = false;
-  $('#qLoadMeta').textContent =
-    `対象：不具合記録 ${DATA.TROUBLE_TOTAL.toLocaleString()}件／工程FMEA ${DATA.PFMEA_TOTAL.toLocaleString()}行／設計変更通知 ${DATA.ECNS.length}件`;
-  runSteps('#qStepper', () => {
-    $('#qLoading').hidden = true;
-    renderResult(q);
-    $('#qResult').hidden = false;
-  }, 340);
+  $('#procError').hidden = true;
+  $('#procSelect').removeAttribute('aria-invalid');
+  curProc = proc;
+  draft = [];
+  $('#genIdle').hidden = true;
+  $('#genResult').hidden = true;
+  $('#genLoading').hidden = false;
+  const reqs = (DATA.PROC_REQS[proc] || []).length;
+  const docs = new Set((DATA.PROC_REQS[proc] || []).map(r => r.src)).size;
+  $('#genLoadMeta').textContent =
+    `対象工程：${procLabel(proc)}　／　参照文書 ${docs} 件　／　既存FMEA ${DATA.PFMEA.length} 行　／　要求事項 ${reqs} 件`;
+  runSteps('#genStepper', () => {
+    curRows = deriveRows(curProc);
+    curGaps = gapCandidates(curProc, curRows);
+    $('#genLoading').hidden = true;
+    renderResult();
+    $('#genResult').hidden = false;
+  }, 300);
 });
 
 document.addEventListener('click', e => {
-  const tr = e.target.closest('[data-tr]');
-  if (tr) { openTroublePanel(tr.dataset.tr); return; }
-  const fm = e.target.closest('[data-fm]');
-  if (fm) { openFmeaPanel(fm.dataset.fm); }
+  const pick = e.target.closest('[data-pick]');
+  if (pick) {
+    $('#procSelect').value = pick.dataset.pick;
+    showView('draft');
+    $('#genForm').dispatchEvent(new Event('submit'));
+    return;
+  }
+  const ev = e.target.closest('[data-ev]');
+  if (ev) {
+    const v = ev.dataset.ev;
+    if (v === 'flow') evFlow();
+    else if (v.startsWith('req:')) evReq(Number(v.slice(4)));
+    else if (v.startsWith('row:')) evRow(v.slice(4));
+    else if (v.startsWith('gap:')) evGap(Number(v.slice(4)));
+    return;
+  }
+  const ad = e.target.closest('[data-adopt]');
+  if (ad) {
+    const r = curRows.find(x => x.key === ad.dataset.adopt);
+    if (!r) return;
+    if (draft.some(d => d.mode === r.mode)) {
+      toast('すでに採用されています', 'この故障モードはドラフトに追加済みです。', 'warn');
+      return;
+    }
+    draft.push({ proc: r.proc, req: r.req.req, spec: r.req.spec, dev: r.dev, mode: r.mode, eff: r.eff,
+      cause: r.cause, prev: r.prev, det: r.det, s: r.s, o: r.o, d: r.d,
+      ref: r.req.src, src: 'AI提案' });
+    renderDraft();
+    toast('製造FMEAドラフトへ追加しました', `${r.mode}　状態は未確定です。担当者の確認後に確定してください。`);
+    return;
+  }
+  const ga = e.target.closest('[data-gapadopt]');
+  if (ga) {
+    const g = curGaps[Number(ga.dataset.gapadopt)];
+    if (!g) return;
+    if (draft.some(d => d.mode === g.rec.mode)) {
+      toast('すでに採用されています', 'この故障モードはドラフトに追加済みです。', 'warn');
+      return;
+    }
+    draft.push({ proc: curProc, req: g.relReq.req, spec: g.relReq.spec, dev: g.dev,
+      mode: g.rec.mode, eff: g.rec.eff, cause: g.rec.cause, prev: g.rec.prev, det: g.rec.det,
+      s: g.rec.s, o: g.rec.o, d: g.rec.d,
+      ref: `既存の工程FMEA ${procLabel(g.rec.proc)}`, src: 'AI提案（類似工程）' });
+    renderDraft();
+    toast('製造FMEAドラフトへ追加しました', `${g.rec.mode}　出典：${procLabel(g.rec.proc)}。状態は未確定です。`);
+    return;
+  }
+  const gh = e.target.closest('[data-gaphold]');
+  if (gh) {
+    const g = curGaps[Number(gh.dataset.gaphold)];
+    toast('保留として記録しました', `${g.rec.mode}　保留一覧から再確認できます。`, 'warn');
+    return;
+  }
+  const dr = e.target.closest('[data-drop]');
+  if (dr) {
+    const i = Number(dr.dataset.drop);
+    const removed = draft.splice(i, 1)[0];
+    renderDraft();
+    toast('ドラフトから削除しました', removed ? removed.mode : '', 'warn');
+    return;
+  }
+  const et = e.target.closest('[data-extr]');
+  if (et) {
+    const t = TR_BY_ID[et.dataset.extr];
+    if (!t) return;
+    openPanel('根拠資料：不具合記録 ' + t.id, `
+      <dl class="meta-list">
+        <dt>管理番号</dt><dd class="mono">${esc(t.id)}</dd>
+        <dt>発生日</dt><dd class="mono">${esc(t.date)}</dd>
+        <dt>製品・発生工程</dt><dd>${esc(t.prod)}　／　${esc(procLabel(t.proc))}</dd>
+        <dt>評価</dt><dd class="mono">S${t.s}　O${t.o}　D${t.d}</dd>
+      </dl>
+      <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">記録原文</h3>
+      <div class="quote">
+        <p><strong>発生事象</strong><br>${esc(t.sym)}</p>
+        <p style="margin-top:var(--space-3)"><strong>原因</strong><br>${esc(t.cause)}</p>
+        <p style="margin-top:var(--space-3)"><strong>恒久対策</strong><br>${esc(t.perm)}</p>
+      </div>`);
+  }
 });
 
 })();

@@ -1,0 +1,157 @@
+<!-- ========== FMEAドラフト生成（中核） ========== -->
+<section class="view" data-view="draft">
+  <p class="breadcrumb">製造FMEAドラフト生成</p>
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">FMEAドラフト生成</h1>
+      <p class="page-lead">工程を選択すると、工程フローから機能を整理し、図面・条件表・作業標準から要求事項を抽出します。要求事項を満たせない状態を逸脱として整理し、製造FMEAの故障モード候補を生成します。S・O・Dは自動確定せず、担当者が判断します。</p>
+    </div>
+  </div>
+
+  <div class="grid split-grid" style="grid-template-columns:370px 1fr;align-items:start">
+    <form class="card" id="genForm" novalidate style="position:sticky;top:calc(var(--header-height) + var(--space-5))">
+      <div class="field">
+        <label class="field__label" for="procSelect">対象工程<span class="field__req">必須</span></label>
+        <select class="select" id="procSelect" required aria-describedby="procHint">
+          <option value="">工程番号・工程名で選択してください</option>
+        </select>
+        <p class="field__error" id="procError" hidden>対象工程が選択されていません。工程を選択してから、製造FMEAドラフトを生成してください。</p>
+        <p class="field__hint" id="procHint">ACT-220 第一工場 組立ライン（工程10〜19）を工程フロー順に表示しています。</p>
+      </div>
+
+      <div class="field">
+        <span class="field__label" id="modeLabel">展開モード</span>
+        <label class="radio-row">
+          <input type="radio" name="genMode" value="std">
+          <span><strong>標準生成</strong><span>選択した工程の工程フロー・図面・条件表・作業標準から製造FMEAドラフトを作成します</span></span>
+        </label>
+        <label class="radio-row">
+          <input type="radio" name="genMode" value="wide" checked>
+          <span><strong>抜け漏れ展開</strong><span id="wideNote">標準生成に加え、既存の工程FMEA・類似工程・過去不具合の実績を横断し、抜け漏れ候補を提示します</span></span>
+        </label>
+      </div>
+
+      <div class="field">
+        <span class="field__label">参照範囲</span>
+        <label class="check-row"><input type="checkbox" checked> 工程フロー（ACT-220 組立ライン）</label>
+        <label class="check-row"><input type="checkbox" checked> 図面・条件表</label>
+        <label class="check-row"><input type="checkbox" checked> 作業要領書・検査基準書</label>
+        <label class="check-row"><input type="checkbox" checked> 既存の工程FMEA</label>
+        <label class="check-row"><input type="checkbox" checked> 過去不具合の記録</label>
+      </div>
+
+      <button class="btn btn--primary" type="submit" style="width:100%">製造FMEAドラフトを生成する</button>
+      <p class="field__hint" id="critNote"></p>
+    </form>
+
+    <div>
+      <div class="empty" id="genIdle">
+        <h2 class="empty__title">工程を選択して、製造FMEAドラフトを生成してください</h2>
+        <div class="empty__body">
+          <p>工程フローから機能を整理し、図面・条件表・作業標準から要求事項を抽出します。要求事項からの逸脱として故障モードを生成し、根拠資料とともに表示します。</p>
+          <ul>
+            <li>工程 → 機能 → 要求事項 → 逸脱 → 故障モードの順に、画面上で追跡できます</li>
+            <li>要求事項は出典の文書名と該当箇所を表示します</li>
+            <li>S・O・Dは社内評価基準に照らした候補値で、確定は担当者が行います</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card" id="genLoading" hidden aria-live="polite">
+        <h2 style="font-size:var(--font-subsection-title);margin-bottom:var(--space-2)">製造FMEAドラフトを生成しています</h2>
+        <p style="font-size:var(--font-caption);color:var(--color-text-secondary);margin-bottom:var(--space-4)" id="genLoadMeta"></p>
+        <ol class="stepper" id="genStepper">
+          <li class="step" data-state="todo"><span class="step__mark">1</span><span class="step__text">選択した工程の情報を読み込んでいます</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">2</span><span class="step__text">工程フローから機能・作業を整理しています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">3</span><span class="step__text">図面・条件表・作業標準から要求事項を抽出しています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">4</span><span class="step__text">要求事項からの逸脱を整理しています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">5</span><span class="step__text">故障モードと影響候補を生成しています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">6</span><span class="step__text">類似工程のFMEAから抜け漏れ候補を検索しています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">7</span><span class="step__text">製造FMEAドラフトをまとめています</span></li>
+        </ol>
+      </div>
+
+      <div id="genResult" hidden></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 工程フロー ========== -->
+<section class="view" data-view="flow" hidden>
+  <p class="breadcrumb"><a href="#" data-goto="draft">FMEAドラフト生成</a> ／ 工程フロー</p>
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">工程フロー</h1>
+      <p class="page-lead">ACT-220 第一工場 組立ラインの工程フローです。工程ごとの機能と、抽出済みの要求事項の件数を表示しています。</p>
+    </div>
+  </div>
+  <div class="table-meta" id="flowMeta"></div>
+  <div class="table-wrap">
+    <table>
+      <caption class="visually-hidden">工程フローの一覧</caption>
+      <thead><tr>
+        <th scope="col">工程</th><th scope="col">工程の機能</th><th scope="col">特性記号</th>
+        <th scope="col">要求事項</th><th scope="col">既存FMEA</th><th scope="col">不具合実績</th><th scope="col">操作</th>
+      </tr></thead>
+      <tbody id="flowBody"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ========== 既存の工程FMEA ========== -->
+<section class="view" data-view="existing" hidden>
+  <p class="breadcrumb"><a href="#" data-goto="draft">FMEAドラフト生成</a> ／ 既存の工程FMEA</p>
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">既存の工程FMEA</h1>
+      <p class="page-lead">登録済みの工程FMEAです。ドラフト生成時は、この内容と重複しない候補を提示します。</p>
+    </div>
+    <div class="page-head__actions">
+      <button class="btn btn--quiet" id="btnExCsv">一覧をCSVで出力する</button>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:var(--space-5)">
+    <div class="field" style="margin:0;max-width:360px">
+      <label class="field__label" for="exProc">工程で絞り込む</label>
+      <select class="select" id="exProc"><option value="">すべての工程</option></select>
+    </div>
+  </div>
+  <div class="table-meta" id="exMeta"></div>
+  <div class="table-wrap">
+    <table>
+      <caption class="visually-hidden">既存の工程FMEAの一覧</caption>
+      <thead><tr>
+        <th scope="col">工程</th><th scope="col">故障モード</th><th scope="col">故障影響</th>
+        <th scope="col">現行の予防</th><th scope="col">現行の検出</th>
+        <th scope="col">S・O・D</th><th scope="col">RPN</th><th scope="col">根拠</th>
+      </tr></thead>
+      <tbody id="exBody"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ========== 参照文書 ========== -->
+<section class="view" data-view="docs" hidden>
+  <p class="breadcrumb"><a href="#" data-goto="draft">FMEAドラフト生成</a> ／ 参照文書</p>
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">参照文書</h1>
+      <p class="page-lead">要求事項の抽出元として取り込んでいる文書です。文書ごとに、抽出できた要求事項の件数を表示しています。</p>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <caption class="visually-hidden">参照文書の一覧</caption>
+      <thead><tr>
+        <th scope="col">文書</th><th scope="col">種別</th><th scope="col">抽出した要求事項</th><th scope="col">状態</th>
+      </tr></thead>
+      <tbody id="docsBody"></tbody>
+    </table>
+  </div>
+  <div class="callout callout--info" style="margin-top:var(--space-5)">
+    <div>
+      <p class="callout__title">S・O・Dの判定基準について</p>
+      <p id="critDoc"></p>
+    </div>
+  </div>
+</section>
