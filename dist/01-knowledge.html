@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>不具合ナレッジ横断検索AI｜JINGS デモ</title>
+<style>
+/* JINGS 営業標準デモ 共通スタイル — design-system.md 準拠 */
+:root{
+  --font-sans:"Noto Sans JP",-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+  --font-mono:"Noto Sans Mono","SFMono-Regular",Consolas,"Liberation Mono",monospace;
+  --font-display:40px;--font-page-title:32px;--font-section-title:24px;--font-subsection-title:20px;
+  --font-body-large:18px;--font-body:16px;--font-caption:14px;
+  --line-height-heading:1.4;--line-height-body:1.7;--line-height-dense:1.35;
+  --color-primary:#0017c1;--color-primary-hover:#00118f;--color-primary-active:#000060;--color-primary-subtle:#e8f1fe;
+  --color-text-primary:#1a1a1c;--color-text-secondary:#626264;--color-text-tertiary:#757578;--color-text-inverse:#fff;
+  --color-background:#fff;--color-background-subtle:#f7f7f8;--color-background-muted:#f1f1f4;
+  --color-border:#949497;--color-border-light:#d8d8db;
+  --color-success:#197a3b;--color-success-bg:#e6f5ec;
+  --color-warning:#8a5d00;--color-warning-bg:#fff4c2;
+  --color-error:#b40000;--color-error-bg:#fde8e7;
+  --color-info:#0031d8;--color-info-bg:#e8f1fe;
+  --space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:24px;
+  --space-6:32px;--space-7:40px;--space-8:48px;--space-9:64px;
+  --radius-small:4px;--radius-medium:8px;--radius-large:12px;--radius-pill:9999px;
+  --shadow-low:0 1px 2px rgba(0,0,0,.08);--shadow-middle:0 4px 12px rgba(0,0,0,.12);--shadow-high:0 8px 24px rgba(0,0,0,.16);
+  --header-height:68px;--sidebar-width:250px;--content-max-width:1440px;--reading-max-width:800px;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:var(--font-sans);font-size:var(--font-body);line-height:var(--line-height-body);color:var(--color-text-primary);background:var(--color-background-subtle);-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{line-height:var(--line-height-heading);margin:0;font-weight:700}
+p{margin:0}
+a{color:var(--color-primary)}
+:focus-visible{outline:3px solid var(--color-primary);outline-offset:2px}
+.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ヘッダー / ナビ */
+.app-header{position:fixed;inset:0 0 auto 0;height:var(--header-height);z-index:30;display:flex;align-items:center;gap:var(--space-4);padding:0 var(--space-5);background:var(--color-background);border-bottom:1px solid var(--color-border-light);box-shadow:var(--shadow-low)}
+.app-header__brand{display:flex;align-items:center;gap:var(--space-2);font-size:var(--font-subsection-title);font-weight:700;white-space:nowrap}
+.app-header__brand svg{flex:none}
+.app-header__context{font-size:var(--font-caption);color:var(--color-text-secondary);padding-left:var(--space-4);border-left:1px solid var(--color-border-light)}
+.app-header__spacer{flex:1}
+.app-header__user{display:flex;align-items:center;gap:var(--space-2);font-size:var(--font-caption)}
+.env-badge{padding:2px var(--space-3);border-radius:var(--radius-pill);background:var(--color-warning-bg);color:var(--color-warning);font-size:var(--font-caption);font-weight:700;white-space:nowrap}
+.app-sidebar{position:fixed;top:var(--header-height);bottom:0;left:0;width:var(--sidebar-width);z-index:20;padding:var(--space-4) 0;background:var(--color-background);border-right:1px solid var(--color-border-light);overflow-y:auto}
+.nav-item{display:flex;align-items:center;gap:var(--space-3);width:calc(100% - var(--space-3));min-height:48px;padding:0 var(--space-4);border:0;border-left:4px solid transparent;border-radius:0 var(--radius-pill) var(--radius-pill) 0;background:none;font:inherit;font-size:var(--font-body);color:var(--color-text-primary);text-align:left;cursor:pointer;transition:background .15s ease,color .15s ease}
+.nav-item:hover{background:var(--color-background-muted)}
+.nav-item[aria-current="page"]{background:var(--color-primary-subtle);border-left-color:var(--color-primary);color:var(--color-primary);font-weight:700}
+.nav-item svg{flex:none;width:20px;height:20px;color:var(--color-text-tertiary);transition:color .15s ease}
+.nav-item:hover svg,.nav-item[aria-current="page"] svg{color:currentColor}
+.nav-back{margin:var(--space-2) var(--space-4) var(--space-4);display:inline-flex;align-items:center;gap:var(--space-2);font-size:var(--font-caption);color:var(--color-text-secondary);text-decoration:none}
+.nav-back:hover{text-decoration:underline}
+
+/* レイアウト */
+.app-main{padding:calc(var(--header-height) + var(--space-6)) var(--space-6) var(--space-9);margin-left:var(--sidebar-width);max-width:var(--content-max-width)}
+.breadcrumb{font-size:var(--font-caption);color:var(--color-text-secondary);margin-bottom:var(--space-3)}
+.breadcrumb a{color:var(--color-text-secondary)}
+.page-title{font-size:var(--font-page-title)}
+.page-lead{margin-top:var(--space-3);max-width:var(--reading-max-width);font-size:var(--font-body-large);color:var(--color-text-secondary)}
+.page-head{display:flex;align-items:flex-start;gap:var(--space-5);margin-bottom:var(--space-7)}
+.page-head__actions{margin-left:auto;flex:none;display:flex;gap:var(--space-3);padding-top:var(--space-2)}
+.section{margin-bottom:var(--space-8)}
+.section__title{display:flex;align-items:center;gap:var(--space-3);font-size:var(--font-section-title);margin-bottom:var(--space-3)}
+.section__title::before{content:"";flex:none;width:6px;height:1.05em;border-radius:3px;background:var(--color-primary)}
+.section__lead{font-size:var(--font-body);color:var(--color-text-secondary);margin-bottom:var(--space-4);max-width:var(--reading-max-width)}
+
+/* ボタン */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--space-2);min-height:48px;min-width:48px;padding:0 var(--space-5);border-radius:6px;font:inherit;font-size:var(--font-body);font-weight:700;cursor:pointer;transition:background .15s ease,border-color .15s ease,box-shadow .15s ease}
+.btn--primary{color:var(--color-text-inverse);background:var(--color-primary);border:2px solid var(--color-primary);box-shadow:var(--shadow-low)}
+.btn--primary:hover{background:var(--color-primary-hover);border-color:var(--color-primary-hover);box-shadow:var(--shadow-middle)}
+.btn--primary:active{background:var(--color-primary-active);border-color:var(--color-primary-active)}
+.btn--secondary{color:var(--color-primary);background:var(--color-background);border:2px solid var(--color-primary)}
+.btn--secondary:hover{background:var(--color-primary-subtle)}
+.btn--quiet{color:var(--color-text-primary);background:var(--color-background);border:1px solid var(--color-border)}
+.btn--quiet:hover{background:var(--color-background-muted)}
+.btn--small{min-height:40px;padding:0 var(--space-4);font-size:var(--font-caption)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* フォーム */
+.field{margin-bottom:var(--space-5)}
+.field__label{display:block;margin-bottom:var(--space-2);font-size:var(--font-body);font-weight:700}
+.field__req{margin-left:var(--space-2);padding:2px var(--space-2);border-radius:var(--radius-small);background:var(--color-error-bg);color:var(--color-error);font-size:var(--font-caption);font-weight:700}
+.field__hint{margin-top:var(--space-2);font-size:var(--font-caption);color:var(--color-text-secondary)}
+.input,.select,.textarea{width:100%;min-height:48px;padding:var(--space-2) var(--space-3);border:1px solid var(--color-border);border-radius:var(--radius-small);font:inherit;font-size:var(--font-body);color:var(--color-text-primary);background:var(--color-background)}
+.textarea{min-height:96px;line-height:var(--line-height-body);resize:vertical}
+.radio-row{display:flex;align-items:flex-start;gap:var(--space-2);padding:var(--space-3);border:1px solid var(--color-border-light);border-radius:var(--radius-small);margin-bottom:var(--space-2);cursor:pointer}
+.radio-row input{margin-top:5px;width:18px;height:18px;flex:none}
+.radio-row strong{display:block}
+.radio-row span{font-size:var(--font-caption);color:var(--color-text-secondary)}
+.check-row{display:flex;align-items:center;gap:var(--space-2);font-size:var(--font-caption);padding:var(--space-1) 0}
+.check-row input{width:18px;height:18px;flex:none}
+.chip-row{display:flex;flex-wrap:wrap;gap:var(--space-2);margin-top:var(--space-2)}
+.chip{padding:var(--space-2) var(--space-3);border:1px solid var(--color-border);border-radius:var(--radius-pill);background:var(--color-background);font:inherit;font-size:var(--font-caption);cursor:pointer}
+.chip:hover{background:var(--color-primary-subtle);border-color:var(--color-primary);color:var(--color-primary)}
+
+/* カード / KPI */
+.card{padding:var(--space-5);background:var(--color-background);border:1px solid var(--color-border-light);border-radius:var(--radius-medium);box-shadow:var(--shadow-low)}
+.grid{display:grid;gap:var(--space-5)}
+.grid--kpi{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.grid--kpi .card{border-top:3px solid var(--color-primary);transition:box-shadow .15s ease,transform .15s ease}
+.grid--kpi .card:hover{box-shadow:var(--shadow-middle);transform:translateY(-2px)}
+.kpi__label{font-size:var(--font-caption);color:var(--color-text-secondary)}
+.kpi__value{margin-top:var(--space-2);font-size:var(--font-page-title);font-weight:700;line-height:var(--line-height-dense);font-variant-numeric:tabular-nums}
+.kpi__unit{font-size:var(--font-body);font-weight:400}
+.kpi__note{margin-top:var(--space-2);font-size:var(--font-caption);color:var(--color-text-secondary)}
+
+/* テーブル */
+.table-wrap{overflow-x:auto;background:var(--color-background);border:1px solid var(--color-border-light);border-radius:var(--radius-medium);box-shadow:var(--shadow-low)}
+.table-meta{display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap;margin-bottom:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)}
+table{width:100%;border-collapse:collapse;font-size:var(--font-body)}
+thead th{position:sticky;top:0;z-index:1;padding:var(--space-3) var(--space-4);background:var(--color-background-muted);border-bottom:1px solid var(--color-border);font-size:var(--font-caption);font-weight:700;text-align:left;white-space:nowrap;color:var(--color-text-secondary);letter-spacing:.02em}
+tbody td{padding:var(--space-3) var(--space-4);border-bottom:1px solid var(--color-border-light);line-height:var(--line-height-dense);vertical-align:top}
+tbody tr:hover{background:var(--color-background-subtle)}
+tbody tr:last-child td{border-bottom:0}
+.cell-empty{color:var(--color-text-tertiary)}
+.cell-sub{font-size:var(--font-caption);color:var(--color-text-secondary)}
+.mono{font-family:var(--font-mono)}
+.table-wrap td .btn{white-space:nowrap}
+.nowrap{white-space:nowrap}
+td.col-text{min-width:15em}
+
+/* ステータス */
+.status{display:inline-flex;align-items:center;gap:var(--space-1);padding:var(--space-1) var(--space-3);border-radius:var(--radius-pill);font-size:var(--font-caption);font-weight:700;white-space:nowrap}
+.status--ai{background:var(--color-info-bg);color:var(--color-info)}
+.status--todo{background:var(--color-background-muted);color:var(--color-text-secondary)}
+.status--warn{background:var(--color-warning-bg);color:var(--color-warning)}
+.status--done{background:var(--color-success-bg);color:var(--color-success)}
+.status--risk{background:var(--color-error-bg);color:var(--color-error)}
+.sod-badge{display:inline-block;min-width:34px;padding:2px var(--space-1);border-radius:var(--radius-small);text-align:center;font-size:var(--font-caption);font-weight:700;background:var(--color-background-muted)}
+.sod-badge--hi{background:var(--color-error-bg);color:var(--color-error)}
+
+/* 補助表示 */
+.callout{display:flex;gap:var(--space-3);padding:var(--space-4);border-radius:var(--radius-medium);font-size:var(--font-body)}
+.callout--info{background:var(--color-info-bg);border:1px solid var(--color-primary-subtle)}
+.callout--warn{background:var(--color-warning-bg)}
+.callout__title{font-weight:700;margin-bottom:var(--space-1)}
+.stepper{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:var(--space-3)}
+.step{display:flex;align-items:flex-start;gap:var(--space-3);font-size:var(--font-body)}
+.step__mark{flex:none;width:24px;height:24px;margin-top:2px;border-radius:var(--radius-pill);border:2px solid var(--color-border);display:grid;place-items:center;font-size:var(--font-caption);font-weight:700}
+.step[data-state="done"] .step__mark{background:var(--color-success);border-color:var(--color-success);color:#fff}
+.step[data-state="active"] .step__mark{border-color:var(--color-primary);color:var(--color-primary)}
+.step[data-state="active"] .step__text{font-weight:700;color:var(--color-primary)}
+.step[data-state="todo"] .step__text{color:var(--color-text-tertiary)}
+.empty{padding:var(--space-8) var(--space-5);text-align:center;background:var(--color-background);border:1px dashed var(--color-border);border-radius:var(--radius-medium)}
+.empty::before{content:"";display:block;width:56px;height:56px;margin:0 auto var(--space-4);border-radius:var(--radius-pill);background:var(--color-primary-subtle) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%230017c1" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4.5-4.5"/></svg>') center/26px no-repeat}
+.empty__title{font-size:var(--font-subsection-title);margin-bottom:var(--space-3)}
+.empty__body{max-width:560px;margin:0 auto;color:var(--color-text-secondary);text-align:left}
+.empty__body ul{margin:var(--space-3) 0 0;padding-left:1.2em}
+.quote{padding:var(--space-4);background:var(--color-background-subtle);border-left:4px solid var(--color-primary);border-radius:0 var(--radius-small) var(--radius-small) 0;font-size:var(--font-body);line-height:var(--line-height-body);overflow-wrap:anywhere}
+.quote mark{background:var(--color-warning-bg);padding:0 2px;font-weight:700}
+.meta-list{margin:0;font-size:var(--font-body)}
+.meta-list dt{font-size:var(--font-caption);color:var(--color-text-secondary);margin-top:var(--space-3)}
+.meta-list dd{margin:var(--space-1) 0 0;overflow-wrap:anywhere}
+
+/* パネル / トースト */
+.panel-backdrop{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.32)}
+.panel{position:fixed;top:0;right:0;bottom:0;z-index:41;width:min(620px,100%);display:flex;flex-direction:column;background:var(--color-background);box-shadow:var(--shadow-high)}
+.panel__head{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-5);border-bottom:1px solid var(--color-border-light)}
+.panel__title{font-size:var(--font-subsection-title)}
+.panel__body{flex:1;overflow-y:auto;padding:var(--space-5)}
+.icon-btn{margin-left:auto;width:44px;height:44px;display:grid;place-items:center;border:1px solid var(--color-border);border-radius:var(--radius-small);background:var(--color-background);cursor:pointer}
+.toast-area{position:fixed;right:var(--space-5);bottom:var(--space-5);z-index:50;display:flex;flex-direction:column;gap:var(--space-3)}
+.toast{display:flex;align-items:flex-start;gap:var(--space-3);min-width:320px;max-width:420px;padding:var(--space-4);background:var(--color-background);border:1px solid var(--color-border-light);border-left:4px solid var(--color-success);border-radius:var(--radius-medium);box-shadow:var(--shadow-middle)}
+.toast--warn{border-left-color:var(--color-warning)}
+.toast--error{border-left-color:var(--color-error)}
+.toast__title{font-weight:700}
+.toast__body{font-size:var(--font-caption);color:var(--color-text-secondary);margin-top:var(--space-1)}
+
+/* 分布バー */
+.dist{display:flex;align-items:flex-end;gap:3px;height:44px}
+.dist__col{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:var(--font-caption)}
+.dist__bar{width:20px;background:var(--color-primary);border-radius:2px 2px 0 0;min-height:2px}
+.dist__bar--warn{background:var(--color-warning)}
+.dist__d{color:var(--color-text-secondary)}
+
+[hidden]{display:none !important}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.view{animation:fadeUp .25s ease}
+@keyframes panelIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+.panel{animation:panelIn .2s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.panel-backdrop{animation:fadeIn .2s ease}
+@keyframes toastIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.toast{animation:toastIn .25s ease}
+
+@media (max-width:1024px){
+  .app-sidebar{transform:translateX(-100%);transition:transform .2s ease}
+  .app-sidebar[data-open="true"]{transform:none;box-shadow:var(--shadow-high)}
+  .app-main{margin-left:0}
+  .split-grid{grid-template-columns:1fr !important}
+}
+@media (max-width:768px){
+  .app-main{padding-left:var(--space-4);padding-right:var(--space-4)}
+  .page-head{flex-direction:column}
+  .page-head__actions{margin-left:0}
+  .app-header__context{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
+
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <button class="icon-btn" style="margin-left:0" id="navToggle" aria-label="メニューを開閉する" aria-expanded="false">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+  </button>
+  <span class="app-header__brand"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--color-primary)" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 9v12"/></svg>不具合ナレッジ横断検索AI</span>
+  <span class="app-header__context">品質保証部 ／ 不具合対応・原因調査</span>
+  <span class="env-badge">デモ環境・架空データ</span>
+  <span class="app-header__spacer"></span>
+  <span class="app-header__user">山田（品質保証部）</span>
+</header>
+
+<nav class="app-sidebar" id="sidebar" aria-label="メインメニュー">
+  <button class="nav-item" data-view="dashboard" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h8v8H3zM13 3h8v5h-8zM13 10h8v11h-8zM3 13h8v8H3z"/></svg>
+    ダッシュボード
+  </button>
+  <button class="nav-item" data-view="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4.5-4.5"/></svg>
+    ナレッジ検索
+  </button>
+  <button class="nav-item" data-view="list"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+    不具合記録一覧
+  </button>
+  <button class="nav-item" data-view="docs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>
+    登録文書
+  </button>
+  <a class="nav-back" href="index.html">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+    デモ一覧へ戻る
+  </a>
+</nav>
+
+<main class="app-main" id="main">
+<!-- ========== ダッシュボード ========== -->
+<section class="view" data-view="dashboard">
+  <p class="breadcrumb">ホーム</p>
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">ダッシュボード</h1>
+      <p class="page-lead">登録済みの不具合記録・工程FMEA・設計変更の状態と、対応が必要な項目を表示しています。</p>
+    </div>
+    <div class="page-head__actions">
+      <button class="btn btn--primary" data-goto="search">ナレッジを検索する</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="grid grid--kpi" id="kpiGrid"></div>
+  </div>
+
+  <div class="section">
+    <h2 class="section__title">対応が必要な不具合</h2>
+    <p class="section__lead">恒久対策が未完了の記録です。影響度Sの高いものから表示しています。</p>
+    <div class="table-meta" id="openMeta"></div>
+    <div class="table-wrap">
+      <table>
+        <caption class="visually-hidden">対応が必要な不具合の一覧</caption>
+        <thead><tr>
+          <th scope="col">管理番号</th><th scope="col">発生日</th><th scope="col">製品・工程</th>
+          <th scope="col">現象</th><th scope="col">S</th><th scope="col">状態</th><th scope="col">操作</th>
+        </tr></thead>
+        <tbody id="openBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2 class="section__title">工程別の発生件数</h2>
+    <p class="section__lead">登録済みの不具合記録を発生工程で集計しています。件数が多い工程は、工程FMEAの見直し対象の候補になります。</p>
+    <div class="card">
+      <div id="procDist"></div>
+      <p style="margin-top:var(--space-4);font-size:var(--font-caption);color:var(--color-text-secondary)" id="procNote"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ========== ナレッジ検索 ========== -->
+<section class="view" data-view="search" hidden>
+  <p class="breadcrumb"><a href="#" data-goto="dashboard">ホーム</a> ／ ナレッジ検索</p>
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">ナレッジ検索</h1>
+      <p class="page-lead">発生した事象を普段の言葉で入力してください。過去の不具合記録・工程FMEA・設計変更通知を横断して検索し、根拠となる記録を示します。結論の採否は担当者が判断します。</p>
+    </div>
+  </div>
+
+  <div class="grid split-grid" style="grid-template-columns:380px 1fr;align-items:start">
+    <form class="card" id="qForm" style="position:sticky;top:calc(var(--header-height) + var(--space-5))">
+      <div class="field">
+        <label class="field__label" for="q">発生している事象<span class="field__req">必須</span></label>
+        <textarea class="textarea" id="q" rows="4" aria-describedby="qHint"></textarea>
+        <p class="field__hint" id="qHint">製品名・工程名・現象を含めると精度が上がります。文章のままで構いません。</p>
+      </div>
+      <div class="field">
+        <span class="field__label">よく聞かれる事象から選ぶ</span>
+        <div class="chip-row" id="qChips"></div>
+      </div>
+      <div class="field">
+        <span class="field__label">検索範囲</span>
+        <label class="check-row"><input type="checkbox" id="scTr" checked> 不具合記録（過去トラ）</label>
+        <label class="check-row"><input type="checkbox" id="scFm" checked> 工程FMEA</label>
+        <label class="check-row"><input type="checkbox" id="scEc" checked> 設計変更通知（ECN）</label>
+      </div>
+      <button class="btn btn--primary" type="submit" style="width:100%">類似する記録を検索する</button>
+    </form>
+
+    <div>
+      <div class="empty" id="qIdle">
+        <h2 class="empty__title">事象を入力して検索してください</h2>
+        <div class="empty__body">
+          <p>検索すると、次の内容を根拠付きで表示します。</p>
+          <ul>
+            <li>類似する過去の不具合記録と、その原因・対策</li>
+            <li>同じ工程の工程FMEAに登録済みの故障モード</li>
+            <li>関連する設計変更通知</li>
+            <li>今回確認すべき項目の候補</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card" id="qLoading" hidden aria-live="polite">
+        <h2 style="font-size:var(--font-subsection-title);margin-bottom:var(--space-2)">類似する記録を検索しています</h2>
+        <p style="font-size:var(--font-caption);color:var(--color-text-secondary);margin-bottom:var(--space-4)" id="qLoadMeta"></p>
+        <ol class="stepper" id="qStepper">
+          <li class="step" data-state="todo"><span class="step__mark">1</span><span class="step__text">入力内容から製品・工程・現象を整理しています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">2</span><span class="step__text">過去の不具合記録を検索しています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">3</span><span class="step__text">工程FMEAの故障モードと照合しています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">4</span><span class="step__text">原因と対策の傾向を比較しています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">5</span><span class="step__text">確認すべき項目をまとめています</span></li>
+        </ol>
+      </div>
+
+      <div id="qResult" hidden></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 不具合記録一覧 ========== -->
+<section class="view" data-view="list" hidden>
+  <p class="breadcrumb"><a href="#" data-goto="dashboard">ホーム</a> ／ 不具合記録一覧</p>
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">不具合記録一覧</h1>
+      <p class="page-lead">登録済みの不具合記録です。製品・工程・状態で絞り込めます。</p>
+    </div>
+    <div class="page-head__actions">
+      <button class="btn btn--quiet" id="btnListCsv">一覧をCSVで出力する</button>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:var(--space-5)">
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--space-4)">
+      <div class="field" style="margin:0">
+        <label class="field__label" for="fProd">製品</label>
+        <select class="select" id="fProd"><option value="">すべて</option></select>
+      </div>
+      <div class="field" style="margin:0">
+        <label class="field__label" for="fProc">発生工程</label>
+        <select class="select" id="fProc"><option value="">すべて</option></select>
+      </div>
+      <div class="field" style="margin:0">
+        <label class="field__label" for="fStat">対応状態</label>
+        <select class="select" id="fStat">
+          <option value="">すべて</option><option>完了</option><option>対応中</option><option>未着手</option>
+        </select>
+      </div>
+      <div class="field" style="margin:0">
+        <label class="field__label" for="fLeak">顧客流出</label>
+        <select class="select" id="fLeak">
+          <option value="">すべて</option><option value="1">流出あり</option><option value="0">流出なし</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-meta" id="listMeta"></div>
+  <div class="table-wrap">
+    <table>
+      <caption class="visually-hidden">不具合記録の一覧</caption>
+      <thead><tr>
+        <th scope="col">管理番号</th><th scope="col">発生日</th><th scope="col">製品</th>
+        <th scope="col">工程</th><th scope="col">現象</th>
+        <th scope="col">S</th><th scope="col">O</th><th scope="col">D</th>
+        <th scope="col">状態</th><th scope="col">操作</th>
+      </tr></thead>
+      <tbody id="listBody"></tbody>
+    </table>
+  </div>
+  <div class="empty" id="listEmpty" hidden>
+    <h2 class="empty__title">該当する記録が見つかりませんでした</h2>
+    <div class="empty__body">
+      <p>追加で試せること:</p>
+      <ul>
+        <li>絞り込み条件を「すべて」に戻して範囲を広げる</li>
+        <li>製品ではなく工程で絞り込む</li>
+        <li>ナレッジ検索で事象の文章から探す</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 登録文書 ========== -->
+<section class="view" data-view="docs" hidden>
+  <p class="breadcrumb"><a href="#" data-goto="dashboard">ホーム</a> ／ 登録文書</p>
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">登録文書</h1>
+      <p class="page-lead">検索対象として取り込んでいる文書です。取り込み後に追加された文書は、次回の解析で反映されます。</p>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <caption class="visually-hidden">登録文書の一覧</caption>
+      <thead><tr>
+        <th scope="col">文書</th><th scope="col">種別</th><th scope="col">件数・版</th>
+        <th scope="col">取り込み</th><th scope="col">状態</th>
+      </tr></thead>
+      <tbody id="docsBody"></tbody>
+    </table>
+  </div>
+  <div class="callout callout--warn" style="margin-top:var(--space-5)">
+    <div>
+      <p class="callout__title">未登録の文書があります</p>
+      <p>作業要領書と検査記録は今回の取り込み対象に含まれていません。登録すると、原因調査で「作業条件」まで遡れるようになります。</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<div class="panel-backdrop" id="panelBackdrop" hidden></div>
+<aside class="panel" id="panel" role="dialog" aria-modal="true" aria-labelledby="panelTitle" hidden>
+  <div class="panel__head">
+    <h2 class="panel__title" id="panelTitle">根拠資料</h2>
+    <button class="icon-btn" id="panelClose" aria-label="パネルを閉じる">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="panel__body" id="panelBody"></div>
+</aside>
+
+<div class="toast-area" id="toastArea" aria-live="polite"></div>
+
+<script>
+/* ============================================================
+   JINGS 営業標準デモ — 共通データセット
+   すべて架空企業「JINGSデモ精機株式会社」の架空データ。
+   実顧客のデータは一切含まない。7本のデモが同一データを共有する。
+   ============================================================ */
+const CO = {
+  name: 'JINGSデモ精機株式会社',
+  short: 'JINGSデモ精機',
+  note: 'デモ環境・架空データ',
+  biz: '自動車用電動アクチュエータ・車載センサユニットの設計製造',
+  plants: [
+    { id: 'P1', name: '第一工場', role: '機構組立・機能検査' },
+    { id: 'P2', name: '第二工場', role: '樹脂成形・電子実装' }
+  ],
+  user: { name: '山田', dept: '品質保証部' }
+};
+
+/* 製品 ------------------------------------------------------ */
+const PRODUCTS = [
+  { code: 'ACT-210', name: '電動アクチュエータ 標準品', stage: '量産中', since: '2019-04', note: '国内2社向け。累計出荷 182万台' },
+  { code: 'ACT-220', name: '電動アクチュエータ 高トルク品', stage: '量産中', since: '2022-09', note: '主力機種。累計出荷 64万台' },
+  { code: 'ACT-230', name: '電動アクチュエータ 小型軽量品', stage: '設計中', since: '2027-01（量産予定）', note: 'ACT-220からモータ・減速比を変更。DR2完了・DR3準備中' },
+  { code: 'SNS-100', name: '車載センサユニット', stage: '量産中', since: '2021-06', note: '基板実装品。ACT系とは別ライン' }
+];
+
+/* 工程（ACT-220 第一工場 組立ライン） ----------------------- */
+const PROCESSES = [
+  { no: '10', name: '樹脂ハウジング成形', plant: 'P2', mark: '', func: 'ハウジング外形と軸受穴を規定寸法で成形する', req: '軸受穴径 φ12.0 +0.02/0（図面 ACT-220-100）／ヒケ・ソリなきこと' },
+  { no: '11', name: 'インサートナット圧入', plant: 'P2', mark: '○C', func: 'ハウジングにインサートナット4個を規定深さまで圧入する', req: '圧入荷重 2.4±0.4 kN／座面段差 0.05mm以下' },
+  { no: '12', name: '減速ギヤ組付け', plant: 'P1', mark: '', func: '減速ギヤ3点を規定バックラッシで組み付ける', req: 'バックラッシ 0.08〜0.15mm／ギヤ歯面に打痕なきこと' },
+  { no: '13', name: 'モータ組付け', plant: 'P1', mark: '○C', func: 'DCモータをハウジングへ位置決めして固定する', req: '軸芯ずれ 0.10mm以下／固定ねじ 1.8±0.3 N・m' },
+  { no: '14', name: '制御基板はんだ付け', plant: 'P2', mark: '▽S', func: 'モータ端子と制御基板をはんだ接合する', req: 'はんだ温度 350±10℃／濡れ角 90°以下／ボイド率 15%以下' },
+  { no: '15', name: 'ハーネス配線・コネクタ嵌合', plant: 'P1', mark: '▽S', func: 'ハーネスを規定経路で配線しコネクタを嵌合する', req: '嵌合力 40〜80N／ロック音の確認／被覆かみ込みなきこと' },
+  { no: '16', name: 'グリス塗布', plant: 'P1', mark: '', func: 'ギヤ歯面へ規定量のグリスを塗布する', req: '塗布量 1.2±0.2 g／塗布位置は歯面全周' },
+  { no: '17', name: 'ケース締結', plant: 'P1', mark: '○C', func: 'ケースをM4ねじ4本で規定トルクで締結する', req: '締付トルク 3.2±0.5 N・m／締付順序は対角（作業要領書 WI-220-17）' },
+  { no: '18', name: '機能検査', plant: 'P1', mark: '▽R', func: '作動角・消費電流・作動音を全数検査する', req: '作動角 92±2°／無負荷電流 0.45A以下／異音判定は基準音源との比較' },
+  { no: '19', name: '気密検査・梱包', plant: 'P1', mark: '▽R', func: '気密性を確認し規定梱包で出荷する', req: 'リーク量 3.0 cc/min以下／梱包は防湿材同梱' }
+];
+
+const MARK_LEGEND = {
+  '○C': '重要機能特性',
+  '▽S': '保安関連特性',
+  '▽R': '法規関連特性'
+};
+
+/* 過去トラ・不具合履歴 -------------------------------------- */
+/* 総登録件数は TROUBLE_TOTAL。画面には代表24件を出す。 */
+const TROUBLE_TOTAL = 2847;
+const TROUBLES = [
+  { id: 'QT-2023-0142', date: '2023-05-18', prod: 'ACT-220', proc: '17', part: 'ケース締結部', sym: '耐久試験後にケース合わせ面から異音が発生', cause: '締付トルクのばらつき。トルクレンチの校正周期が超過していた', tmp: '該当ロット全数の締付トルク再確認', perm: 'トルクレンチを電動化し、締付結果をライン側で自動記録', s: 7, o: 4, d: 6, owner: '佐藤', status: '完了', leak: false, dr: 'DR3' },
+  { id: 'QT-2023-0187', date: '2023-07-02', prod: 'ACT-220', proc: '15', part: 'コネクタ嵌合部', sym: '車両組付時にコネクタが半嵌合のまま組み付けられた', cause: 'ロック音が騒音下で聞き取れず、目視でも半嵌合を判別できない構造', tmp: '嵌合後の引張確認を作業に追加', perm: 'コネクタを色付きロック表示付きへ変更（ECN-2023-031）', s: 8, o: 5, d: 7, owner: '鈴木', status: '完了', leak: true, dr: 'DR3' },
+  { id: 'QT-2023-0233', date: '2023-09-11', prod: 'ACT-210', proc: '14', part: 'モータ端子はんだ部', sym: '温度サイクル試験でモータ端子のはんだにクラックが発生', cause: 'はんだ量不足。ノズル摩耗により供給量が経時的に低下していた', tmp: 'X線検査を該当ロットへ実施', perm: 'ノズル交換周期を1/2に短縮し、はんだ量の日常点検を追加', s: 8, o: 3, d: 5, owner: '田中', status: '完了', leak: false, dr: 'DR3' },
+  { id: 'QT-2023-0301', date: '2023-11-24', prod: 'ACT-220', proc: '12', part: '減速ギヤ', sym: '作動音が基準を超過（ギヤ鳴り）', cause: 'バックラッシが下限外れ。ギヤ単品の歯厚公差と組付公差の累積', tmp: '該当ロットの作動音再検査', perm: 'ギヤ歯厚の受入検査項目を追加し、組付時のバックラッシ実測を導入', s: 6, o: 5, d: 4, owner: '佐藤', status: '完了', leak: false, dr: 'DR2' },
+  { id: 'QT-2024-0056', date: '2024-02-14', prod: 'ACT-220', proc: '11', part: 'インサートナット', sym: '締結時にインサートナットが共回りし固定できない', cause: '圧入荷重の下限外れ。樹脂側の成形収縮で穴径が上振れしていた', tmp: '圧入荷重を全数記録し下限外れ品を排除', perm: '成形条件（保圧・冷却時間）を見直し、穴径をSPC管理対象に追加', s: 7, o: 4, d: 5, owner: '高橋', status: '完了', leak: false, dr: 'DR3' },
+  { id: 'QT-2024-0118', date: '2024-04-03', prod: 'SNS-100', proc: '14', part: '制御基板', sym: '実装後の外観検査ではんだボールが検出された', cause: 'リフロー炉のプロファイル逸脱。予熱区間の温度が下限側へ推移', tmp: '該当ロットの全数外観再検査', perm: 'リフロー炉の温度プロファイルを日常監視項目へ追加', s: 5, o: 4, d: 3, owner: '田中', status: '完了', leak: false, dr: '—' },
+  { id: 'QT-2024-0164', date: '2024-05-22', prod: 'ACT-220', proc: '13', part: 'モータ固定部', sym: '作動時に振動が規格を超過', cause: 'モータ軸芯ずれ。位置決め治具の摩耗により基準面が後退していた', tmp: '治具を交換し該当ロットを振動再測定', perm: '治具の摩耗量を定期測定し、限度見本による判定基準を設定', s: 7, o: 4, d: 6, owner: '鈴木', status: '完了', leak: false, dr: 'DR3' },
+  { id: 'QT-2024-0209', date: '2024-07-09', prod: 'ACT-210', proc: '17', part: 'ケース締結部', sym: '長期使用品でケース合わせ面からグリスが漏出', cause: 'ガスケットの圧縮永久歪。締付トルクが規格内でも面圧が不足する条件があった', tmp: '市場品の点検依頼を発行', perm: 'ガスケット材質を変更し、面圧の下限値を設計要件へ追加（ECN-2024-018）', s: 8, o: 3, d: 7, owner: '伊藤', status: '完了', leak: true, dr: 'DR2' },
+  { id: 'QT-2024-0255', date: '2024-08-27', prod: 'ACT-220', proc: '16', part: 'ギヤ歯面', sym: '低温作動試験で作動角が規格下限を下回った', cause: 'グリス塗布量の過多。低温での粘性抵抗が想定を超過', tmp: '塗布量を全数計量', perm: '塗布装置を定量吐出式へ変更し、塗布量を自動記録', s: 6, o: 4, d: 4, owner: '高橋', status: '完了', leak: false, dr: 'DR3' },
+  { id: 'QT-2024-0312', date: '2024-10-15', prod: 'ACT-220', proc: '18', part: '機能検査工程', sym: '出荷後に作動角の規格外品が発見された', cause: '検査装置の基準値設定ミス。機種切替時に前機種の基準が残っていた', tmp: '該当期間の出荷品をトレースし回収', perm: '機種切替時に基準値の照合をシステム側で強制する仕組みを導入', s: 9, o: 2, d: 8, owner: '伊藤', status: '完了', leak: true, dr: 'DR4' },
+  { id: 'QT-2025-0034', date: '2025-01-21', prod: 'ACT-220', proc: '10', part: 'ハウジング', sym: '軸受穴部にヒケが発生し寸法が規格外', cause: '成形樹脂のロット間粘度差。成形条件が粘度変化を吸収できていなかった', tmp: '該当ロットの穴径全数測定', perm: '樹脂ロットごとの粘度実測値に応じた成形条件テーブルを作成', s: 6, o: 5, d: 4, owner: '高橋', status: '完了', leak: false, dr: 'DR2' },
+  { id: 'QT-2025-0077', date: '2025-02-28', prod: 'ACT-220', proc: '15', part: 'ハーネス被覆', sym: 'ケース締結時にハーネス被覆をかみ込み、導通不良が発生', cause: '配線経路が締結部と近接。作業要領書に経路の図示がなかった', tmp: '締結前のハーネス位置確認を追加', perm: 'ハウジングに配線ガイド形状を追加（ECN-2025-007）／要領書へ経路図を追記', s: 8, o: 4, d: 6, owner: '鈴木', status: '完了', leak: false, dr: 'DR3' },
+  { id: 'QT-2025-0129', date: '2025-04-16', prod: 'ACT-210', proc: '19', part: 'シール部', sym: '気密検査でリーク量が規格を超過（発生率0.8%）', cause: 'シール溝のバリ。前工程の成形バリ取りが不十分', tmp: 'バリ取り後の目視確認を強化', perm: 'バリ取り工程を自動化し、溝部の画像検査を追加', s: 7, o: 5, d: 4, owner: '田中', status: '完了', leak: false, dr: 'DR3' },
+  { id: 'QT-2025-0188', date: '2025-06-05', prod: 'ACT-220', proc: '14', part: '基板コネクタ', sym: '振動試験後に基板コネクタの接触抵抗が上昇', cause: '基板固定点数の不足により、振動でコネクタ部に応力が集中', tmp: '該当構成の振動再試験', perm: '基板固定点を2点から4点へ変更（ECN-2025-014）', s: 8, o: 3, d: 6, owner: '伊藤', status: '完了', leak: false, dr: 'DR2' },
+  { id: 'QT-2025-0241', date: '2025-07-23', prod: 'ACT-220', proc: '11', part: 'インサートナット座面', sym: '座面段差が規格外で、締結後にケースが傾く', cause: '圧入時の芯ずれ。ワーク位置決めのクリアランスが過大', tmp: '段差を全数測定し選別', perm: '位置決めピンを追加しクリアランスを縮小', s: 6, o: 4, d: 5, owner: '高橋', status: '完了', leak: false, dr: 'DR3' },
+  { id: 'QT-2025-0297', date: '2025-09-10', prod: 'ACT-220', proc: '13', part: 'モータ', sym: '無負荷電流が規格上限に近い品が増加', cause: '購入モータの特性ばらつき。受入検査項目に無負荷電流が含まれていなかった', tmp: '入荷ロットの抜取測定を実施', perm: '受入検査へ無負荷電流を追加し、仕入先へ管理値を提示', s: 5, o: 5, d: 5, owner: '鈴木', status: '完了', leak: false, dr: 'DR2' },
+  { id: 'QT-2025-0344', date: '2025-10-28', prod: 'ACT-230', proc: '12', part: '減速ギヤ（新設計）', sym: '試作機の耐久試験でギヤ歯面に異常摩耗', cause: '減速比変更に伴う面圧増加を歯面強度計算に織り込めていなかった', tmp: '試作を中断し歯面強度を再計算', perm: '歯面幅を1.5mm拡大し材質を変更（設計変更中）', s: 8, o: 4, d: 5, owner: '伊藤', status: '対応中', leak: false, dr: 'DR2' },
+  { id: 'QT-2025-0378', date: '2025-11-19', prod: 'ACT-220', proc: '17', part: 'ケース締結部', sym: '締付順序の誤りにより合わせ面に隙間が発生', cause: '対角締めの作業指示が要領書の文章のみで、順序が守られなかった', tmp: '締付順序の再教育を実施', perm: '締付順序を表示するガイド治具を導入し、順序をライン側で検知', s: 7, o: 5, d: 6, owner: '佐藤', status: '対応中', leak: false, dr: 'DR3' },
+  { id: 'QT-2026-0012', date: '2026-01-15', prod: 'ACT-220', proc: '18', part: '作動音検査', sym: '作動音の判定が検査員によって分かれる', cause: '判定が基準音源との聴感比較のみで、定量的な閾値がない', tmp: '判定が分かれた品を第三者判定へ回す運用を暫定適用', perm: '音圧測定による定量判定への切替を検討中', s: 6, o: 6, d: 7, owner: '田中', status: '対応中', leak: false, dr: 'DR4' },
+  { id: 'QT-2026-0038', date: '2026-02-06', prod: 'SNS-100', proc: '14', part: '基板実装部', sym: 'はんだ濡れ不良が特定の実装位置に集中', cause: '基板パターンの熱容量差。予熱プロファイルが位置差を吸収できていない', tmp: '該当位置のX線検査を追加', perm: '基板パターンの熱容量を均一化する設計変更を検討中', s: 7, o: 4, d: 4, owner: '田中', status: '対応中', leak: false, dr: '—' },
+  { id: 'QT-2026-0061', date: '2026-03-03', prod: 'ACT-220', proc: '15', part: 'コネクタ', sym: '嵌合力が規格下限を下回る品が発生', cause: 'コネクタ端子のメッキ厚ばらつき。仕入先の工程変更が未連絡だった', tmp: '入荷品の嵌合力を抜取確認', perm: '仕入先の工程変更申請フローを是正し、変更点管理へ組み込み', s: 8, o: 3, d: 6, owner: '鈴木', status: '対応中', leak: false, dr: 'DR3' },
+  { id: 'QT-2026-0084', date: '2026-04-21', prod: 'ACT-230', proc: '13', part: 'モータ固定部（新設計）', sym: '試作機で軸芯ずれが規格外', cause: 'モータ変更により取付フランジ形状が変わり、既存治具では位置決めできない', tmp: '手作業で位置決めして試作を継続', perm: '新モータ用の位置決め治具を設計中', s: 7, o: 5, d: 6, owner: '伊藤', status: '対応中', leak: false, dr: 'DR3' },
+  { id: 'QT-2026-0103', date: '2026-05-29', prod: 'ACT-220', proc: '10', part: 'ハウジング', sym: 'ソリにより後工程で組付不良が発生', cause: '金型の冷却水路に詰まりが生じ、冷却が不均一になっていた', tmp: '金型を分解洗浄', perm: '冷却水の流量監視を追加し、閾値割れで警報を出す', s: 6, o: 4, d: 5, owner: '高橋', status: '未着手', leak: false, dr: 'DR2' },
+  { id: 'QT-2026-0121', date: '2026-07-08', prod: 'ACT-220', proc: '17', part: 'ケース締結部', sym: 'ねじ座面に打痕が発生し外観不良となった', cause: '締結工具のソケット摩耗。交換基準が定められていなかった', tmp: 'ソケットを交換', perm: 'ソケットの交換基準と点検頻度を設定（対策検討中）', s: 4, o: 5, d: 4, owner: '佐藤', status: '未着手', leak: false, dr: 'DR3' }
+];
+
+/* 工程FMEA（ACT-220） -------------------------------------- */
+const PFMEA_TOTAL = 412;
+const PFMEA = [
+  { proc: '10', mode: 'ヒケにより軸受穴径が上限外れ', eff: '軸受のガタにより作動音・振動が増加', cause: '樹脂ロット間の粘度差を成形条件が吸収できない', prev: '樹脂ロットごとの粘度実測と条件テーブル適用', det: '穴径の全自動測定', s: 6, o: 4, d: 3, src: 'QT-2025-0034' },
+  { proc: '10', mode: 'ソリにより外形が規格外', eff: '後工程で組付不良が発生', cause: '金型冷却の不均一', prev: '冷却水流量の監視', det: '外形の抜取測定', s: 6, o: 4, d: 5, src: 'QT-2026-0103' },
+  { proc: '10', mode: '成形バリがシール溝に残存', eff: '気密不良により内部へ水分侵入', cause: 'バリ取り不足', prev: 'バリ取り工程の自動化', det: '溝部の画像検査', s: 7, o: 4, d: 4, src: 'QT-2025-0129' },
+  { proc: '11', mode: '圧入荷重が下限外れ', eff: '締結時にナットが共回りし固定不能', cause: '樹脂穴径の上振れ', prev: '穴径のSPC管理', det: '圧入荷重の全数記録', s: 7, o: 3, d: 3, src: 'QT-2024-0056' },
+  { proc: '11', mode: '圧入時の芯ずれにより座面段差が過大', eff: '締結後にケースが傾き合わせ面に隙間', cause: 'ワーク位置決めのクリアランス過大', prev: '位置決めピンの追加', det: '座面段差の抜取測定', s: 6, o: 3, d: 5, src: 'QT-2025-0241' },
+  { proc: '11', mode: 'ナットの圧入本数不足（欠品）', eff: '締結強度不足によりケースが脱落', cause: '供給機の払い出し不良', prev: '払い出し検知センサの設置', det: '画像による本数確認', s: 9, o: 2, d: 2, src: '' },
+  { proc: '12', mode: 'バックラッシが下限外れ', eff: 'ギヤ鳴りにより作動音が規格超過', cause: 'ギヤ歯厚公差と組付公差の累積', prev: 'ギヤ歯厚の受入検査', det: 'バックラッシの全数実測', s: 6, o: 4, d: 3, src: 'QT-2023-0301' },
+  { proc: '12', mode: 'ギヤ歯面に打痕が付く', eff: '歯面の局所摩耗により耐久性が低下', cause: '搬送治具との干渉', prev: '治具の当たり面を樹脂化', det: '歯面の目視確認', s: 7, o: 3, d: 6, src: '' },
+  { proc: '12', mode: 'ギヤの組付順序を誤る', eff: '減速比が異なり作動角が規格外', cause: '3点のギヤ形状が近似しており識別しにくい', prev: 'ギヤごとに色識別を付与', det: '作動角の全数検査で検出', s: 8, o: 3, d: 3, src: '' },
+  { proc: '13', mode: '軸芯ずれが規格外', eff: '振動が規格超過。長期では軸受摩耗', cause: '位置決め治具の摩耗', prev: '治具摩耗量の定期測定と限度見本', det: '振動の全数測定', s: 7, o: 3, d: 4, src: 'QT-2024-0164' },
+  { proc: '13', mode: '固定ねじの締付トルク不足', eff: '使用中にモータが緩み脱落', cause: '締結工具の設定誤り', prev: '工具設定を機種選択と連動', det: 'トルク値の全数記録', s: 9, o: 2, d: 2, src: '' },
+  { proc: '13', mode: '無負荷電流が規格上限に近い品が混入', eff: '消費電力の増加。市場での早期劣化', cause: '購入モータの特性ばらつき', prev: '受入検査へ無負荷電流を追加', det: '機能検査での電流測定', s: 5, o: 4, d: 4, src: 'QT-2025-0297' },
+  { proc: '14', mode: 'はんだ量不足によるクラック', eff: '温度サイクルで導通不良。作動停止', cause: 'ノズル摩耗による供給量低下', prev: 'ノズル交換周期の短縮と日常点検', det: 'X線検査の抜取', s: 8, o: 3, d: 5, src: 'QT-2023-0233' },
+  { proc: '14', mode: 'はんだボールの発生', eff: '短絡により誤作動', cause: 'リフロー予熱区間の温度逸脱', prev: '温度プロファイルの日常監視', det: '外観の全自動検査', s: 8, o: 3, d: 3, src: 'QT-2024-0118' },
+  { proc: '14', mode: '濡れ不良が特定の実装位置に集中', eff: '接合強度不足により振動で断線', cause: '基板パターンの熱容量差', prev: '予熱プロファイルの位置別最適化', det: 'X線検査の該当位置追加', s: 7, o: 4, d: 4, src: 'QT-2026-0038' },
+  { proc: '15', mode: 'コネクタが半嵌合のまま流出', eff: '車両側で導通不良。機能喪失', cause: 'ロック音が騒音下で聞き取れない', prev: 'ロック表示付きコネクタへ変更', det: '嵌合後の引張確認', s: 8, o: 4, d: 5, src: 'QT-2023-0187' },
+  { proc: '15', mode: 'ハーネス被覆のかみ込み', eff: '導通不良または短絡', cause: '配線経路が締結部と近接', prev: 'ハウジングへ配線ガイドを追加', det: '締結前の位置目視確認', s: 8, o: 3, d: 6, src: 'QT-2025-0077' },
+  { proc: '15', mode: '嵌合力が規格下限外れ', eff: '振動により嵌合が外れる', cause: '端子メッキ厚のばらつき', prev: '仕入先の工程変更管理を強化', det: '嵌合力の抜取確認', s: 8, o: 3, d: 6, src: 'QT-2026-0061' },
+  { proc: '16', mode: 'グリス塗布量の過多', eff: '低温で作動角が規格下限を下回る', cause: '塗布量の目分量管理', prev: '定量吐出式装置への変更', det: '塗布量の自動計量記録', s: 6, o: 3, d: 3, src: 'QT-2024-0255' },
+  { proc: '16', mode: 'グリスの塗布位置ずれ', eff: '未塗布部の摩耗が進行し寿命低下', cause: '塗布ノズルの位置決め精度', prev: 'ノズル位置の定期校正', det: '塗布後の画像検査', s: 6, o: 4, d: 5, src: '' },
+  { proc: '16', mode: '異種グリスの誤使用', eff: '低温特性を満たさず作動不良', cause: '複数機種のグリスが同一エリアに配置', prev: '機種ごとに供給エリアを分離', det: '容器のバーコード照合', s: 8, o: 2, d: 3, src: '' },
+  { proc: '17', mode: '締付トルクのばらつき', eff: '耐久後に合わせ面から異音・グリス漏出', cause: 'トルクレンチの校正周期超過', prev: '電動化と締付結果の自動記録', det: 'トルク値の全数記録', s: 7, o: 3, d: 3, src: 'QT-2023-0142' },
+  { proc: '17', mode: '締付順序の誤り', eff: '合わせ面に隙間が生じ気密不良', cause: '順序が要領書の文章のみで指示されている', prev: '順序表示ガイド治具の導入', det: 'ライン側での順序検知', s: 7, o: 4, d: 5, src: 'QT-2025-0378' },
+  { proc: '17', mode: 'ねじ座面の打痕', eff: '外観不良。防錆性の低下', cause: '締結工具ソケットの摩耗', prev: 'ソケット交換基準の設定', det: '外観の全数目視', s: 4, o: 5, d: 4, src: 'QT-2026-0121' },
+  { proc: '17', mode: 'ねじの本数不足', eff: '締結強度不足によりケース脱落', cause: '作業の抜け', prev: '締結回数のカウント検知', det: 'トルク記録の本数照合', s: 9, o: 2, d: 2, src: '' },
+  { proc: '18', mode: '検査基準値の設定誤り', eff: '規格外品が出荷され市場流出', cause: '機種切替時に前機種の基準が残存', prev: '切替時の基準照合をシステムで強制', det: '日常の標準品確認', s: 9, o: 2, d: 6, src: 'QT-2024-0312' },
+  { proc: '18', mode: '作動音の判定が検査員により分かれる', eff: '不良の見逃しまたは過剰な良品排除', cause: '聴感比較のみで定量閾値がない', prev: '音圧測定による定量判定への切替', det: '第三者判定への回付', s: 6, o: 5, d: 7, src: 'QT-2026-0012' },
+  { proc: '18', mode: '検査装置の校正切れ', eff: '測定値の信頼性喪失。全数再検査が必要', cause: '校正期限の管理が台帳のみ', prev: '期限をシステムで警告', det: '始業時の標準品測定', s: 8, o: 2, d: 3, src: '' },
+  { proc: '19', mode: 'リーク量が規格超過', eff: '内部へ水分侵入し回路が腐食', cause: 'シール溝のバリ残存', prev: 'バリ取りの自動化', det: '気密の全数検査', s: 7, o: 4, d: 2, src: 'QT-2025-0129' },
+  { proc: '19', mode: '防湿材の同梱漏れ', eff: '輸送中の吸湿により性能低下', cause: '梱包作業の抜け', prev: '同梱物のチェックリスト化', det: '梱包後の重量確認', s: 5, o: 3, d: 4, src: '' },
+  { proc: '19', mode: '異機種の混入', eff: '顧客ラインで誤組付。ライン停止', cause: '外観が近似し目視で判別しにくい', prev: '製品ラベルのバーコード照合', det: '出荷前のラベル読取', s: 9, o: 2, d: 2, src: '' }
+];
+
+/* 設計変更・DRBFM（ACT-230：ACT-220からの変更点） ---------- */
+const DRBFM = [
+  { cp: 'モータをブラシ付からブラシレスへ変更', why: '小型軽量化と寿命延長', worry: '取付フランジ形状が変わり既存の位置決め治具が使えない', mode: '軸芯ずれが規格外となる', eff: '振動増加・軸受の早期摩耗', act: '新モータ用の位置決め治具を設計', s: 7, o: 5, d: 6, status: 'AI提案', src: 'QT-2026-0084' },
+  { cp: 'モータをブラシ付からブラシレスへ変更', why: '小型軽量化と寿命延長', worry: '駆動方式が変わり制御基板の発熱分布が変化する', mode: '基板の局所温度上昇によるはんだ劣化', eff: '温度サイクルで導通不良', act: '熱解析の実施と実測での確認', s: 8, o: 4, d: 6, status: 'AI提案', src: 'QT-2023-0233' },
+  { cp: '減速比を 1:32 から 1:24 へ変更', why: '応答速度の向上', worry: '歯面の面圧が増加する', mode: 'ギヤ歯面の異常摩耗', eff: 'バックラッシ拡大により作動精度が低下', act: '歯面幅を1.5mm拡大し材質を変更', s: 8, o: 4, d: 5, status: '担当者確認済み', src: 'QT-2025-0344' },
+  { cp: '減速比を 1:32 から 1:24 へ変更', why: '応答速度の向上', worry: '作動音の周波数特性が変わる', mode: '既存の判定基準では良否が判定できない', eff: '不良の見逃しまたは過剰排除', act: '新機種用の判定基準を設定', s: 6, o: 5, d: 7, status: 'AI提案', src: 'QT-2026-0012' },
+  { cp: 'ハウジングをPBTからPPS樹脂へ変更', why: '耐熱性の確保', worry: '成形収縮率が変わり軸受穴径が変動する', mode: '穴径が規格外となる', eff: '軸受のガタにより作動音が増加', act: '成形条件の再設定と穴径のSPC管理', s: 6, o: 5, d: 3, status: '担当者確認済み', src: 'QT-2025-0034' },
+  { cp: 'ハウジングをPBTからPPS樹脂へ変更', why: '耐熱性の確保', worry: 'インサートナットの圧入保持力が変わる', mode: '圧入荷重が規格を外れ共回りが発生', eff: '締結不能。組立ラインの停止', act: '圧入条件の再設定と保持力の実測確認', s: 7, o: 4, d: 4, status: 'AI提案', src: 'QT-2024-0056' },
+  { cp: 'ケース締結をM4×4本からM3×6本へ変更', why: '薄肉化への対応', worry: '締結点が増え締付順序が複雑になる', mode: '締付順序の誤りにより面圧が不均一', eff: '合わせ面の隙間による気密不良', act: '順序表示ガイド治具を新設計', s: 7, o: 5, d: 5, status: 'AI提案', src: 'QT-2025-0378' },
+  { cp: 'ケース締結をM4×4本からM3×6本へ変更', why: '薄肉化への対応', worry: 'ねじ径縮小により締付トルクの管理幅が狭くなる', mode: 'トルク過大でねじ部が破損', eff: '締結強度不足。ケース脱落', act: 'トルク管理値の見直しと工具能力の確認', s: 9, o: 3, d: 4, status: 'AI提案', src: '' },
+  { cp: 'コネクタを2極から3極へ変更', why: '信号線の追加', worry: '嵌合力が増加し作業性が変わる', mode: '半嵌合のまま流出する', eff: '車両側で機能喪失', act: 'ロック表示の視認性を確認し引張確認を標準化', s: 8, o: 4, d: 5, status: '担当者確認済み', src: 'QT-2023-0187' },
+  { cp: 'ガスケット材質をNBRからシリコーンへ変更', why: '耐熱性の確保', worry: '圧縮永久歪の特性が変わる', mode: '長期使用で面圧が不足しグリスが漏出', eff: '市場での漏れ不具合', act: '面圧の下限値を設計要件へ明記し長期試験で確認', s: 8, o: 3, d: 7, status: 'AI提案', src: 'QT-2024-0209' }
+];
+
+/* 設計審査（DR） ------------------------------------------- */
+const DR_GATES = [
+  { id: 'DR1', name: '構想設計審査', date: '2025-06-12', status: '完了', chair: '大野（開発部長）', items: 12, open: 0, note: '製品コンセプトと目標仕様の妥当性を確認' },
+  { id: 'DR2', name: '基本設計審査', date: '2025-11-20', status: '完了', chair: '大野（開発部長）', items: 18, open: 2, note: '構造・材質・主要寸法の決定とリスク評価' },
+  { id: 'DR3', name: '詳細設計審査', date: '2026-08-27', status: '準備中', chair: '大野（開発部長）', items: 24, open: 24, note: '量産を前提とした製造性・検査性の確認' },
+  { id: 'DR4', name: '量産移行審査', date: '2026-11-— （予定）', status: '未着手', chair: '—', items: 0, open: 0, note: '工程能力と初期流動計画の確認' }
+];
+
+const DR_FINDINGS = [
+  { id: 'DR2-07', gate: 'DR2', cat: '構造', item: '減速比変更による歯面強度の再計算結果を提示すること', by: '技術部 森', due: '2026-01-31', status: '完了', link: 'QT-2025-0344' },
+  { id: 'DR2-14', gate: 'DR2', cat: '材質', item: 'PPS樹脂への変更に伴う成形収縮率の実測データを添付すること', by: '生産技術部 高橋', due: '2026-02-28', status: '完了', link: 'QT-2025-0034' },
+  { id: 'DR2-16', gate: 'DR2', cat: '評価', item: 'ガスケット材質変更後の長期圧縮試験計画を示すこと', by: '品質保証部 伊藤', due: '2026-06-30', status: '対応中', link: 'QT-2024-0209' },
+  { id: 'DR2-18', gate: 'DR2', cat: '製造性', item: '新モータの位置決め方法について生産技術部と合意すること', by: '技術部 森', due: '2026-07-31', status: '対応中', link: 'QT-2026-0084' },
+  { id: 'DR3-01', gate: 'DR3', cat: '製造性', item: 'M3×6本締結の締付順序と工具アクセス性を検証すること', by: '生産技術部 佐藤', due: '2026-08-20', status: '未着手', link: 'QT-2025-0378' },
+  { id: 'DR3-05', gate: 'DR3', cat: '検査性', item: '新機種の作動音判定基準を定量値で設定すること', by: '品質保証部 田中', due: '2026-08-20', status: '未着手', link: 'QT-2026-0012' },
+  { id: 'DR3-09', gate: 'DR3', cat: '構造', item: '配線ガイド形状がハーネスかみ込みを防止できることを実機で確認すること', by: '技術部 森', due: '2026-08-25', status: '未着手', link: 'QT-2025-0077' },
+  { id: 'DR3-12', gate: 'DR3', cat: '評価', item: 'ブラシレス化に伴う基板の熱解析結果と実測の対比を示すこと', by: '技術部 中村', due: '2026-08-25', status: '未着手', link: 'QT-2023-0233' }
+];
+
+/* 図面 ----------------------------------------------------- */
+const DRAWINGS = [
+  { no: 'ACT-220-100', name: 'ハウジング', rev: 'E', date: '2025-04-18', prod: 'ACT-220', key: '軸受穴 φ12.0 +0.02/0', ecn: 'ECN-2025-007' },
+  { no: 'ACT-220-200', name: '減速ギヤ（1段）', rev: 'C', date: '2024-01-22', prod: 'ACT-220', key: '歯厚 2.35±0.03', ecn: '' },
+  { no: 'ACT-220-300', name: 'ケース', rev: 'D', date: '2024-08-05', prod: 'ACT-220', key: 'シール溝深さ 1.5±0.05', ecn: 'ECN-2024-018' },
+  { no: 'ACT-220-400', name: '制御基板アセンブリ', rev: 'F', date: '2025-06-30', prod: 'ACT-220', key: '固定点4箇所', ecn: 'ECN-2025-014' },
+  { no: 'ACT-220-500', name: 'ハーネスアセンブリ', rev: 'B', date: '2023-08-14', prod: 'ACT-220', key: '嵌合力 40〜80N', ecn: 'ECN-2023-031' },
+  { no: 'ACT-230-100', name: 'ハウジング（新設計）', rev: 'B', date: '2026-05-11', prod: 'ACT-230', key: '軸受穴 φ11.0 +0.02/0', ecn: '' },
+  { no: 'ACT-230-200', name: '減速ギヤ（新設計）', rev: 'C', date: '2026-06-24', prod: 'ACT-230', key: '歯面幅 8.5（+1.5変更）', ecn: '' },
+  { no: 'ACT-230-300', name: 'ケース（新設計）', rev: 'A', date: '2026-04-02', prod: 'ACT-230', key: 'M3×6本締結', ecn: '' },
+  { no: 'ACT-210-100', name: 'ハウジング', rev: 'H', date: '2024-07-19', prod: 'ACT-210', key: '軸受穴 φ12.0 +0.03/0', ecn: '' },
+  { no: 'SNS-100-400', name: 'センサ基板アセンブリ', rev: 'D', date: '2025-09-08', prod: 'SNS-100', key: '実装点数 148', ecn: '' }
+];
+
+/* 設計変更通知（ECN） ------------------------------------- */
+const ECNS = [
+  { no: 'ECN-2026-009', date: '2026-07-15', title: 'ACT-230 減速ギヤの歯面幅拡大および材質変更', prod: 'ACT-230', reason: '試作耐久試験で歯面に異常摩耗（QT-2025-0344）', status: '審査中', drawings: ['ACT-230-200'], procs: ['12'], src: 'QT-2025-0344' },
+  { no: 'ECN-2025-014', date: '2025-06-20', title: 'ACT-220 制御基板の固定点を2点から4点へ変更', prod: 'ACT-220', reason: '振動試験後にコネクタ接触抵抗が上昇（QT-2025-0188）', status: '適用済み', drawings: ['ACT-220-400'], procs: ['14'], src: 'QT-2025-0188' },
+  { no: 'ECN-2025-007', date: '2025-03-12', title: 'ACT-220 ハウジングに配線ガイド形状を追加', prod: 'ACT-220', reason: 'ハーネス被覆のかみ込みによる導通不良（QT-2025-0077）', status: '適用済み', drawings: ['ACT-220-100'], procs: ['15', '17'], src: 'QT-2025-0077' },
+  { no: 'ECN-2024-018', date: '2024-08-05', title: 'ACT-210/220 ガスケット材質の変更', prod: 'ACT-210', reason: '長期使用品でグリス漏出（QT-2024-0209）', status: '適用済み', drawings: ['ACT-220-300'], procs: ['17', '19'], src: 'QT-2024-0209' },
+  { no: 'ECN-2023-031', date: '2023-10-02', title: 'ACT-220 コネクタをロック表示付きへ変更', prod: 'ACT-220', reason: '半嵌合品の市場流出（QT-2023-0187）', status: '適用済み', drawings: ['ACT-220-500'], procs: ['15'], src: 'QT-2023-0187' }
+];
+
+const DATA = {
+  CO, PRODUCTS, PROCESSES, MARK_LEGEND,
+  TROUBLES, TROUBLE_TOTAL, PFMEA, PFMEA_TOTAL,
+  DRBFM, DR_GATES, DR_FINDINGS, DRAWINGS, ECNS
+};
+
+/* JINGS 営業標準デモ 共通スクリプト */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const esc = s => String(s == null ? '' : s)
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+/* ---- 画面切替 ---- */
+function showView(name) {
+  $$('.view').forEach(v => {
+    const show = v.dataset.view === name;
+    if (show && v.hidden) { v.style.animation = 'none'; void v.offsetHeight; v.style.animation = ''; }
+    v.hidden = !show;
+  });
+  $$('.nav-item').forEach(b => {
+    if (b.dataset.view === name) b.setAttribute('aria-current', 'page');
+    else b.removeAttribute('aria-current');
+  });
+  if (window.innerWidth <= 1024) setSidebar(false);
+  window.scrollTo(0, 0);
+}
+function setSidebar(open) {
+  const sb = $('#sidebar'), tg = $('#navToggle');
+  if (!sb) return;
+  sb.dataset.open = String(open);
+  if (tg) tg.setAttribute('aria-expanded', String(open));
+}
+
+/* ---- 根拠パネル ---- */
+let _lastFocus = null;
+function openPanel(title, html) {
+  const panel = $('#panel'), bd = $('#panelBackdrop');
+  _lastFocus = document.activeElement;
+  $('#panelTitle').textContent = title;
+  $('#panelBody').innerHTML = html;
+  if (panel.hidden) { panel.style.animation = 'none'; void panel.offsetHeight; panel.style.animation = ''; }
+  panel.hidden = false; bd.hidden = false;
+  $('#panelClose').focus();
+}
+function closePanel() {
+  $('#panel').hidden = true;
+  $('#panelBackdrop').hidden = true;
+  if (_lastFocus) _lastFocus.focus();
+}
+
+/* ---- 通知 ---- */
+function toast(title, body, kind) {
+  const el = document.createElement('div');
+  el.className = 'toast' + (kind ? ' toast--' + kind : '');
+  el.setAttribute('role', 'status');
+  el.innerHTML = `<div><p class="toast__title">${esc(title)}</p>${body ? `<p class="toast__body">${esc(body)}</p>` : ''}</div>`;
+  $('#toastArea').appendChild(el);
+  setTimeout(() => el.remove(), 5200);
+}
+
+/* ---- 段階表示ローダー（AIの処理内容を利用者の言葉で出す） ---- */
+function runSteps(stepperSel, doneFn, perStep) {
+  const steps = $$(stepperSel + ' .step');
+  steps.forEach(s => s.dataset.state = 'todo');
+  let i = 0;
+  const tick = () => {
+    if (i > 0) {
+      steps[i - 1].dataset.state = 'done';
+      steps[i - 1].querySelector('.step__mark').textContent = '✓';
+    }
+    if (i >= steps.length) { doneFn(); return; }
+    steps[i].dataset.state = 'active';
+    i++;
+    setTimeout(tick, perStep || 320);
+  };
+  tick();
+}
+
+/* ---- CSV出力（Excelで開ける BOM 付き） ---- */
+function downloadCsv(filename, rows) {
+  const body = rows.map(r => r.map(c => {
+    const v = String(c == null ? '' : c);
+    return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+  }).join(',')).join('\r\n');
+  const blob = new Blob(['﻿' + body], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 0);
+}
+
+/* ---- 共通の配線 ---- */
+function wireShell() {
+  $$('.nav-item').forEach(b => b.addEventListener('click', () => showView(b.dataset.view)));
+  document.addEventListener('click', e => {
+    const t = e.target.closest('[data-goto]');
+    if (!t) return;
+    e.preventDefault();
+    showView(t.dataset.goto);
+  });
+  const tg = $('#navToggle');
+  if (tg) tg.addEventListener('click', () => setSidebar($('#sidebar').dataset.open !== 'true'));
+  $('#panelClose').addEventListener('click', closePanel);
+  $('#panelBackdrop').addEventListener('click', closePanel);
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !$('#panel').hidden) closePanel();
+  });
+}
+
+/* ---- 日付表示 ---- */
+function today() {
+  const d = new Date();
+  const p = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+
+(function(){
+/* デモ1：不具合ナレッジ横断検索 — 埋め込み実データに対してJSで実検索する */
+const PROC_BY_NO = {};
+DATA.PROCESSES.forEach(p => PROC_BY_NO[p.no] = p);
+const TR_BY_ID = {};
+DATA.TROUBLES.forEach(t => TR_BY_ID[t.id] = t);
+
+const procLabel = no => PROC_BY_NO[no] ? `工程${no} ${PROC_BY_NO[no].name}` : `工程${no}`;
+
+/* ---- 日本語向けの類似度（2-gram の Dice 係数） ---- */
+function norm(s) {
+  return String(s || '').normalize('NFKC').toLowerCase()
+    .replace(/[\s・,.、。（）()「」【】\/：:；;＋+\-–—]/g, '');
+}
+function grams(s) {
+  const t = norm(s), set = new Set();
+  for (let i = 0; i < t.length - 1; i++) set.add(t.slice(i, i + 2));
+  return set;
+}
+function dice(a, b) {
+  if (!a.size || !b.size) return 0;
+  let inter = 0;
+  a.forEach(g => { if (b.has(g)) inter++; });
+  return (2 * inter) / (a.size + b.size);
+}
+function boostFor(q, rec) {
+  const n = norm(q);
+  let bump = 0;
+  if (rec.prod && n.includes(norm(rec.prod))) bump += 0.18;
+  const p = PROC_BY_NO[rec.proc];
+  if (p && n.includes(norm(p.name))) bump += 0.14;
+  if (rec.part && n.includes(norm(rec.part))) bump += 0.10;
+  return bump;
+}
+
+function searchTroubles(q) {
+  const g = grams(q);
+  return DATA.TROUBLES
+    .map(t => {
+      const text = [t.sym, t.cause, t.part, t.prod, procLabel(t.proc)].join(' ');
+      return { rec: t, score: Math.min(1, dice(g, grams(text)) + boostFor(q, t)) };
+    })
+    .filter(x => x.score >= 0.08)
+    .sort((a, b) => b.score - a.score);
+}
+function searchPfmea(q, proc) {
+  const g = grams(q);
+  return DATA.PFMEA
+    .map(r => {
+      const text = [r.mode, r.cause, r.eff, procLabel(r.proc)].join(' ');
+      let sc = dice(g, grams(text));
+      if (proc && r.proc === proc) sc += 0.22;
+      return { rec: r, score: Math.min(1, sc) };
+    })
+    .filter(x => x.score >= 0.12)
+    .sort((a, b) => b.score - a.score);
+}
+function searchEcn(q) {
+  const g = grams(q);
+  return DATA.ECNS
+    .map(e => ({ rec: e, score: dice(g, grams(e.title + ' ' + e.reason)) }))
+    .filter(x => x.score >= 0.10)
+    .sort((a, b) => b.score - a.score);
+}
+
+/* ---- ダッシュボード ---- */
+function renderDashboard() {
+  const open = DATA.TROUBLES.filter(t => t.status !== '完了');
+  const leak = DATA.TROUBLES.filter(t => t.leak);
+  const kpis = [
+    { label: '登録済み不具合記録', value: DATA.TROUBLE_TOTAL.toLocaleString(), unit: ' 件',
+      note: `2019年以降の全記録。画面には代表 ${DATA.TROUBLES.length} 件を表示しています` },
+    { label: '恒久対策が未完了', value: open.length, unit: ' 件', warn: true,
+      note: `うち影響度S8以上 ${open.filter(t => t.s >= 8).length} 件` },
+    { label: '顧客流出に至った記録', value: leak.length, unit: ' 件', warn: true,
+      note: '再発防止の横展開が必要な事例' },
+    { label: '工程FMEA 登録行数', value: DATA.PFMEA_TOTAL.toLocaleString(), unit: ' 行',
+      note: `全4機種。画面には ACT-220 の ${DATA.PFMEA.length} 行を表示しています` },
+    { label: '設計変更通知', value: DATA.ECNS.length, unit: ' 件',
+      note: `審査中 ${DATA.ECNS.filter(e => e.status === '審査中').length} 件` }
+  ];
+  $('#kpiGrid').innerHTML = kpis.map(k => `
+    <div class="card">
+      <p class="kpi__label">${esc(k.label)}</p>
+      <p class="kpi__value"${k.warn ? ' style="color:var(--color-warning)"' : ''}>${esc(k.value)}<span class="kpi__unit">${esc(k.unit)}</span></p>
+      <p class="kpi__note">${esc(k.note)}</p>
+    </div>`).join('');
+
+  const sorted = open.slice().sort((a, b) => b.s - a.s);
+  $('#openMeta').textContent = `${open.length} 件を影響度Sの高い順に表示しています`;
+  $('#openBody').innerHTML = sorted.map(t => `
+    <tr>
+      <td class="mono nowrap">${esc(t.id)}</td>
+      <td class="mono nowrap">${esc(t.date)}</td>
+      <td class="nowrap">${esc(t.prod)}<div class="cell-sub">${esc(procLabel(t.proc))}</div></td>
+      <td class="col-text">${esc(t.sym)}</td>
+      <td class="nowrap"><span class="sod-badge${t.s >= 8 ? ' sod-badge--hi' : ''}">S${t.s}</span></td>
+      <td><span class="status status--${t.status === '対応中' ? 'warn' : 'todo'}">${esc(t.status)}</span></td>
+      <td><button class="btn btn--quiet btn--small" data-tr="${esc(t.id)}">記録を確認する</button></td>
+    </tr>`).join('');
+
+  // 工程別の件数分布
+  const counts = {};
+  DATA.TROUBLES.forEach(t => counts[t.proc] = (counts[t.proc] || 0) + 1);
+  const max = Math.max(...Object.values(counts));
+  const order = DATA.PROCESSES.filter(p => counts[p.no]);
+  $('#procDist').innerHTML = `<div class="dist" style="height:120px">` + order.map(p => {
+    const n = counts[p.no];
+    return `<div class="dist__col" title="${esc(procLabel(p.no))}：${n}件">
+      <span>${n}</span>
+      <span class="dist__bar${n >= max ? ' dist__bar--warn' : ''}" style="height:${Math.round(n / max * 84)}px"></span>
+      <span class="dist__d mono">${esc(p.no)}</span>
+    </div>`;
+  }).join('') + `</div>`;
+  const top = order.slice().sort((a, b) => counts[b.no] - counts[a.no])[0];
+  $('#procNote').textContent =
+    `横軸は工程番号です。${procLabel(top.no)}が ${counts[top.no]} 件で最も多く、締結条件の管理と作業順序の指示方法に関する記録が繰り返し登録されています。`;
+}
+
+/* ---- 検索結果 ---- */
+function pct(x) { return Math.round(x * 100); }
+
+function renderResult(q) {
+  const useTr = $('#scTr').checked, useFm = $('#scFm').checked, useEc = $('#scEc').checked;
+  const trs = useTr ? searchTroubles(q).slice(0, 5) : [];
+  const topProc = trs.length ? trs[0].rec.proc : '';
+  const fms = useFm ? searchPfmea(q, topProc).slice(0, 4) : [];
+  const ecs = useEc ? searchEcn(q).slice(0, 3) : [];
+
+  if (!trs.length && !fms.length && !ecs.length) {
+    $('#qResult').innerHTML = `
+      <div class="empty">
+        <h2 class="empty__title">該当する記録が見つかりませんでした</h2>
+        <div class="empty__body">
+          <p>追加で試せること:</p>
+          <ul>
+            <li>製品名を外して、現象だけで検索する</li>
+            <li>「異音」「リーク」「かみ込み」など、現象の表現を変える</li>
+            <li>検索範囲の工程FMEAと設計変更通知を有効にする</li>
+            <li>未登録の作業要領書・検査記録を取り込む（登録文書の画面を参照）</li>
+          </ul>
+        </div>
+      </div>`;
+    return;
+  }
+
+  const t0 = trs.length ? trs[0].rec : null;
+  const sameProc = t0 ? DATA.TROUBLES.filter(t => t.proc === t0.proc) : [];
+  const leaked = sameProc.filter(t => t.leak);
+
+  let concl = '';
+  if (t0) {
+    concl = `入力された事象に近い不具合記録が ${trs.length} 件見つかりました。最も近いのは `
+      + `<span class="mono">${esc(t0.id)}</span>（${esc(t0.date)}・${esc(t0.prod)}・${esc(procLabel(t0.proc))}）で、`
+      + `原因は「${esc(t0.cause)}」でした。`
+      + `同じ${esc(procLabel(t0.proc))}では過去に ${sameProc.length} 件が登録されており、`
+      + (leaked.length
+          ? `うち ${leaked.length} 件は顧客流出に至っています。出荷済み品の確認が必要かどうかを先に判断してください。`
+          : `顧客流出に至った記録はありません。`);
+  } else {
+    concl = `不具合記録では一致が見つかりませんでしたが、工程FMEAまたは設計変更通知に関連する内容があります。`;
+  }
+
+  const trTable = trs.length ? `
+    <div class="section">
+      <h2 class="section__title">類似する不具合記録</h2>
+      <p class="section__lead">関連度は入力された文章と記録内容の一致度です。順位は参考であり、採否は担当者が判断してください。</p>
+      <div class="table-wrap">
+        <table>
+          <caption class="visually-hidden">類似する不具合記録</caption>
+          <thead><tr>
+            <th scope="col">関連度</th><th scope="col">記録</th>
+            <th scope="col">現象</th><th scope="col">推定原因</th><th scope="col">根拠</th>
+          </tr></thead>
+          <tbody>${trs.map(x => `
+            <tr>
+              <td class="mono nowrap">${pct(x.score)}%</td>
+              <td class="nowrap">
+                <span class="mono">${esc(x.rec.id)}</span>
+                <div class="cell-sub mono">${esc(x.rec.date)}</div>
+                <div class="cell-sub">${esc(procLabel(x.rec.proc))}</div>
+                ${x.rec.leak ? '<div style="margin-top:var(--space-1)"><span class="status status--risk">流出あり</span></div>' : ''}
+              </td>
+              <td class="col-text">${esc(x.rec.sym)}</td>
+              <td class="col-text">${esc(x.rec.cause)}</td>
+              <td><button class="btn btn--quiet btn--small" data-tr="${esc(x.rec.id)}">根拠を確認する</button></td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>` : '';
+
+  const fmTable = fms.length ? `
+    <div class="section">
+      <h2 class="section__title">工程FMEAに登録済みの故障モード</h2>
+      <p class="section__lead">同じ工程の工程FMEAに、今回の事象に対応する故障モードが登録されているかを確認できます。登録済みであれば、予防・検出の手段が機能しなかった理由の調査に進めます。</p>
+      <div class="table-wrap">
+        <table>
+          <caption class="visually-hidden">関連する工程FMEAの行</caption>
+          <thead><tr>
+            <th scope="col">工程</th><th scope="col">故障モード</th><th scope="col">現行の予防</th>
+            <th scope="col">現行の検出</th><th scope="col">S・O・D</th><th scope="col">根拠</th>
+          </tr></thead>
+          <tbody>${fms.map(x => `
+            <tr>
+              <td class="nowrap">工程${esc(x.rec.proc)}<div class="cell-sub">${esc(PROC_BY_NO[x.rec.proc] ? PROC_BY_NO[x.rec.proc].name : '')}</div></td>
+              <td class="col-text">${esc(x.rec.mode)}</td>
+              <td class="col-text">${esc(x.rec.prev)}</td>
+              <td class="col-text">${esc(x.rec.det)}</td>
+              <td class="nowrap">
+                <span class="sod-badge${x.rec.s >= 8 ? ' sod-badge--hi' : ''}">S${x.rec.s}</span>
+                <span class="sod-badge">O${x.rec.o}</span>
+                <span class="sod-badge">D${x.rec.d}</span>
+              </td>
+              <td><button class="btn btn--quiet btn--small" data-fm="${esc(x.rec.proc)}|${esc(x.rec.mode)}">根拠を確認する</button></td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>` : '';
+
+  const ecTable = ecs.length ? `
+    <div class="section">
+      <h2 class="section__title">関連する設計変更通知</h2>
+      <p class="section__lead">同種の事象に対して、過去に設計変更で対応した記録です。今回も設計側の対応が必要かどうかの判断材料になります。</p>
+      <div class="table-wrap">
+        <table>
+          <caption class="visually-hidden">関連する設計変更通知</caption>
+          <thead><tr>
+            <th scope="col">通知番号</th><th scope="col">発行日</th><th scope="col">内容</th>
+            <th scope="col">発行理由</th><th scope="col">状態</th>
+          </tr></thead>
+          <tbody>${ecs.map(x => `
+            <tr>
+              <td class="mono">${esc(x.rec.no)}</td>
+              <td class="mono">${esc(x.rec.date)}</td>
+              <td>${esc(x.rec.title)}</td>
+              <td>${esc(x.rec.reason)}</td>
+              <td><span class="status status--${x.rec.status === '適用済み' ? 'done' : 'warn'}">${esc(x.rec.status)}</span></td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>` : '';
+
+  // 確認すべき項目（実データの恒久対策・予防手段から導出）
+  const checks = [];
+  if (t0) {
+    checks.push(`${procLabel(t0.proc)}で過去に実施した恒久対策「${t0.perm}」が、今回の対象ロットにも適用されているか`);
+    if (leaked.length) checks.push(`同工程で顧客流出の実績があるため、出荷済み品の範囲特定と顧客への連絡要否を先に判断する`);
+  }
+  fms.slice(0, 2).forEach(x => {
+    checks.push(`工程FMEAに登録済みの検出手段「${x.rec.det}」が今回機能しなかった理由（検出をすり抜けた条件）`);
+  });
+  if (t0 && DATA.TROUBLES.filter(t => t.proc === t0.proc && t.status !== '完了').length) {
+    checks.push(`同工程に恒久対策が未完了の記録が残っているため、今回の事象と同一原因かどうかの切り分け`);
+  }
+  checks.push(`作業要領書と検査記録が未登録のため、作業条件・測定値の実績はシステム外での確認が必要`);
+
+  $('#qResult').innerHTML = `
+    <div class="card" style="border-left:4px solid var(--color-primary)">
+      <div style="display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap;margin-bottom:var(--space-3)">
+        <span class="status status--ai">AIによる整理結果</span>
+        <span class="cell-sub">生成 ${today()}　／　検索対象 ${DATA.TROUBLE_TOTAL.toLocaleString()}件の不具合記録・${DATA.PFMEA_TOTAL.toLocaleString()}行の工程FMEA・${DATA.ECNS.length}件の設計変更通知</span>
+      </div>
+      <h2 style="font-size:var(--font-subsection-title);margin-bottom:var(--space-2)">確認結果</h2>
+      <p style="line-height:var(--line-height-body)">${concl}</p>
+    </div>
+
+    ${trTable}${fmTable}${ecTable}
+
+    <div class="section">
+      <h2 class="section__title">今回確認すべき項目</h2>
+      <p class="section__lead">過去の対策内容と工程FMEAの記載から導いた確認項目です。AIによる提案であり、実施の判断は担当者が行います。</p>
+      <div class="card">
+        <ol style="margin:0;padding-left:1.3em;line-height:var(--line-height-body)">
+          ${checks.map(c => `<li style="margin-bottom:var(--space-2)">${esc(c)}</li>`).join('')}
+        </ol>
+      </div>
+    </div>
+
+    <div class="callout callout--warn">
+      <div>
+        <p class="callout__title">この結果を使うときの注意</p>
+        <p>関連度は文章の一致度による並び替えであり、原因の断定ではありません。作業要領書・検査記録が未登録のため、作業条件まで遡った確認はシステム外で行う必要があります。最終的な原因の特定と対策の決定は担当者が行ってください。</p>
+      </div>
+    </div>`;
+}
+
+/* ---- 根拠パネル ---- */
+function openTroublePanel(id) {
+  const t = TR_BY_ID[id];
+  if (!t) return;
+  const related = DATA.PFMEA.filter(r => r.src === id);
+  const ecn = DATA.ECNS.filter(e => e.src === id);
+  openPanel('根拠資料：不具合記録 ' + t.id, `
+    <dl class="meta-list">
+      <dt>管理番号</dt><dd class="mono">${esc(t.id)}</dd>
+      <dt>発生日</dt><dd class="mono">${esc(t.date)}</dd>
+      <dt>製品・発生工程</dt><dd>${esc(t.prod)}　／　${esc(procLabel(t.proc))}</dd>
+      <dt>対象部位</dt><dd>${esc(t.part)}</dd>
+      <dt>影響度S ／ 発生度O ／ 検出度D</dt><dd class="mono">S${t.s}　O${t.o}　D${t.d}</dd>
+      <dt>担当 ／ 状態</dt><dd>${esc(t.owner)}　／　${esc(t.status)}${t.leak ? '　／　顧客流出あり' : ''}</dd>
+      <dt>関連する設計審査</dt><dd>${esc(t.dr)}</dd>
+    </dl>
+    <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">記録原文</h3>
+    <div class="quote">
+      <p><strong>発生事象</strong><br>${esc(t.sym)}</p>
+      <p style="margin-top:var(--space-3)"><strong>原因</strong><br>${esc(t.cause)}</p>
+      <p style="margin-top:var(--space-3)"><strong>暫定対策</strong><br>${esc(t.tmp)}</p>
+      <p style="margin-top:var(--space-3)"><strong>恒久対策</strong><br>${esc(t.perm)}</p>
+    </div>
+    ${related.length ? `
+      <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">この記録を出典とする工程FMEAの行</h3>
+      <ul style="margin:0;padding-left:1.2em;line-height:var(--line-height-body)">
+        ${related.map(r => `<li>${esc(procLabel(r.proc))}：${esc(r.mode)}</li>`).join('')}
+      </ul>` : ''}
+    ${ecn.length ? `
+      <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">この記録を理由とする設計変更</h3>
+      <ul style="margin:0;padding-left:1.2em;line-height:var(--line-height-body)">
+        ${ecn.map(e => `<li><span class="mono">${esc(e.no)}</span>　${esc(e.title)}</li>`).join('')}
+      </ul>` : ''}
+    <p style="margin-top:var(--space-5);font-size:var(--font-caption);color:var(--color-text-secondary)">出典：不具合記録データベース（架空データ）。原本の記載をそのまま表示しています。</p>`);
+}
+
+function openFmeaPanel(key) {
+  const [proc, mode] = key.split('|');
+  const r = DATA.PFMEA.find(x => x.proc === proc && x.mode === mode);
+  if (!r) return;
+  const p = PROC_BY_NO[proc];
+  const src = r.src ? TR_BY_ID[r.src] : null;
+  openPanel('根拠資料：工程FMEA ' + procLabel(proc), `
+    <dl class="meta-list">
+      <dt>工程</dt><dd>${esc(procLabel(proc))}${p && p.mark ? `　／　特性記号 ${esc(p.mark)}（${esc(DATA.MARK_LEGEND[p.mark] || '')}）` : ''}</dd>
+      <dt>工程の機能</dt><dd>${esc(p ? p.func : '—')}</dd>
+      <dt>要求事項</dt><dd>${esc(p ? p.req : '—')}</dd>
+    </dl>
+    <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">工程FMEAの記載</h3>
+    <div class="quote">
+      <p><strong>故障モード</strong><br>${esc(r.mode)}</p>
+      <p style="margin-top:var(--space-3)"><strong>影響</strong><br>${esc(r.eff)}</p>
+      <p style="margin-top:var(--space-3)"><strong>原因</strong><br>${esc(r.cause)}</p>
+      <p style="margin-top:var(--space-3)"><strong>現行の予防</strong><br>${esc(r.prev)}</p>
+      <p style="margin-top:var(--space-3)"><strong>現行の検出</strong><br>${esc(r.det)}</p>
+      <p style="margin-top:var(--space-3)"><strong>評価</strong><br><span class="mono">S${r.s}　O${r.o}　D${r.d}　RPN ${r.s * r.o * r.d}</span></p>
+    </div>
+    ${src ? `
+      <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">この行の登録契機となった不具合</h3>
+      <p><span class="mono">${esc(src.id)}</span>（${esc(src.date)}）${esc(src.sym)}</p>
+      <p style="margin-top:var(--space-2)"><button class="btn btn--quiet btn--small" data-tr="${esc(src.id)}">この不具合記録を確認する</button></p>` : `
+      <p style="margin-top:var(--space-5);font-size:var(--font-caption);color:var(--color-text-secondary)">この行に紐づく不具合記録はありません。過去の設計知見または類似機種からの流用で登録された行です。</p>`}
+    <p style="margin-top:var(--space-5);font-size:var(--font-caption);color:var(--color-text-secondary)">出典：工程FMEA ACT-220（架空データ）。</p>`);
+}
+
+/* ---- 不具合記録一覧 ---- */
+function renderList() {
+  const prod = $('#fProd').value, proc = $('#fProc').value,
+        stat = $('#fStat').value, leak = $('#fLeak').value;
+  const rows = DATA.TROUBLES.filter(t =>
+    (!prod || t.prod === prod) && (!proc || t.proc === proc) &&
+    (!stat || t.status === stat) && (!leak || String(t.leak ? 1 : 0) === leak));
+
+  const filtered = [prod && `製品=${prod}`, proc && `工程=${proc}`, stat && `状態=${stat}`,
+                    leak && `流出=${leak === '1' ? 'あり' : 'なし'}`].filter(Boolean);
+  $('#listMeta').innerHTML = `全 ${DATA.TROUBLES.length} 件中 <strong>${rows.length} 件</strong>を表示`
+    + (filtered.length ? `　／　絞り込み中：${esc(filtered.join('、'))}` : '');
+  $('#listEmpty').hidden = rows.length > 0;
+  $('#listBody').closest('.table-wrap').hidden = rows.length === 0;
+  $('#listBody').innerHTML = rows.map(t => `
+    <tr>
+      <td class="mono nowrap">${esc(t.id)}</td>
+      <td class="mono nowrap">${esc(t.date)}</td>
+      <td class="nowrap">${esc(t.prod)}</td>
+      <td class="nowrap">工程${esc(t.proc)}<div class="cell-sub">${esc(PROC_BY_NO[t.proc] ? PROC_BY_NO[t.proc].name : '')}</div></td>
+      <td class="col-text">${esc(t.sym)}${t.leak ? '<div class="cell-sub" style="color:var(--color-error)">顧客流出あり</div>' : ''}</td>
+      <td class="nowrap"><span class="sod-badge${t.s >= 8 ? ' sod-badge--hi' : ''}">${t.s}</span></td>
+      <td class="nowrap"><span class="sod-badge">${t.o}</span></td>
+      <td class="nowrap"><span class="sod-badge">${t.d}</span></td>
+      <td><span class="status status--${t.status === '完了' ? 'done' : t.status === '対応中' ? 'warn' : 'todo'}">${esc(t.status)}</span></td>
+      <td><button class="btn btn--quiet btn--small" data-tr="${esc(t.id)}">記録を確認する</button></td>
+    </tr>`).join('');
+  return rows;
+}
+
+/* ---- 登録文書 ---- */
+function renderDocs() {
+  const docs = [
+    { doc: '不具合記録データベース', kind: '社内システム抽出', n: `${DATA.TROUBLE_TOTAL.toLocaleString()} 件`, at: '2026-08-01', st: 'done', stTxt: '解析完了' },
+    { doc: '工程FMEA（ACT-210／220／230／SNS-100）', kind: '様式1', n: `${DATA.PFMEA_TOTAL.toLocaleString()} 行`, at: '2026-08-01', st: 'done', stTxt: '解析完了' },
+    { doc: '設計変更通知（ECN）', kind: '変更管理帳票', n: `${DATA.ECNS.length} 件`, at: '2026-08-01', st: 'done', stTxt: '解析完了' },
+    { doc: '製品図面', kind: '図面', n: `${DATA.DRAWINGS.length} 件`, at: '2026-08-01', st: 'done', stTxt: '解析完了' },
+    { doc: '設計審査記録（DR1〜DR4）', kind: '審査記録', n: `${DATA.DR_FINDINGS.length} 件の指摘`, at: '2026-08-01', st: 'done', stTxt: '解析完了' },
+    { doc: '作業要領書', kind: '作業標準', n: '—', at: '—', st: 'todo', stTxt: '未登録' },
+    { doc: '検査記録（測定値）', kind: '検査記録', n: '—', at: '—', st: 'todo', stTxt: '未登録' }
+  ];
+  $('#docsBody').innerHTML = docs.map(d => `
+    <tr>
+      <td>${esc(d.doc)}</td>
+      <td>${esc(d.kind)}</td>
+      <td class="mono">${esc(d.n)}</td>
+      <td class="mono">${esc(d.at)}</td>
+      <td><span class="status status--${d.st}">${esc(d.stTxt)}</span></td>
+    </tr>`).join('');
+}
+
+/* ---- 初期化 ---- */
+const EXAMPLES = [
+  'ACT-220のケース締結部から異音が出ている',
+  'コネクタが半嵌合のまま組み付けられた',
+  'はんだのクラックで導通不良が起きた',
+  '気密検査でリーク量が規格を超えた',
+  '低温で作動角が規格下限を下回る'
+];
+
+wireShell();
+renderDashboard();
+renderDocs();
+
+$('#qChips').innerHTML = EXAMPLES.map(e =>
+  `<button class="chip" type="button" data-q="${esc(e)}">${esc(e)}</button>`).join('');
+$('#qChips').addEventListener('click', e => {
+  const b = e.target.closest('[data-q]');
+  if (!b) return;
+  $('#q').value = b.dataset.q;
+  $('#q').focus();
+});
+
+DATA.PRODUCTS.forEach(p => {
+  const o = document.createElement('option');
+  o.value = o.textContent = p.code;
+  $('#fProd').appendChild(o);
+});
+DATA.PROCESSES.forEach(p => {
+  const o = document.createElement('option');
+  o.value = p.no; o.textContent = procLabel(p.no);
+  $('#fProc').appendChild(o);
+});
+['#fProd', '#fProc', '#fStat', '#fLeak'].forEach(s =>
+  $(s).addEventListener('change', renderList));
+renderList();
+
+$('#btnListCsv').addEventListener('click', () => {
+  const rows = renderList();
+  downloadCsv(`不具合記録一覧_${today()}.csv`, [
+    ['管理番号', '発生日', '製品', '発生工程', '対象部位', '現象', '原因', '暫定対策', '恒久対策', 'S', 'O', 'D', '担当', '状態', '顧客流出'],
+    ...rows.map(t => [t.id, t.date, t.prod, procLabel(t.proc), t.part, t.sym, t.cause, t.tmp, t.perm, t.s, t.o, t.d, t.owner, t.status, t.leak ? 'あり' : 'なし'])
+  ]);
+  toast('CSVを出力しました', `${rows.length} 件を出力しました。Excelでそのまま開けます。`);
+});
+
+$('#qForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const q = $('#q').value.trim();
+  if (!q) {
+    toast('事象を入力してください', '「発生している事象」が未入力です。文章のままで構いません。', 'error');
+    $('#q').focus();
+    return;
+  }
+  $('#qIdle').hidden = true;
+  $('#qResult').hidden = true;
+  $('#qLoading').hidden = false;
+  $('#qLoadMeta').textContent =
+    `対象：不具合記録 ${DATA.TROUBLE_TOTAL.toLocaleString()}件／工程FMEA ${DATA.PFMEA_TOTAL.toLocaleString()}行／設計変更通知 ${DATA.ECNS.length}件`;
+  runSteps('#qStepper', () => {
+    $('#qLoading').hidden = true;
+    renderResult(q);
+    $('#qResult').hidden = false;
+  }, 340);
+});
+
+document.addEventListener('click', e => {
+  const tr = e.target.closest('[data-tr]');
+  if (tr) { openTroublePanel(tr.dataset.tr); return; }
+  const fm = e.target.closest('[data-fm]');
+  if (fm) { openFmeaPanel(fm.dataset.fm); }
+});
+
+})();
+</script>
+</body>
+</html>

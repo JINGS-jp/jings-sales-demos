@@ -1,0 +1,194 @@
+<!-- ========== ダッシュボード ========== -->
+<section class="view" data-view="dashboard">
+  <p class="breadcrumb">ホーム</p>
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">ダッシュボード</h1>
+      <p class="page-lead">登録済みの不具合記録・工程FMEA・設計変更の状態と、対応が必要な項目を表示しています。</p>
+    </div>
+    <div class="page-head__actions">
+      <button class="btn btn--primary" data-goto="search">ナレッジを検索する</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="grid grid--kpi" id="kpiGrid"></div>
+  </div>
+
+  <div class="section">
+    <h2 class="section__title">対応が必要な不具合</h2>
+    <p class="section__lead">恒久対策が未完了の記録です。影響度Sの高いものから表示しています。</p>
+    <div class="table-meta" id="openMeta"></div>
+    <div class="table-wrap">
+      <table>
+        <caption class="visually-hidden">対応が必要な不具合の一覧</caption>
+        <thead><tr>
+          <th scope="col">管理番号</th><th scope="col">発生日</th><th scope="col">製品・工程</th>
+          <th scope="col">現象</th><th scope="col">S</th><th scope="col">状態</th><th scope="col">操作</th>
+        </tr></thead>
+        <tbody id="openBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2 class="section__title">工程別の発生件数</h2>
+    <p class="section__lead">登録済みの不具合記録を発生工程で集計しています。件数が多い工程は、工程FMEAの見直し対象の候補になります。</p>
+    <div class="card">
+      <div id="procDist"></div>
+      <p style="margin-top:var(--space-4);font-size:var(--font-caption);color:var(--color-text-secondary)" id="procNote"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ========== ナレッジ検索 ========== -->
+<section class="view" data-view="search" hidden>
+  <p class="breadcrumb"><a href="#" data-goto="dashboard">ホーム</a> ／ ナレッジ検索</p>
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">ナレッジ検索</h1>
+      <p class="page-lead">発生した事象を普段の言葉で入力してください。過去の不具合記録・工程FMEA・設計変更通知を横断して検索し、根拠となる記録を示します。結論の採否は担当者が判断します。</p>
+    </div>
+  </div>
+
+  <div class="grid split-grid" style="grid-template-columns:380px 1fr;align-items:start">
+    <form class="card" id="qForm" style="position:sticky;top:calc(var(--header-height) + var(--space-5))">
+      <div class="field">
+        <label class="field__label" for="q">発生している事象<span class="field__req">必須</span></label>
+        <textarea class="textarea" id="q" rows="4" aria-describedby="qHint"></textarea>
+        <p class="field__hint" id="qHint">製品名・工程名・現象を含めると精度が上がります。文章のままで構いません。</p>
+      </div>
+      <div class="field">
+        <span class="field__label">よく聞かれる事象から選ぶ</span>
+        <div class="chip-row" id="qChips"></div>
+      </div>
+      <div class="field">
+        <span class="field__label">検索範囲</span>
+        <label class="check-row"><input type="checkbox" id="scTr" checked> 不具合記録（過去トラ）</label>
+        <label class="check-row"><input type="checkbox" id="scFm" checked> 工程FMEA</label>
+        <label class="check-row"><input type="checkbox" id="scEc" checked> 設計変更通知（ECN）</label>
+      </div>
+      <button class="btn btn--primary" type="submit" style="width:100%">類似する記録を検索する</button>
+    </form>
+
+    <div>
+      <div class="empty" id="qIdle">
+        <h2 class="empty__title">事象を入力して検索してください</h2>
+        <div class="empty__body">
+          <p>検索すると、次の内容を根拠付きで表示します。</p>
+          <ul>
+            <li>類似する過去の不具合記録と、その原因・対策</li>
+            <li>同じ工程の工程FMEAに登録済みの故障モード</li>
+            <li>関連する設計変更通知</li>
+            <li>今回確認すべき項目の候補</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card" id="qLoading" hidden aria-live="polite">
+        <h2 style="font-size:var(--font-subsection-title);margin-bottom:var(--space-2)">類似する記録を検索しています</h2>
+        <p style="font-size:var(--font-caption);color:var(--color-text-secondary);margin-bottom:var(--space-4)" id="qLoadMeta"></p>
+        <ol class="stepper" id="qStepper">
+          <li class="step" data-state="todo"><span class="step__mark">1</span><span class="step__text">入力内容から製品・工程・現象を整理しています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">2</span><span class="step__text">過去の不具合記録を検索しています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">3</span><span class="step__text">工程FMEAの故障モードと照合しています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">4</span><span class="step__text">原因と対策の傾向を比較しています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">5</span><span class="step__text">確認すべき項目をまとめています</span></li>
+        </ol>
+      </div>
+
+      <div id="qResult" hidden></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 不具合記録一覧 ========== -->
+<section class="view" data-view="list" hidden>
+  <p class="breadcrumb"><a href="#" data-goto="dashboard">ホーム</a> ／ 不具合記録一覧</p>
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">不具合記録一覧</h1>
+      <p class="page-lead">登録済みの不具合記録です。製品・工程・状態で絞り込めます。</p>
+    </div>
+    <div class="page-head__actions">
+      <button class="btn btn--quiet" id="btnListCsv">一覧をCSVで出力する</button>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:var(--space-5)">
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--space-4)">
+      <div class="field" style="margin:0">
+        <label class="field__label" for="fProd">製品</label>
+        <select class="select" id="fProd"><option value="">すべて</option></select>
+      </div>
+      <div class="field" style="margin:0">
+        <label class="field__label" for="fProc">発生工程</label>
+        <select class="select" id="fProc"><option value="">すべて</option></select>
+      </div>
+      <div class="field" style="margin:0">
+        <label class="field__label" for="fStat">対応状態</label>
+        <select class="select" id="fStat">
+          <option value="">すべて</option><option>完了</option><option>対応中</option><option>未着手</option>
+        </select>
+      </div>
+      <div class="field" style="margin:0">
+        <label class="field__label" for="fLeak">顧客流出</label>
+        <select class="select" id="fLeak">
+          <option value="">すべて</option><option value="1">流出あり</option><option value="0">流出なし</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-meta" id="listMeta"></div>
+  <div class="table-wrap">
+    <table>
+      <caption class="visually-hidden">不具合記録の一覧</caption>
+      <thead><tr>
+        <th scope="col">管理番号</th><th scope="col">発生日</th><th scope="col">製品</th>
+        <th scope="col">工程</th><th scope="col">現象</th>
+        <th scope="col">S</th><th scope="col">O</th><th scope="col">D</th>
+        <th scope="col">状態</th><th scope="col">操作</th>
+      </tr></thead>
+      <tbody id="listBody"></tbody>
+    </table>
+  </div>
+  <div class="empty" id="listEmpty" hidden>
+    <h2 class="empty__title">該当する記録が見つかりませんでした</h2>
+    <div class="empty__body">
+      <p>追加で試せること:</p>
+      <ul>
+        <li>絞り込み条件を「すべて」に戻して範囲を広げる</li>
+        <li>製品ではなく工程で絞り込む</li>
+        <li>ナレッジ検索で事象の文章から探す</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 登録文書 ========== -->
+<section class="view" data-view="docs" hidden>
+  <p class="breadcrumb"><a href="#" data-goto="dashboard">ホーム</a> ／ 登録文書</p>
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">登録文書</h1>
+      <p class="page-lead">検索対象として取り込んでいる文書です。取り込み後に追加された文書は、次回の解析で反映されます。</p>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <caption class="visually-hidden">登録文書の一覧</caption>
+      <thead><tr>
+        <th scope="col">文書</th><th scope="col">種別</th><th scope="col">件数・版</th>
+        <th scope="col">取り込み</th><th scope="col">状態</th>
+      </tr></thead>
+      <tbody id="docsBody"></tbody>
+    </table>
+  </div>
+  <div class="callout callout--warn" style="margin-top:var(--space-5)">
+    <div>
+      <p class="callout__title">未登録の文書があります</p>
+      <p>作業要領書と検査記録は今回の取り込み対象に含まれていません。登録すると、原因調査で「作業条件」まで遡れるようになります。</p>
+    </div>
+  </div>
+</section>

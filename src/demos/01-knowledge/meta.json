@@ -1,0 +1,14 @@
+{
+  "id": "01-knowledge",
+  "title": "不具合ナレッジ横断検索AI",
+  "context": "品質保証部 ／ 不具合対応・原因調査",
+  "icon": "search",
+  "pitch": "「似た不具合が過去にないか」を自然な言葉で聞くと、過去トラ・工程FMEA・設計変更を横断して根拠付きで返します。",
+  "minutes": 4,
+  "nav": [
+    { "view": "dashboard", "label": "ダッシュボード", "icon": "dashboard" },
+    { "view": "search", "label": "ナレッジ検索", "icon": "search" },
+    { "view": "list", "label": "不具合記録一覧", "icon": "folder" },
+    { "view": "docs", "label": "登録文書", "icon": "doc" }
+  ]
+}
