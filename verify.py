@@ -426,9 +426,77 @@ async def check_06(pg, errors):
     return "デモ6：記録からの割り当て・空欄と追記指示・発生/流出原因の分離・編集・出力・履歴"
 
 
+async def check_07(pg, errors):
+    await pg.goto((DIST / "07-change-impact.html").as_uri())
+    await pg.click("#impForm button[type=submit]")
+    assert await pg.is_visible("#ecnError"), "変更未選択のエラーが出ない"
+    # 暫定・未反映・共連れが揃う ECN-2026-009 で検証
+    await pg.select_option("#ecnSelect", "ECN-2026-009")
+    await pg.click("#impForm button[type=submit]")
+    await pg.wait_for_selector("#impResult:not([hidden])", timeout=12000)
+    r = await pg.inner_text("#impResult")
+    assert "段階：暫定" in r, "段階が表示されていない"
+    # 未反映と確認できずを区別している
+    assert "未反映" in r and "確認できず" in r, "未反映と確認できずが区別されていない"
+    assert "反映済みとしては扱っていません" in r, "確認できずの扱いが明記されていない"
+    assert "共連れ変更" in r, "共連れ変更のセクションがない"
+    assert "配布先" in r, "配布先が出ていない"
+    assert "影響する工程に登録済みの故障モード" in r, "影響工程のFMEAが出ていない"
+    # 状態バッジの内訳を要素で確認
+    o = await pg.eval_on_selector_all("#impResult .status--risk", "e => e.length")
+    u = await pg.eval_on_selector_all("#impResult .status--todo", "e => e.length")
+    assert o > 0 and u > 0, f"未反映/確認できずのバッジが出ていない: open={o} unknown={u}"
+    # 未反映は起票、確認できずは文書登録依頼に分岐する
+    await pg.click("#impResult [data-task]")
+    assert await pg.is_visible("#toastArea .toast"), "反映作業の起票の通知が出ない"
+    await pg.click("#impResult [data-need]")
+    # 工程FMEAの根拠に帳票の実物が出る
+    await pg.click("#impResult [data-fmea]")
+    p1 = await pg.inner_text("#panelBody")
+    assert "工程FMEAの記載" in p1, "根拠パネルの中身が不足"
+    ok = await pg.eval_on_selector("#panelBody .sheet-shot img",
+                                   "e => e.complete && e.naturalWidth > 600")
+    assert ok, "帳票スクショが読み込めていない"
+    await pg.click("#panelClose")
+    # 共連れ変更へジャンプできる
+    await pg.click("#impResult [data-jump]")
+    await pg.wait_for_selector("#impResult:not([hidden])", timeout=12000)
+    r2 = await pg.inner_text("#impResult")
+    assert "ECN-2026-011" in r2, "共連れ変更へ移動できない"
+    assert "この変更が前提" in r2, "逆方向の共連れ関係が出ていない"
+    # CSV出力
+    async with pg.expect_download() as dl:
+        await pg.click("#btnImpCsv")
+    d = await dl.value
+    body = open(await d.path(), encoding="utf-8-sig").read()
+    assert "共連れ変更" in body and "確認できず" in body, "CSVに共連れ・確認できずがない"
+    # 変更一覧：暫定が先頭
+    await pg.click('[data-view="list"]')
+    kpi = await pg.inner_text("#kpiGrid")
+    assert "確認できない項目" in kpi, "確認できない項目のKPIがない"
+    first = await pg.inner_text("#listBody tr:first-child")
+    assert "暫定" in first, "暫定の変更が先頭に来ていない"
+    async with pg.expect_download() as dl2:
+        await pg.click("#btnListCsv")
+    await dl2.value
+    # マトリクス：反映率の分母問題を明示している
+    await pg.click('[data-view="matrix"]')
+    m = await pg.inner_text('section[data-view="matrix"]')
+    assert "反映率" in m and "分母" in m, "反映率の分母の扱いが説明されていない"
+    async with pg.expect_download() as dl3:
+        await pg.click("#btnMatCsv")
+    await dl3.value
+    # 参照文書：未登録が追跡できない旨
+    await pg.click('[data-view="docs"]')
+    dc = await pg.inner_text("#docsBody")
+    assert "未登録" in dc and "追跡できません" in dc, "未登録文書の影響が明示されていない"
+    return "デモ7：段階（暫定/最終）・未反映と確認できずの区別・共連れ変更の双方向・反映率の分母問題・マトリクス・CSV"
+
+
 CHECKS = {"index": check_index, "01-knowledge": check_01, "02-process-fmea": check_02,
           "03-drbfm": check_03, "04-design-review": check_04,
-          "05-drawing": check_05, "06-8d-report": check_06}
+          "05-drawing": check_05, "06-8d-report": check_06,
+          "07-change-impact": check_07}
 
 
 async def main() -> int:

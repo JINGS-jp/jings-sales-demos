@@ -1,0 +1,140 @@
+<!-- ========== 変更影響分析（中核） ========== -->
+<section class="view" data-view="impact">
+  <p class="breadcrumb">変更影響分析</p>
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">変更影響分析</h1>
+      <p class="page-lead">設計変更を選ぶと、反映すべき帳票・工程・他機種を洗い出し、反映できているかを表示します。あわせて、この変更に伴って一緒に変えるべき変更（共連れ）を提示します。反映漏れの判断は担当者が行います。</p>
+    </div>
+  </div>
+
+  <div class="grid split-grid" style="grid-template-columns:380px 1fr;align-items:start">
+    <form class="card" id="impForm" novalidate style="position:sticky;top:calc(var(--header-height) + var(--space-5))">
+      <div class="field">
+        <label class="field__label" for="ecnSelect">対象の設計変更<span class="field__req">必須</span></label>
+        <select class="select" id="ecnSelect">
+          <option value="">変更通知番号で選択してください</option>
+        </select>
+        <p class="field__error" id="ecnError" hidden>対象の設計変更が選択されていません。変更を選んでから分析を開始してください。</p>
+        <p class="field__hint">段階が「暫定」の変更を先頭に表示しています。暫定のまま止まっている変更が管理の穴になります。</p>
+      </div>
+      <div class="field">
+        <span class="field__label">追跡する反映先</span>
+        <label class="check-row"><input type="checkbox" id="trDoc" checked> 図面・条件表・原材料仕様書</label>
+        <label class="check-row"><input type="checkbox" id="trFmea" checked> 工程FMEA・QC工程表</label>
+        <label class="check-row"><input type="checkbox" id="trOther" checked> 他機種への展開</label>
+        <label class="check-row"><input type="checkbox" id="trPiggy" checked> 共連れ変更の検出</label>
+      </div>
+      <button class="btn btn--primary" type="submit" style="width:100%">影響範囲を分析する</button>
+    </form>
+
+    <div>
+      <div class="empty" id="impIdle">
+        <h2 class="empty__title">対象の設計変更を選択してください</h2>
+        <div class="empty__body">
+          <p>選択した変更について、次を洗い出します。</p>
+          <ul>
+            <li>反映すべき帳票（図面・条件表・工程FMEA・QC工程表・原材料仕様書）と、その反映状態</li>
+            <li>影響する工程と、その工程に登録済みの故障モード</li>
+            <li>他機種へ同じ検討が必要かどうか</li>
+            <li>この変更に伴って一緒に変えるべき変更（共連れ）</li>
+            <li>変更を知らせるべき配布先</li>
+          </ul>
+          <p style="margin-top:var(--space-3)">「未反映」と「確認できず」は区別して表示します。文書が未登録で追えないものを、反映済みとして扱いません。</p>
+        </div>
+      </div>
+
+      <div class="card" id="impLoading" hidden aria-live="polite">
+        <h2 style="font-size:var(--font-subsection-title);margin-bottom:var(--space-2)">影響範囲を分析しています</h2>
+        <p style="font-size:var(--font-caption);color:var(--color-text-secondary);margin-bottom:var(--space-4)" id="impLoadMeta"></p>
+        <ol class="stepper" id="impStepper">
+          <li class="step" data-state="todo"><span class="step__mark">1</span><span class="step__text">変更通知の内容と対象品番を読み込んでいます</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">2</span><span class="step__text">変更が及ぶ図面・条件表を特定しています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">3</span><span class="step__text">影響する工程と工程FMEAの行を照合しています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">4</span><span class="step__text">各帳票への反映状態を確認しています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">5</span><span class="step__text">他機種への展開と共連れ変更を調べています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">6</span><span class="step__text">配布先と未反映の項目をまとめています</span></li>
+        </ol>
+      </div>
+
+      <div id="impResult" hidden></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 変更一覧 ========== -->
+<section class="view" data-view="list" hidden>
+  <p class="breadcrumb"><a href="#" data-goto="impact">変更影響分析</a> ／ 変更一覧</p>
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">変更一覧</h1>
+      <p class="page-lead">登録済みの設計変更通知です。段階が「暫定」で未反映が残っているものが、変化点管理の要注意対象になります。</p>
+    </div>
+    <div class="page-head__actions">
+      <button class="btn btn--quiet" id="btnListCsv">一覧をCSVで出力する</button>
+    </div>
+  </div>
+  <div class="section">
+    <div class="grid grid--kpi" id="kpiGrid"></div>
+  </div>
+  <div class="table-meta" id="listMeta"></div>
+  <div class="table-wrap">
+    <table>
+      <caption class="visually-hidden">設計変更通知の一覧</caption>
+      <thead><tr>
+        <th scope="col">通知番号</th><th scope="col">発行日</th><th scope="col">段階</th>
+        <th scope="col">内容</th><th scope="col">発行理由</th>
+        <th scope="col">反映状況</th><th scope="col">共連れ</th><th scope="col">操作</th>
+      </tr></thead>
+      <tbody id="listBody"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ========== 反映状況マトリクス ========== -->
+<section class="view" data-view="matrix" hidden>
+  <p class="breadcrumb"><a href="#" data-goto="impact">変更影響分析</a> ／ 反映状況マトリクス</p>
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">反映状況マトリクス</h1>
+      <p class="page-lead">変更×反映先の種類で、反映状態を一覧にしています。列に「確認できず」が多い種類は、文書が未登録で追跡できていない領域です。</p>
+    </div>
+    <div class="page-head__actions">
+      <button class="btn btn--quiet" id="btnMatCsv">マトリクスをCSVで出力する</button>
+    </div>
+  </div>
+  <div class="table-meta" id="matMeta"></div>
+  <div class="table-wrap">
+    <table>
+      <caption class="visually-hidden">変更×反映先の反映状況</caption>
+      <thead><tr id="matHead"></tr></thead>
+      <tbody id="matBody"></tbody>
+    </table>
+  </div>
+  <div class="callout callout--warn" style="margin-top:var(--space-5)">
+    <div>
+      <p class="callout__title">反映率を数字にするときの注意</p>
+      <p id="matNote"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 参照文書 ========== -->
+<section class="view" data-view="docs" hidden>
+  <p class="breadcrumb"><a href="#" data-goto="impact">変更影響分析</a> ／ 参照文書</p>
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">参照文書</h1>
+      <p class="page-lead">変更の追跡に使っている文書です。未登録の文書がある間は、その反映状態を「確認できず」として扱います。</p>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <caption class="visually-hidden">参照文書の一覧</caption>
+      <thead><tr>
+        <th scope="col">文書</th><th scope="col">種別</th><th scope="col">追跡できる範囲</th><th scope="col">状態</th>
+      </tr></thead>
+      <tbody id="docsBody"></tbody>
+    </table>
+  </div>
+</section>

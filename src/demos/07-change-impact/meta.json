@@ -1,0 +1,15 @@
+{
+  "id": "07-change-impact",
+  "title": "変更影響・変化点管理AI",
+  "context": "技術部・品質保証部 ／ 設計変更の影響追跡",
+  "icon": "change",
+  "pitch": "設計変更を起点に、反映すべき帳票と工程を洗い出して反映状態を追跡します。共連れで一緒に変えるべき変更も提示します。",
+  "minutes": 5,
+  "sheets": ["ecr", "pfmea", "flow"],
+  "nav": [
+    { "view": "impact", "label": "変更影響分析", "icon": "change" },
+    { "view": "list", "label": "変更一覧", "icon": "folder" },
+    { "view": "matrix", "label": "反映状況マトリクス", "icon": "check" },
+    { "view": "docs", "label": "参照文書", "icon": "doc" }
+  ]
+}
