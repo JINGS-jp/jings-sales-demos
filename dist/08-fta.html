@@ -1426,7 +1426,7 @@ function treeSvg(groups) {
 
   const cauBoxes = rows.map(r => r.g.causes.map((c, i) => {
     const cy = r.y + i * (RH + RGAP) + RH / 2;
-    const hit = !!c.tr;
+    const hit = !!c.tr && $('#lkTr').checked;
     const idx = curTree.causes.indexOf(c);
     return `<g class="node" tabindex="0" role="button" data-cause="${idx}"
         aria-label="${esc(c.label)}の根拠を見る">
@@ -1467,8 +1467,10 @@ function wrapText(s, n) {
 function renderTree() {
   const groups = groupByM1E(curTree);
   const empty = groups.filter(g => !g.causes.length);
-  const withTr = curTree.causes.filter(c => c.tr);
-  const noFmea = curTree.causes.filter(c => !c.fmea);
+  const useTr = $('#lkTr').checked, useFm = $('#lkFm').checked;
+  // 参照を外した実績は紐づけない（発生度がすべて推定になる）
+  const withTr = useTr ? curTree.causes.filter(c => c.tr) : [];
+  const noFmea = useFm ? curTree.causes.filter(c => !c.fmea) : curTree.causes;
   const seed = curTree.seed ? TR_BY_ID[curTree.seed] : null;
 
   $('#ftResult').innerHTML = `
@@ -1543,9 +1545,9 @@ function renderTree() {
               <td class="col-text"><strong>${esc(c.label)}</strong></td>
               <td class="col-text cell-sub">${esc(c.note)}</td>
               <td class="nowrap"><span class="sod-badge">O${c.o}</span>
-                <div class="cell-sub">${c.tr ? '実績あり' : '推定'}</div></td>
-              <td class="nowrap">${c.tr ? `<span class="mono">${esc(c.tr)}</span>` : '<span class="cell-empty">—</span>'}</td>
-              <td class="nowrap">${c.fmea ? esc(procLabel(c.fmea))
+                <div class="cell-sub">${(useTr && c.tr) ? '実績あり' : '推定'}</div></td>
+              <td class="nowrap">${(useTr && c.tr) ? `<span class="mono">${esc(c.tr)}</span>` : '<span class="cell-empty">—</span>'}</td>
+              <td class="nowrap">${(useFm && c.fmea) ? esc(procLabel(c.fmea))
                 : '<span class="status status--todo">登録なし</span>'}</td>
               <td class="nowrap"><button class="btn btn--quiet btn--small" data-cause="${i}">根拠を確認する</button></td>
             </tr>`).join('')}

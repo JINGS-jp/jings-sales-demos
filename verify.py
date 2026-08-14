@@ -182,6 +182,22 @@ async def check_02(pg, errors):
     cols = head.split(",")
     assert len(cols) == 20, f"出力列数が20でない: {len(cols)}"
     assert "AI提案／人による確定の区分" in head and "逸脱の型" in head, f"CSV列が不足: {head[:120]}"
+    # 参照範囲のチェックボックスが実際に効くこと（飾りになっていないこと）
+    await pg.select_option("#procSelect", "10")
+    await pg.click("#genForm button[type=submit]")
+    await pg.wait_for_selector("#genResult:not([hidden])", timeout=12000)
+    n_all = await pg.eval_on_selector_all("#genResult tbody tr", "e => e.length")
+    await pg.uncheck("#rfDwg")
+    await pg.click("#genForm button[type=submit]")
+    await pg.wait_for_selector("#genResult:not([hidden])", timeout=12000)
+    n_off = await pg.eval_on_selector_all("#genResult tbody tr", "e => e.length")
+    assert n_all != n_off, f"参照範囲を外しても結果が変わらない（飾りになっている）: {n_all} vs {n_off}"
+    await pg.check("#rfDwg")
+    await pg.uncheck("#rfFmea")
+    await pg.click("#genForm button[type=submit]")
+    await pg.wait_for_selector("#genResult:not([hidden])", timeout=12000)
+    assert "未評価" in await pg.inner_text("#genResult"), "既存FMEAを外してもS/O/Dが出てしまう"
+    await pg.check("#rfFmea")
     # 登録が充実した工程では候補を無理に出さない（空状態に次の手を示す）
     await pg.select_option("#procSelect", "17")
     await pg.click("#genForm button[type=submit]")
@@ -545,6 +561,16 @@ async def check_08(pg, errors):
                                    "e => e.complete && e.naturalWidth > 600")
     assert ok, "帳票スクショが読み込めていない"
     await pg.click("#panelClose")
+    # 紐づける実績のチェックボックスが実際に効くこと
+    hit_on = await pg.eval_on_selector_all("#ftResult .bx--basic-hit", "e => e.length")
+    await pg.uncheck("#lkTr")
+    await pg.click("#ftForm button[type=submit]")
+    await pg.wait_for_selector("#ftResult:not([hidden])", timeout=12000)
+    hit_off = await pg.eval_on_selector_all("#ftResult .bx--basic-hit", "e => e.length")
+    assert hit_on != hit_off, f"実績の参照を外しても変わらない（飾りになっている）: {hit_on} vs {hit_off}"
+    await pg.check("#lkTr")
+    await pg.click("#ftForm button[type=submit]")
+    await pg.wait_for_selector("#ftResult:not([hidden])", timeout=12000)
     # CSV（候補なしの分類も出力される）
     async with pg.expect_download() as dl:
         await pg.click("#btnFtCsv")

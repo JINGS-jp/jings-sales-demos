@@ -33,11 +33,12 @@
 
       <div class="field">
         <span class="field__label">参照範囲</span>
-        <label class="check-row"><input type="checkbox" checked> 工程フロー（ACT-220 組立ライン）</label>
-        <label class="check-row"><input type="checkbox" checked> 図面・条件表</label>
-        <label class="check-row"><input type="checkbox" checked> 作業要領書・検査基準書</label>
-        <label class="check-row"><input type="checkbox" checked> 既存の工程FMEA</label>
-        <label class="check-row"><input type="checkbox" checked> 過去不具合の記録</label>
+        <label class="check-row"><input type="checkbox" id="rfFlow" checked> 工程フロー（ACT-220 組立ライン）</label>
+        <label class="check-row"><input type="checkbox" id="rfDwg" checked> 図面・条件表</label>
+        <label class="check-row"><input type="checkbox" id="rfWi" checked> 作業要領書・検査基準書</label>
+        <label class="check-row"><input type="checkbox" id="rfFmea" checked> 既存の工程FMEA</label>
+        <label class="check-row"><input type="checkbox" id="rfTr" checked> 過去不具合の記録</label>
+        <p class="field__hint">外すと結果が変わります。どの文書が何に効いているかを確認できます。</p>
       </div>
 
       <button class="btn btn--primary" type="submit" style="width:100%">製造FMEAドラフトを生成する</button>

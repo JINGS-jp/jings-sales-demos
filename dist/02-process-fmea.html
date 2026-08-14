@@ -378,11 +378,12 @@ tr[data-edited="true"]:hover{background:var(--color-success-bg)}
 
       <div class="field">
         <span class="field__label">参照範囲</span>
-        <label class="check-row"><input type="checkbox" checked> 工程フロー（ACT-220 組立ライン）</label>
-        <label class="check-row"><input type="checkbox" checked> 図面・条件表</label>
-        <label class="check-row"><input type="checkbox" checked> 作業要領書・検査基準書</label>
-        <label class="check-row"><input type="checkbox" checked> 既存の工程FMEA</label>
-        <label class="check-row"><input type="checkbox" checked> 過去不具合の記録</label>
+        <label class="check-row"><input type="checkbox" id="rfFlow" checked> 工程フロー（ACT-220 組立ライン）</label>
+        <label class="check-row"><input type="checkbox" id="rfDwg" checked> 図面・条件表</label>
+        <label class="check-row"><input type="checkbox" id="rfWi" checked> 作業要領書・検査基準書</label>
+        <label class="check-row"><input type="checkbox" id="rfFmea" checked> 既存の工程FMEA</label>
+        <label class="check-row"><input type="checkbox" id="rfTr" checked> 過去不具合の記録</label>
+        <p class="field__hint">外すと結果が変わります。どの文書が何に効いているかを確認できます。</p>
       </div>
 
       <button class="btn btn--primary" type="submit" style="width:100%">製造FMEAドラフトを生成する</button>
@@ -1418,9 +1419,27 @@ function critLabel(kind, v) {
   return row ? row.label : '該当区分なし';
 }
 
+/* 参照範囲。外した文書は要求事項の抽出元から除き、引き当ても止める。
+   「どの文書が何に効いているか」を画面で確かめられるようにする。 */
+function refScope() {
+  return {
+    flow: $('#rfFlow').checked, dwg: $('#rfDwg').checked, wi: $('#rfWi').checked,
+    fmea: $('#rfFmea').checked, tr: $('#rfTr').checked
+  };
+}
+function reqsInScope(proc) {
+  const s = refScope();
+  return (DATA.PROC_REQS[proc] || []).filter(r => {
+    if (r.src.startsWith('図面') || r.src.startsWith('条件表')) return s.dwg;
+    if (r.src.startsWith('作業要領書') || r.src.startsWith('検査基準書')) return s.wi;
+    return true;
+  });
+}
+
 /* ---- 生成本体 ---- */
 function deriveRows(proc) {
-  const reqs = DATA.PROC_REQS[proc] || [];
+  const scope = refScope();
+  const reqs = reqsInScope(proc);
   const existing = DATA.PFMEA.filter(r => r.proc === proc);
   const rows = [];
 
@@ -1441,8 +1460,9 @@ function deriveRows(proc) {
       const isCovered = cs >= 0.42;
 
       // 影響・原因・予防・検出の引き当て元（同工程優先、なければ全工程から）
-      let basis = isCovered ? covered : null, bs = isCovered ? cs : 0;
-      if (!basis) {
+      // 既存の工程FMEAを参照範囲から外した場合は引き当てない（S/O/Dが未評価になる）
+      let basis = (isCovered && scope.fmea) ? covered : null, bs = isCovered ? cs : 0;
+      if (!basis && scope.fmea) {
         DATA.PFMEA.forEach(r => {
           let s = dice(g, grams(r.mode + ' ' + r.cause));
           if (r.proc === proc) s += 0.12;
@@ -1496,7 +1516,8 @@ function inferDev(text) {
    文章の類似ではなく逸脱の型で判定するため、工程をまたいだ観点の抜けを拾える。
    （先方の「その工程の不具合が、その工程にしか入らない」という課題に対応する考え方） */
 function gapCandidates(proc, rows) {
-  const reqs = DATA.PROC_REQS[proc] || [];
+  if (!refScope().tr && !refScope().fmea) return [];
+  const reqs = reqsInScope(proc);
   // 本工程の要求事項に対して成立し得る逸脱の型
   const plausible = new Map();
   reqs.forEach(rq => (rq.devs || []).forEach(d => { if (!plausible.has(d)) plausible.set(d, rq); }));
@@ -1536,7 +1557,7 @@ function sodCell(r) {
 
 function renderResult() {
   const p = PROC_BY_NO[curProc];
-  const reqs = DATA.PROC_REQS[curProc] || [];
+  const reqs = reqsInScope(curProc);
   const newRows = curRows.filter(r => r.state === 'new');
   const coveredRows = curRows.filter(r => r.state === 'covered');
   const docs = Array.from(new Set(reqs.map(r => r.src)));
@@ -1575,7 +1596,8 @@ function renderResult() {
           </tr></thead>
           <tbody><tr>
             <td class="nowrap">工程${esc(curProc)}<div class="cell-sub">${esc(p.name)}</div></td>
-            <td class="col-text">${esc(p.func)}</td>
+            <td class="col-text">${refScope().flow ? esc(p.func)
+              : '<span class="status status--todo">工程フローを参照範囲から外したため、機能を確定できません</span>'}</td>
             <td class="nowrap cell-sub">${esc(neighbor(curProc, -1))}<br>${esc(neighbor(curProc, 1))}</td>
             <td class="nowrap">${p.mark ? `${esc(p.mark)}<div class="cell-sub">${esc(DATA.MARK_LEGEND[p.mark])}</div>` : '<span class="cell-empty">—</span>'}</td>
             <td class="nowrap"><button class="btn btn--quiet btn--small" data-ev="flow">根拠資料を確認する</button></td>
@@ -2011,8 +2033,8 @@ $('#genForm').addEventListener('submit', e => {
   $('#genIdle').hidden = true;
   $('#genResult').hidden = true;
   $('#genLoading').hidden = false;
-  const reqs = (DATA.PROC_REQS[proc] || []).length;
-  const docs = new Set((DATA.PROC_REQS[proc] || []).map(r => r.src)).size;
+  const reqs = reqsInScope(proc).length;
+  const docs = new Set(reqsInScope(proc).map(r => r.src)).size;
   $('#genLoadMeta').textContent =
     `対象工程：${procLabel(proc)}　／　参照文書 ${docs} 件　／　既存FMEA ${DATA.PFMEA.length} 行　／　要求事項 ${reqs} 件`;
   runSteps('#genStepper', () => {
