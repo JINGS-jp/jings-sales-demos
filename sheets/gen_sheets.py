@@ -420,6 +420,58 @@ def gen_dr(d, gate="DR3"):
     return path, "設計審査記録", f"A1:G{rr - 1}"
 
 
+# ============================================================ ③b DRBFMワークシート
+def gen_drbfm(d):
+    """DRBFMワークシートの様式。掘り下げの列（他に心配点／他に要因はないか）と、
+    設計・評価・製造へ反映すべき項目までを1枚に収める。"""
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "DRBFMワークシート"
+    cols = ["No.", "部品名／変更点とその目的\n（変更前品番）", "機能",
+            "変更に関わる心配点（故障モード）\n変更がもたらす機能の喪失",
+            "他に心配点はないか",
+            "心配点はどんな場合に生じるか\n要因・原因", "他に考えるべき要因はないか",
+            "お客様への影響",
+            "設計へ反映すべき項目", "評価へ反映すべき項目", "製造へ反映すべき項目",
+            "担当", "期限", "S", "O", "D"]
+    widths(ws, [5, 26, 22, 24, 22, 24, 22, 22, 24, 24, 24, 8, 11, 4, 4, 4])
+    r = title_block(ws, "ＤＲＢＦＭ ワークシート（Design Review Based on Failure Mode）", [
+        ("ＤＲＢＦＭ番号", "DF-ACT230-26-001"), ("作成日", "2026.07.10"),
+        ("モデル", "ACT-230（2027年 量産予定）"), ("修正日", "2026.08.14"),
+        ("システム", "電動アクチュエータ 駆動系"), ("作成者", "技術部 森"),
+        ("コンポーネント", "ACT-230 小型軽量品（ハウジング・減速ギヤ・モータ・ケース）"),
+        ("ＤＲメンバー", "大野（開発部長）／中村・伊藤（技術）／佐藤・高橋（生技）／田中（品証）"),
+    ], 16)
+    for i, c in enumerate(cols, 1):
+        put(ws, r, i, c, bold=True, fill=HEAD_FILL, halign="center")
+    style_header(ws, r, 16, height=52)
+    ws.freeze_panes = ws.cell(row=r + 1, column=1)
+
+    rr = r + 1
+    for i, row in enumerate(d["DRBFM"], 1):
+        vals = [i, f'{row["cp"]}\n（変更前品番: {row["prevPn"]}）\n目的: {row["why"]}',
+                row["func"], f'{row["mode"]}\n{row["worry"]}', row["otherWorry"],
+                row["cause"], row["otherCause"], row["eff"],
+                row["actDesign"], row["actEval"], row["actMfg"],
+                row["owner"], row["due"], row["s"], row["o"], row["d"]]
+        for j, v in enumerate(vals, 1):
+            put(ws, rr, j, v,
+                halign="center" if j in (1, 12, 13, 14, 15, 16) else "left",
+                fill=MARK_FILL if (j == 14 and row["s"] >= 8) else None)
+        ws.row_dimensions[rr].height = 58
+        rr += 1
+
+    put(ws, rr + 1, 1, "備考", bold=True, fill=HEAD_FILL, halign="center")
+    ws.merge_cells(start_row=rr + 1, start_column=2, end_row=rr + 1, end_column=16)
+    put(ws, rr + 1, 2, "本帳票はJINGSのデモ用に生成した架空データです。実在の企業・製品とは関係ありません。")
+    for c in range(2, 17):
+        ws.cell(row=rr + 1, column=c).border = BOX
+
+    path = OUT / "DRBFMワークシート_ACT-230_DF-ACT230-26-001.xlsx"
+    wb.save(path)
+    return path, "DRBFMワークシート", f"A1:P{rr - 1}"
+
+
 # ============================================================ ④ 図面属性表
 def gen_dwg(d, no="ACT-230-300"):
     """図面から読み取った寸法・公差・注記・部品表。検図はこの内容に対して行う。
@@ -511,6 +563,7 @@ def main():
     made.append(("pfmea",) + gen_pfmea(d))
     made.append(("complaint",) + gen_complaint(d))
     made.append(("ecr",) + gen_ecr(d))
+    made.append(("drbfm",) + gen_drbfm(d))
     made.append(("flow",) + gen_flow(d))
     made.append(("dr",) + gen_dr(d))
     made.append(("drawing",) + gen_dwg(d))

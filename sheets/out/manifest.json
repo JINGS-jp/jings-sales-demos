@@ -18,6 +18,12 @@
     "area": "A1:F17"
   },
   {
+    "key": "drbfm",
+    "file": "sheets/out/DRBFMワークシート_ACT-230_DF-ACT230-26-001.xlsx",
+    "sheet": "DRBFMワークシート",
+    "area": "A1:P17"
+  },
+  {
     "key": "flow",
     "file": "sheets/out/工程フロー_QC工程表_ACT-220.xlsx",
     "sheet": "工程フロー図",

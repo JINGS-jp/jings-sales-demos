@@ -105,16 +105,23 @@ function renderResult() {
         <table>
           <caption class="visually-hidden">${esc(c.cp)}の心配点</caption>
           <thead><tr>
-            <th scope="col">心配点</th><th scope="col">故障モード</th><th scope="col">影響</th>
-            <th scope="col">対策候補</th><th scope="col">S・O・D候補</th>
+            <th scope="col">機能</th>
+            <th scope="col">変更に関わる心配点<div class="cell-sub" style="font-weight:400">（故障モード）</div></th>
+            <th scope="col">他に心配点はないか</th>
+            <th scope="col">要因・原因</th>
+            <th scope="col">他に考えるべき要因はないか</th>
+            <th scope="col">お客様への影響</th>
+            <th scope="col">S・O・D候補</th>
             <th scope="col">系統</th><th scope="col">状態</th><th scope="col">根拠</th>
           </tr></thead>
           <tbody>${c.rows.map(r => `
             <tr data-key="${esc(r.key)}">
-              <td class="col-text">${esc(r.worry)}</td>
-              <td class="col-text"><strong>${esc(r.mode)}</strong></td>
+              <td class="col-text cell-sub">${esc(r.func)}</td>
+              <td class="col-text">${esc(r.worry)}<div style="margin-top:var(--space-1)"><strong>${esc(r.mode)}</strong></div></td>
+              <td class="col-text"><span class="dig">${esc(r.otherWorry)}</span></td>
+              <td class="col-text">${esc(r.cause)}</td>
+              <td class="col-text"><span class="dig">${esc(r.otherCause)}</span></td>
               <td class="col-text">${esc(r.eff)}</td>
-              <td class="col-text"><span class="editcell" contenteditable="true" role="textbox" aria-label="対策候補を編集">${esc(r.act)}</span></td>
               <td class="nowrap">
                 <span class="sod-badge${r.s >= 8 ? ' sod-badge--hi' : ''}">S${r.s}</span>
                 <span class="sod-badge">O${r.o}</span>
@@ -135,14 +142,42 @@ function renderResult() {
       </div>
     </div>`).join('');
 
-  $('#genResult').innerHTML = summary + sections + `
+  const actSec = `
+    <div class="section">
+      <h2 class="section__title">設計・評価・製造へ反映すべき項目</h2>
+      <p class="section__lead">DRBFMの成果は、心配点を挙げることではなく「誰が何をするか」に落ちることです。反映先を設計・評価・製造に振り分けています。担当と期限は仮置きで、画面上で直接編集できます。</p>
+      <div class="table-wrap">
+        <table>
+          <caption class="visually-hidden">設計・評価・製造へ反映すべき項目</caption>
+          <thead><tr>
+            <th scope="col">心配点</th>
+            <th scope="col">設計へ反映すべき項目</th>
+            <th scope="col">評価へ反映すべき項目</th>
+            <th scope="col">製造へ反映すべき項目</th>
+            <th scope="col">担当</th><th scope="col">期限</th>
+          </tr></thead>
+          <tbody>${curRows.map(r => `
+            <tr data-key="${esc(r.key)}">
+              <td class="col-text cell-sub">${esc(r.mode)}</td>
+              <td class="col-text"><span class="editcell" contenteditable="true" role="textbox" aria-label="設計へ反映すべき項目を編集">${esc(r.actDesign)}</span></td>
+              <td class="col-text"><span class="editcell" contenteditable="true" role="textbox" aria-label="評価へ反映すべき項目を編集">${esc(r.actEval)}</span></td>
+              <td class="col-text"><span class="editcell" contenteditable="true" role="textbox" aria-label="製造へ反映すべき項目を編集">${esc(r.actMfg)}</span></td>
+              <td class="nowrap">${esc(r.owner)}</td>
+              <td class="nowrap mono">${esc(r.due)}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+
+  $('#genResult').innerHTML = summary + sections + actSec + `
     <div class="section">
       <div style="display:flex;gap:var(--space-3);flex-wrap:wrap">
         <button class="btn btn--primary" id="btnCsv">DRBFMをExcelで出力する</button>
         <button class="btn btn--secondary" id="btnReview">設計審査へ提出する</button>
       </div>
       <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)" id="editNote">
-        対策候補のセルは画面上で直接編集できます。編集した行は「担当者修正済み」として記録されます。
+        設計・評価・製造の各欄は画面上で直接編集できます。編集した行は「担当者修正済み」として記録されます。
       </p>
     </div>
 
@@ -155,7 +190,7 @@ function renderResult() {
 
   wireEditable('#genResult', () => {
     edits++;
-    $('#editNote').textContent = `対策候補のセルは画面上で直接編集できます。この生成で ${edits} 箇所を担当者が修正しました（緑色の行）。`;
+    $('#editNote').textContent = `設計・評価・製造の各欄は画面上で直接編集できます。この生成で ${edits} 箇所を担当者が修正しました（緑色の行）。`;
   });
   $('#btnCsv').addEventListener('click', exportCsv);
   $('#btnReview').addEventListener('click', () => {
@@ -165,11 +200,18 @@ function renderResult() {
 
 function exportCsv() {
   downloadCsv(`DRBFM_ACT-230_${today()}.csv`, [
-    ['変更点', '変更理由', '心配点', '故障モード', '影響', '対策候補',
+    ['No.', '部品名／変更点とその目的', '変更前品番', '機能',
+     '変更に関わる心配点（故障モード）', '他に心配点はないか',
+     '心配点はどんな場合に生じるか（要因・原因）', '他に考えるべき要因はないか',
+     'お客様への影響',
+     '設計へ反映すべき項目', '評価へ反映すべき項目', '製造へ反映すべき項目', '担当', '期限',
      '重大度S', '発生度O', '検出度D', 'RPN', '生成系統', '生成根拠', '確認状態', '再評価要否'],
-    ...curRows.map(r => {
+    ...curRows.map((r, i) => {
       const k = DATA.SRC_KINDS[r.srcKind];
-      return [r.cp, r.why, r.worry, r.mode, r.eff, r.act, r.s, r.o, r.d, r.s * r.o * r.d,
+      return [i + 1, r.cp + '（' + r.why + '）', r.prevPn, r.func,
+        r.mode + '：' + r.worry, r.otherWorry, r.cause, r.otherCause, r.eff,
+        r.actDesign, r.actEval, r.actMfg, r.owner, r.due,
+        r.s, r.o, r.d, r.s * r.o * r.d,
         k ? k.label : r.srcKind, k ? k.desc : '', r.status, r.recheck ? '要再評価' : ''];
     })
   ]);
@@ -194,8 +236,17 @@ function openEv(key) {
       <p style="margin-top:var(--space-3)"><strong>心配点</strong><br><mark>${esc(r.worry)}</mark></p>
       <p style="margin-top:var(--space-3)"><strong>故障モード</strong><br>${esc(r.mode)}</p>
       <p style="margin-top:var(--space-3)"><strong>影響</strong><br>${esc(r.eff)}</p>
-      <p style="margin-top:var(--space-3)"><strong>対策候補</strong><br>${esc(r.act)}</p>
+      <p style="margin-top:var(--space-3)"><strong>他に心配点はないか</strong><br>${esc(r.otherWorry)}</p>
+      <p style="margin-top:var(--space-3)"><strong>要因・原因</strong><br>${esc(r.cause)}</p>
+      <p style="margin-top:var(--space-3)"><strong>他に考えるべき要因はないか</strong><br>${esc(r.otherCause)}</p>
     </div>
+    <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">反映すべき項目</h3>
+    <dl class="meta-list">
+      <dt>設計へ</dt><dd>${esc(r.actDesign)}</dd>
+      <dt>評価へ</dt><dd>${esc(r.actEval)}</dd>
+      <dt>製造へ</dt><dd>${esc(r.actMfg)}</dd>
+      <dt>担当 ／ 期限</dt><dd>${esc(r.owner)}　／　${esc(r.due)}</dd>
+    </dl>
     ${src ? `
       <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">根拠となる過去の記録</h3>
       <p class="cell-sub" style="margin-bottom:var(--space-2)">ACT-220以前で同種の事象が発生しています。</p>
@@ -212,7 +263,9 @@ function openEv(key) {
           <p>この心配点は過去実績の検索ではなく、${esc(k ? k.desc : '')}で生成しています。実際に成立するかどうかは、試験または解析での確認が必要です。</p>
         </div>
       </div>`}
-    ${sheetShot('ecr', '設計変更発議書 ECR-2026-014（ACT-230）',
+    ${sheetShot('drbfm', 'DRBFMワークシート DF-ACT230-26-001（ACT-230）',
+       'この行は帳票の該当行に対応します。掘り下げの列と、設計・評価・製造への反映欄まで1枚に収まります。')}
+    ${sheetShot('ecr', '設計変更発議書 ECR-2026-014（ACT-230） — 起点として読み取った帳票',
        '変更点と変更理由は、この発議書の該当行から読み取っています。')}
     ${r.recheck ? `
       <div class="callout callout--warn" style="margin-top:var(--space-4)">
@@ -247,7 +300,9 @@ function renderExisting() {
       <td class="col-text cell-sub">${esc(r.cp)}</td>
       <td class="col-text">${esc(r.worry)}</td>
       <td class="col-text"><strong>${esc(r.mode)}</strong></td>
-      <td class="col-text">${esc(r.act)}</td>
+      <td class="col-text cell-sub">${esc(r.actDesign)}</td>
+      <td class="col-text cell-sub">${esc(r.actEval)}</td>
+      <td class="col-text cell-sub">${esc(r.actMfg)}</td>
       <td class="nowrap">
         <span class="sod-badge${r.s >= 8 ? ' sod-badge--hi' : ''}">S${r.s}</span>
         <span class="sod-badge">O${r.o}</span>
@@ -377,9 +432,13 @@ document.addEventListener('click', e => {
 
 $('#btnExCsv').addEventListener('click', () => {
   downloadCsv(`登録済みDRBFM_${today()}.csv`, [
-    ['変更点', '変更理由', '心配点', '故障モード', '影響', '対策', 'S', 'O', 'D', 'RPN', '生成系統', '確認状態'],
-    ...DATA.DRBFM.map(r => [r.cp, r.why, r.worry, r.mode, r.eff, r.act, r.s, r.o, r.d,
-      r.s * r.o * r.d, DATA.SRC_KINDS[r.srcKind] ? DATA.SRC_KINDS[r.srcKind].label : r.srcKind, r.status])
+    ['変更点', '変更理由', '機能', '心配点', '故障モード', '他に心配点はないか',
+     '要因・原因', '他に考えるべき要因はないか', 'お客様への影響',
+     '設計へ', '評価へ', '製造へ', '担当', '期限', 'S', 'O', 'D', 'RPN', '生成系統', '確認状態'],
+    ...DATA.DRBFM.map(r => [r.cp, r.why, r.func, r.worry, r.mode, r.otherWorry,
+      r.cause, r.otherCause, r.eff, r.actDesign, r.actEval, r.actMfg, r.owner, r.due,
+      r.s, r.o, r.d, r.s * r.o * r.d,
+      DATA.SRC_KINDS[r.srcKind] ? DATA.SRC_KINDS[r.srcKind].label : r.srcKind, r.status])
   ]);
   toast('CSVを出力しました', `${DATA.DRBFM.length} 行を出力しました。`);
 });
