@@ -208,6 +208,26 @@ tr[data-edited="true"]:hover{background:var(--color-success-bg)}
 /* DRBFMの掘り下げ列（「他に〜ないか」）— AIが補助する所を区別する */
 .dig{display:block;padding:var(--space-2);border-left:3px solid var(--color-info);border-radius:0 var(--radius-small) var(--radius-small) 0;background:var(--color-info-bg)}
 
+/* FTA（故障の木） */
+.fta{width:100%;overflow-x:auto;background:var(--color-background);border:1px solid var(--color-border-light);border-radius:var(--radius-medium);box-shadow:var(--shadow-low)}
+.fta svg{display:block;min-width:900px}
+.fta text{font-family:var(--font-sans);font-size:14px;fill:var(--color-text-primary)}
+.fta .lk{stroke:var(--color-border);stroke-width:2;fill:none}
+.fta .bx{stroke-width:2;rx:6}
+.fta .bx--top{fill:var(--color-error-bg);stroke:var(--color-error)}
+.fta .bx--inter{fill:var(--color-primary-subtle);stroke:var(--color-primary)}
+.fta .bx--basic{fill:var(--color-background);stroke:var(--color-border)}
+.fta .bx--basic-hit{fill:var(--color-warning-bg);stroke:var(--color-warning)}
+.fta .bx--cat{fill:var(--color-primary-subtle);stroke:var(--color-primary)}
+.fta .bx--cat-empty{fill:var(--color-background-muted);stroke:var(--color-border);stroke-dasharray:5 3}
+.fta .gt{font-size:14px;font-weight:700}
+.fta .node{cursor:pointer}
+.fta .node:hover .bx{stroke-width:3}
+.fta .node:focus-visible .bx{stroke:var(--color-primary);stroke-width:4}
+.fta-legend{display:flex;flex-wrap:wrap;gap:var(--space-4);margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)}
+.fta-legend span{display:inline-flex;align-items:center;gap:var(--space-2)}
+.fta-legend i{width:16px;height:16px;border-radius:3px;border:2px solid;display:inline-block}
+
 /* チャット（対話で絞り込む） */
 .chat{display:flex;flex-direction:column;height:calc(100vh - var(--header-height) - var(--space-8))}
 .chat__log{flex:1;overflow-y:auto;padding:var(--space-2) var(--space-1) var(--space-5);display:flex;flex-direction:column;gap:var(--space-5)}

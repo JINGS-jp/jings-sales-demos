@@ -1,0 +1,16 @@
+{
+  "id": "08-fta",
+  "title": "FTA（故障の木）作成支援AI",
+  "context": "品質保証部・技術部 ／ 重大事象の原因の掘り下げ",
+  "icon": "alert",
+  "designScope": true,
+  "pitch": "起きてはいけない事象から下へ掘り下げて故障の木を作ります。末端の事象には過去不具合と工程FMEAの実績を紐づけます。",
+  "minutes": 5,
+  "sheets": ["pfmea", "complaint"],
+  "nav": [
+    { "view": "tree", "label": "故障の木", "icon": "alert" },
+    { "view": "basic", "label": "基本事象一覧", "icon": "folder" },
+    { "view": "compare", "label": "FMEAとの関係", "icon": "change" },
+    { "view": "docs", "label": "参照文書", "icon": "doc" }
+  ]
+}

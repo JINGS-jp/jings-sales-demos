@@ -1,0 +1,141 @@
+<!-- ========== 故障の木（中核） ========== -->
+<section class="view" data-view="tree">
+  <p class="breadcrumb">故障の木</p>
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">故障の木</h1>
+      <p class="page-lead">現象を選ぶと、原因を人・設備・材料・方法・測定・環境の6分類（5M1E）に分けて展開します。候補が挙がらなかった分類も表示するので、掘り下げの偏りが分かります。原因の特定は担当者が行います。</p>
+    </div>
+  </div>
+
+  <div class="grid split-grid" style="grid-template-columns:360px 1fr;align-items:start">
+    <form class="card" id="ftForm" novalidate style="position:sticky;top:calc(var(--header-height) + var(--space-5))">
+      <div class="field">
+        <label class="field__label" for="topSelect">現象<span class="field__req">必須</span></label>
+        <select class="select" id="topSelect">
+          <option value="">起きている（起きてはいけない）現象を選択してください</option>
+        </select>
+        <p class="field__error" id="topError" hidden>現象が選択されていません。現象を選んでから展開してください。</p>
+        <p class="field__hint">現象（結果）から始めます。工程から始めると原因の分類ができません。</p>
+      </div>
+      <div class="field">
+        <span class="field__label">紐づける実績</span>
+        <label class="check-row"><input type="checkbox" id="lkTr" checked> 過去不具合の記録</label>
+        <label class="check-row"><input type="checkbox" id="lkFm" checked> 工程FMEAの登録行</label>
+        <p class="field__hint">末端の基本事象に実績が紐づかない場合は、発生率を推定として扱います。</p>
+      </div>
+      <button class="btn btn--primary" type="submit" style="width:100%">故障の木を展開する</button>
+    </form>
+
+    <div>
+      <div class="empty" id="ftIdle">
+        <h2 class="empty__title">現象を選択してください</h2>
+        <div class="empty__body">
+          <p>選択した現象について、次を作ります。</p>
+          <ul>
+            <li>原因を 人・設備・材料・方法・測定・環境 の6分類に分けた木</li>
+            <li><strong>候補が挙がらなかった分類</strong>（掘り下げが足りていない可能性がある箇所）</li>
+            <li>各原因に紐づく過去不具合と工程FMEAの行</li>
+            <li>実績が紐づかない原因（発生度が推定になる箇所）</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card" id="ftLoading" hidden aria-live="polite">
+        <h2 style="font-size:var(--font-subsection-title);margin-bottom:var(--space-2)">故障の木を展開しています</h2>
+        <p style="font-size:var(--font-caption);color:var(--color-text-secondary);margin-bottom:var(--space-4)" id="ftLoadMeta"></p>
+        <ol class="stepper" id="ftStepper">
+          <li class="step" data-state="todo"><span class="step__mark">1</span><span class="step__text">頂上事象の範囲を確認しています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">2</span><span class="step__text">過去の記録から原因の候補を集めています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">3</span><span class="step__text">原因を5M1Eの6分類に振り分けています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">4</span><span class="step__text">候補が挙がらなかった分類を確認しています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">5</span><span class="step__text">過去不具合と工程FMEAの実績を紐づけています</span></li>
+        </ol>
+      </div>
+
+      <div id="ftResult" hidden></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 基本事象一覧 ========== -->
+<section class="view" data-view="basic" hidden>
+  <p class="breadcrumb"><a href="#" data-goto="tree">故障の木</a> ／ 基本事象一覧</p>
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">原因一覧</h1>
+      <p class="page-lead">すべての現象の原因候補です。5M1Eの分類ごとに、実績が紐づいていないもの（推定）を明示しています。</p>
+    </div>
+    <div class="page-head__actions">
+      <button class="btn btn--quiet" id="btnBasicCsv">原因一覧をCSVで出力する</button>
+    </div>
+  </div>
+  <div class="table-meta" id="basicMeta"></div>
+  <div class="table-wrap">
+    <table>
+      <caption class="visually-hidden">原因の一覧</caption>
+      <thead><tr>
+        <th scope="col">現象</th><th scope="col">分類</th><th scope="col">原因</th><th scope="col">補足</th>
+        <th scope="col">発生度O</th><th scope="col">紐づく実績</th><th scope="col">根拠</th>
+      </tr></thead>
+      <tbody id="basicBody"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ========== FMEAとの関係 ========== -->
+<section class="view" data-view="compare" hidden>
+  <p class="breadcrumb"><a href="#" data-goto="tree">故障の木</a> ／ FMEAとの関係</p>
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">FMEAとの関係</h1>
+      <p class="page-lead">FTAとFMEAは向きが逆です。どちらかで足りるものではなく、片方で見落とす部分をもう片方が拾います。</p>
+    </div>
+  </div>
+  <div class="section">
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr))">
+      <div class="card">
+        <h2 style="font-size:var(--font-subsection-title);margin-bottom:var(--space-3)">工程FMEA（原因 → 影響）</h2>
+        <p>工程ごとに、要求事項を満たせない状態を洗い出して影響を評価します。<strong>網羅性に強い</strong>反面、複数の原因が重なって初めて起きる事象を扱いにくいです。</p>
+        <p style="margin-top:var(--space-3)" class="cell-sub">登録済み：<span class="mono" id="cmpFmea"></span></p>
+      </div>
+      <div class="card">
+        <h2 style="font-size:var(--font-subsection-title);margin-bottom:var(--space-3)">FTA（結果 → 原因）</h2>
+        <p>現象から原因を5M1Eに分けて掘り下げます。<strong>分類の抜けが見えるのが強み</strong>で、材料や環境を見落としていることに気づけます。反面、選んだ現象しか見ません。</p>
+        <p style="margin-top:var(--space-3)" class="cell-sub">登録済み：<span class="mono" id="cmpFta"></span></p>
+      </div>
+    </div>
+  </div>
+  <div class="section">
+    <h2 class="section__title">工程FMEAに登録がない原因</h2>
+    <p class="section__lead">FTAで掘り下げた末端のうち、工程FMEAに対応する行が見つからないものです。工程単位では拾いにくかった観点の候補になります。</p>
+    <div class="table-wrap">
+      <table>
+        <caption class="visually-hidden">工程FMEAに登録がない原因</caption>
+        <thead><tr>
+          <th scope="col">現象</th><th scope="col">分類</th><th scope="col">原因</th>
+          <th scope="col">工程FMEAにない理由（推定）</th><th scope="col">操作</th>
+        </tr></thead>
+        <tbody id="gapBody"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 参照文書 ========== -->
+<section class="view" data-view="docs" hidden>
+  <p class="breadcrumb"><a href="#" data-goto="tree">故障の木</a> ／ 参照文書</p>
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">参照文書</h1>
+      <p class="page-lead">原因に紐づける実績の出どころです。検査記録が未登録のため、測定に関する原因は発生度を推定にしています。</p>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <caption class="visually-hidden">参照文書の一覧</caption>
+      <thead><tr><th scope="col">文書</th><th scope="col">種別</th><th scope="col">FTAでの使い方</th><th scope="col">状態</th></tr></thead>
+      <tbody id="docsBody"></tbody>
+    </table>
+  </div>
+</section>

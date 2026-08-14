@@ -510,10 +510,72 @@ async def check_07(pg, errors):
     return "デモ7：段階（暫定/最終）・未反映と確認できずの区別・共連れ変更の双方向・反映率の分母問題・マトリクス・CSV"
 
 
+async def check_08(pg, errors):
+    await pg.goto((DIST / "08-fta.html").as_uri())
+    await pg.click("#ftForm button[type=submit]")
+    assert await pg.is_visible("#topError"), "現象未選択のエラーが出ない"
+    # 候補なしの分類がある現象で検証（FT-001は環境が候補なし）
+    await pg.select_option("#topSelect", "FT-001")
+    await pg.click("#ftForm button[type=submit]")
+    await pg.wait_for_selector("#ftResult:not([hidden])", timeout=12000)
+    r = await pg.inner_text("#ftResult")
+    assert "原因の分岐（5M1E）" in r, "5M1Eの分岐が出ていない"
+    # 6分類すべてが図に出る（候補0件の分類も枠を残す）
+    cats = await pg.eval_on_selector_all("#ftResult [data-cat]", "e => e.length")
+    assert cats == 6, f"6分類すべてが出ていない: {cats}"
+    empties = await pg.eval_on_selector_all("#ftResult .bx--cat-empty", "e => e.length")
+    assert empties >= 1, "候補なしの分類が破線で示されていない"
+    assert "候補なしの分類" in r, "候補なしの分類のセクションがない"
+    assert "候補が挙がっていません" in r, "掘り下げ不足の指摘がない"
+    assert "推定" in r and "実績あり" in r, "実績と推定が区別されていない"
+    # 現象・分類・原因それぞれの根拠が開く
+    await pg.click('#ftResult [data-node="top"]')
+    p0 = await pg.inner_text("#panelBody")
+    assert "分類ごとの候補数" in p0, "現象の詳細に分類別の件数がない"
+    await pg.click("#panelClose")
+    await pg.click("#ftResult .bx--cat-empty")
+    p1 = await pg.inner_text("#panelBody")
+    assert "候補が挙がっていません" in p1, "候補なし分類の説明がない"
+    assert "原因になり得ないとは限りません" in p1, "候補なしの解釈の注意がない"
+    await pg.click("#panelClose")
+    await pg.click("#ftResult [data-cause]")
+    p2 = await pg.inner_text("#panelBody")
+    assert "分類" in p2 and "発生度O" in p2, "原因の根拠パネルの中身が不足"
+    ok = await pg.eval_on_selector("#panelBody .sheet-shot img",
+                                   "e => e.complete && e.naturalWidth > 600")
+    assert ok, "帳票スクショが読み込めていない"
+    await pg.click("#panelClose")
+    # CSV（候補なしの分類も出力される）
+    async with pg.expect_download() as dl:
+        await pg.click("#btnFtCsv")
+    d = await dl.value
+    body = open(await d.path(), encoding="utf-8-sig").read()
+    assert "候補が挙がっていない分類" in body and "推定" in body, "CSVに候補なし・推定がない"
+    # 原因一覧
+    await pg.click('[data-view="basic"]')
+    b = await pg.inner_text('section[data-view="basic"]')
+    assert "推定" in b, "原因一覧に推定の明示がない"
+    async with pg.expect_download() as dl2:
+        await pg.click("#btnBasicCsv")
+    await dl2.value
+    # FMEAとの関係：向きの違いと未登録の原因
+    await pg.click('[data-view="compare"]')
+    c = await pg.inner_text('section[data-view="compare"]')
+    assert "原因 → 影響" in c and "結果 → 原因" in c, "FMEAとFTAの向きの違いが説明されていない"
+    assert "工程FMEAに登録がない原因" in c, "工程FMEA未登録の原因のセクションがない"
+    await pg.click("#gapBody [data-toproc]")
+    assert await pg.is_visible("#toastArea .toast"), "検討依頼の通知が出ない"
+    # 参照文書
+    await pg.click('[data-view="docs"]')
+    dc = await pg.inner_text("#docsBody")
+    assert "未登録" in dc, "未登録文書が明示されていない"
+    return "デモ8：現象起点・5M1Eの6分類・候補なしの分類を残す・実績と推定の区別・FMEAとの向きの違い・CSV"
+
+
 CHECKS = {"index": check_index, "01-knowledge": check_01, "02-process-fmea": check_02,
           "03-drbfm": check_03, "04-design-review": check_04,
           "05-drawing": check_05, "06-8d-report": check_06,
-          "07-change-impact": check_07}
+          "07-change-impact": check_07, "08-fta": check_08}
 
 
 async def main() -> int:

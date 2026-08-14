@@ -216,6 +216,56 @@ tr[data-edited="true"]:hover{background:var(--color-success-bg)}
 /* DRBFMの掘り下げ列（「他に〜ないか」）— AIが補助する所を区別する */
 .dig{display:block;padding:var(--space-2);border-left:3px solid var(--color-info);border-radius:0 var(--radius-small) var(--radius-small) 0;background:var(--color-info-bg)}
 
+/* FTA（故障の木） */
+.fta{width:100%;overflow-x:auto;background:var(--color-background);border:1px solid var(--color-border-light);border-radius:var(--radius-medium);box-shadow:var(--shadow-low)}
+.fta svg{display:block;min-width:900px}
+.fta text{font-family:var(--font-sans);font-size:14px;fill:var(--color-text-primary)}
+.fta .lk{stroke:var(--color-border);stroke-width:2;fill:none}
+.fta .bx{stroke-width:2;rx:6}
+.fta .bx--top{fill:var(--color-error-bg);stroke:var(--color-error)}
+.fta .bx--inter{fill:var(--color-primary-subtle);stroke:var(--color-primary)}
+.fta .bx--basic{fill:var(--color-background);stroke:var(--color-border)}
+.fta .bx--basic-hit{fill:var(--color-warning-bg);stroke:var(--color-warning)}
+.fta .bx--cat{fill:var(--color-primary-subtle);stroke:var(--color-primary)}
+.fta .bx--cat-empty{fill:var(--color-background-muted);stroke:var(--color-border);stroke-dasharray:5 3}
+.fta .gt{font-size:14px;font-weight:700}
+.fta .node{cursor:pointer}
+.fta .node:hover .bx{stroke-width:3}
+.fta .node:focus-visible .bx{stroke:var(--color-primary);stroke-width:4}
+.fta-legend{display:flex;flex-wrap:wrap;gap:var(--space-4);margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)}
+.fta-legend span{display:inline-flex;align-items:center;gap:var(--space-2)}
+.fta-legend i{width:16px;height:16px;border-radius:3px;border:2px solid;display:inline-block}
+
+/* チャット（対話で絞り込む） */
+.chat{display:flex;flex-direction:column;height:calc(100vh - var(--header-height) - var(--space-8))}
+.chat__log{flex:1;overflow-y:auto;padding:var(--space-2) var(--space-1) var(--space-5);display:flex;flex-direction:column;gap:var(--space-5)}
+.chat__form{flex:none;padding-top:var(--space-4);border-top:1px solid var(--color-border-light);background:var(--color-background-subtle)}
+.chat__row{display:flex;gap:var(--space-3);align-items:flex-end}
+.chat__row .textarea{min-height:56px}
+.msg{display:flex;gap:var(--space-3);max-width:100%}
+.msg--me{flex-direction:row-reverse}
+.msg__who{flex:none;width:36px;height:36px;border-radius:var(--radius-pill);display:grid;place-items:center;font-size:var(--font-caption);font-weight:700}
+.msg--me .msg__who{background:var(--color-background-muted);color:var(--color-text-secondary)}
+.msg--ai .msg__who{background:var(--color-primary-subtle);color:var(--color-primary)}
+.msg--ai .msg__who svg{width:20px;height:20px}
+.msg__body{min-width:0;flex:1}
+.msg--me .msg__body{flex:0 1 auto;max-width:min(680px,80%)}
+.msg__bubble{padding:var(--space-4);border-radius:var(--radius-medium);background:var(--color-background);border:1px solid var(--color-border-light);line-height:var(--line-height-body)}
+.msg--me .msg__bubble{background:var(--color-primary-subtle);border-color:#c5d7fb}
+.msg__meta{margin-top:var(--space-2);font-size:var(--font-caption);color:var(--color-text-secondary)}
+.msg__sec{margin-top:var(--space-4)}
+.msg__sec > h4{font-size:var(--font-body);margin-bottom:var(--space-2);display:flex;align-items:center;gap:var(--space-2)}
+.msg__sec > h4::before{content:"";flex:none;width:4px;height:1em;border-radius:2px;background:var(--color-primary)}
+.chat__starters{display:flex;flex-wrap:wrap;gap:var(--space-2);margin-bottom:var(--space-3)}
+.followup{display:flex;flex-wrap:wrap;gap:var(--space-2);margin-top:var(--space-3)}
+.followup__label{width:100%;font-size:var(--font-caption);color:var(--color-text-secondary);margin-bottom:var(--space-1)}
+.typing{display:inline-flex;gap:4px;align-items:center}
+.typing span{width:7px;height:7px;border-radius:50%;background:var(--color-primary);animation:blink 1.1s infinite}
+.typing span:nth-child(2){animation-delay:.18s}
+.typing span:nth-child(3){animation-delay:.36s}
+@keyframes blink{0%,60%,100%{opacity:.25}30%{opacity:1}}
+@media (max-width:768px){.chat{height:auto}.chat__log{max-height:none}}
+
 /* 帳票の実物スクショ */
 .sheet-shot{display:block;width:100%;padding:0;border:1px solid var(--color-border);border-radius:var(--radius-small);background:var(--color-background);cursor:zoom-in;overflow:hidden}
 .sheet-shot:hover{border-color:var(--color-primary)}
@@ -994,11 +1044,88 @@ const CHANGE_REFLECT = {
   ]
 };
 
+
+/* FTA（故障の木解析）— 5M1Eで原因を分岐させる -----------------
+   現象（頂上事象）を起点に、原因を 人・設備・材料・方法・測定・環境 の6分類へ分ける。
+   6分類を常に全部表示し、候補が挙がらなかった分類を「掘り下げ余地」として示すのが要点。
+   偏った掘り下げ（設備と方法だけ挙げて材料と環境を見ていない）を可視化する。
+   cause には過去不具合・工程FMEAの実績を紐づけ、推定と実績を分ける。 */
+const M1E = [
+  { key: 'man',  label: '人', en: 'Man', desc: '作業者の判断・技能・作業のやり方に起因するもの' },
+  { key: 'mach', label: '設備', en: 'Machine', desc: '設備・治具・工具の状態に起因するもの' },
+  { key: 'matl', label: '材料', en: 'Material', desc: '材料・部品のばらつきや特性に起因するもの' },
+  { key: 'meth', label: '方法', en: 'Method', desc: '作業標準・条件・指示のしかたに起因するもの' },
+  { key: 'meas', label: '測定', en: 'Measurement', desc: '測定・検査の方法や基準に起因するもの' },
+  { key: 'envi', label: '環境', en: 'Environment', desc: '温度・湿度・騒音・清浄度など環境に起因するもの' }
+];
+
+const FTA_TREES = [
+  {
+    id: 'FT-001', top: 'ケース合わせ面から異音が発生する', prod: 'ACT-220',
+    scope: '耐久試験後および市場で異音として顕在化する状態を対象とする',
+    seed: 'QT-2023-0142',
+    causes: [
+      { m: 'man', label: '締付順序を守らずに締結する', tr: 'QT-2025-0378', fmea: '17', o: 5,
+        note: '対角締めの順序が守られなかった実績あり' },
+      { m: 'man', label: '工具の設定値を始業時に確認しない', tr: '', fmea: '13', o: 3,
+        note: '確認漏れの実績はないが、手順上は起こり得る' },
+      { m: 'mach', label: 'トルクレンチの校正周期が超過する', tr: 'QT-2023-0142', fmea: '17', o: 4,
+        note: '本現象の直接原因として記録あり' },
+      { m: 'mach', label: '締結工具のソケットが摩耗する', tr: 'QT-2026-0121', fmea: '17', o: 5,
+        note: '交換基準が未設定' },
+      { m: 'matl', label: 'ガスケットの圧縮永久歪が進行する', tr: 'QT-2024-0209', fmea: '17', o: 3,
+        note: '長期使用で面圧が抜ける' },
+      { m: 'matl', label: 'ハウジングにソリが生じ合わせ面が密着しない', tr: 'QT-2026-0103', fmea: '10', o: 4,
+        note: '金型冷却の不均一' },
+      { m: 'meth', label: '締付順序の指示が要領書の文章のみである', tr: 'QT-2025-0378', fmea: '17', o: 5,
+        note: '順序が一意に決まらない' },
+      { m: 'meas', label: 'トルク値は記録するが面圧を測っていない', tr: '', fmea: '', o: 4,
+        note: '規格内のトルクでも面圧が不足する条件がある。測定手段がないため推定' }
+    ]
+  },
+  {
+    id: 'FT-002', top: 'コネクタが半嵌合のまま組み付けられる', prod: 'ACT-220',
+    scope: '車両側で導通不良として顕在化する状態を対象とする。顧客流出の実績あり',
+    seed: 'QT-2023-0187',
+    causes: [
+      { m: 'man', label: '嵌合の完了をロック音だけで判断する', tr: 'QT-2023-0187', fmea: '15', o: 4,
+        note: '本現象の直接原因として記録あり' },
+      { m: 'man', label: '手袋着用や狭所作業で押し込み力が不足する', tr: '', fmea: '15', o: 3,
+        note: '作業条件による。検査記録が未登録のため推定' },
+      { m: 'matl', label: '端子メッキ厚のばらつきで嵌合力が変わる', tr: 'QT-2026-0061', fmea: '15', o: 3,
+        note: '仕入先の工程変更が未連絡だった' },
+      { m: 'meth', label: 'ロック音の確認のみで引張確認の手順がない', tr: 'QT-2023-0187', fmea: '15', o: 4,
+        note: '対策として引張確認を追加済み' },
+      { m: 'meas', label: '嵌合力を全数測定していない', tr: '', fmea: '', o: 5,
+        note: '抜取のみ。全数の測定手段がないため推定' },
+      { m: 'envi', label: 'ライン騒音下でロック音が聞き取れない', tr: 'QT-2023-0187', fmea: '', o: 4,
+        note: '構造上、音でしか判別できない点が根本にある' }
+    ]
+  },
+  {
+    id: 'FT-003', top: '気密検査でリーク量が規格を超過する', prod: 'ACT-210',
+    scope: '出荷前の気密検査で不良となる状態を対象とする。発生率0.8%の実績あり',
+    seed: 'QT-2025-0129',
+    causes: [
+      { m: 'man', label: 'バリ取りの確認が目視のみで見落とす', tr: 'QT-2025-0129', fmea: '10', o: 5,
+        note: '本現象の直接原因として記録あり' },
+      { m: 'mach', label: '金型の冷却水路が詰まりソリが生じる', tr: 'QT-2026-0103', fmea: '10', o: 4,
+        note: '流量監視がない' },
+      { m: 'matl', label: '樹脂ロット間の粘度差で成形状態が変わる', tr: 'QT-2025-0034', fmea: '10', o: 5,
+        note: '成形条件が粘度変化を吸収できていない' },
+      { m: 'meth', label: 'バリ取り後の判定基準が限度見本のみである', tr: '', fmea: '', o: 4,
+        note: '定量的な基準がない。測定実績がないため推定' },
+      { m: 'meas', label: 'リーク量は全数測るが溝形状は測っていない', tr: '', fmea: '', o: 4,
+        note: '結果は見ているが原因側を測っていない。推定' }
+    ]
+  }
+];
+
 const DATA = {
   CO, PRODUCTS, PROCESSES, MARK_LEGEND, SOD_CRITERIA, DEVIATIONS, PROC_REQS,
   TROUBLES, TROUBLE_TOTAL, PFMEA, PFMEA_TOTAL,
   DRBFM, DR_GATES, DR_FINDINGS, DR_CHECKLIST, DRAWINGS, DWG_RULES, DWG_FINDINGS,
-  ECNS, CHANGE_REFLECT, SRC_KINDS, D8_STEPS
+  ECNS, CHANGE_REFLECT, SRC_KINDS, D8_STEPS, FTA_TREES, M1E
 };
 
 /* JINGS 営業標準デモ 共通スクリプト */
