@@ -1,0 +1,15 @@
+{
+  "id": "04-design-review",
+  "title": "設計審査（DR）支援AI",
+  "context": "技術部・品質保証部 ／ 設計審査の準備と指摘管理",
+  "icon": "gate",
+  "designScope": true,
+  "pitch": "次のDRで何を確認すべきかを、変更点・過去不具合・前回DR指摘から絞り込みます。指摘事項は起票から完了まで追跡します。",
+  "minutes": 5,
+  "nav": [
+    { "view": "gates", "label": "審査ゲート", "icon": "gate" },
+    { "view": "prep", "label": "審査準備", "icon": "check" },
+    { "view": "findings", "label": "指摘事項", "icon": "alert" },
+    { "view": "carry", "label": "過去指摘の横展開", "icon": "change" }
+  ]
+}

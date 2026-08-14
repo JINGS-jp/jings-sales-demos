@@ -1,0 +1,15 @@
+{
+  "id": "03-drbfm",
+  "title": "変更点起点の設計品質AI（DRBFM）",
+  "context": "技術部 ／ 設計変更時のリスク検討",
+  "icon": "change",
+  "designScope": true,
+  "pitch": "変更発議書を投げ込むと、変更点ごとの心配点・故障モード・対策の初版を生成します。過去実績のない領域も機能演繹と物理推論で出します。",
+  "minutes": 5,
+  "nav": [
+    { "view": "gen", "label": "DRBFM生成", "icon": "change" },
+    { "view": "changes", "label": "変更点一覧", "icon": "flow" },
+    { "view": "existing", "label": "登録済みDRBFM", "icon": "folder" },
+    { "view": "docs", "label": "参照文書", "icon": "doc" }
+  ]
+}

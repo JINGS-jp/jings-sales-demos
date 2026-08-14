@@ -1,0 +1,287 @@
+/* デモ6：品質報告書（8D）作成支援
+   不具合記録に書かれている内容だけを各項目へ割り当てる。
+   記録から書けない項目は埋めず、何を追記すべきかを示す。
+   顧客提出物なので、推測で埋めることが最も危険という前提で設計する。 */
+
+const TR_BY_ID = {};
+DATA.TROUBLES.forEach(t => TR_BY_ID[t.id] = t);
+const PROC_BY_NO = {};
+DATA.PROCESSES.forEach(p => PROC_BY_NO[p.no] = p);
+const procLabel = no => PROC_BY_NO[no] ? `工程${no} ${PROC_BY_NO[no].name}` : `工程${no}`;
+
+function norm(s) {
+  return String(s || '').normalize('NFKC').toLowerCase()
+    .replace(/[\s・,.、。（）()「」【】\/：:；;＋+\-–—]/g, '');
+}
+function grams(s) {
+  const t = norm(s), set = new Set();
+  for (let i = 0; i < t.length - 1; i++) set.add(t.slice(i, i + 2));
+  return set;
+}
+function dice(a, b) {
+  if (!a.size || !b.size) return 0;
+  let inter = 0;
+  a.forEach(g => { if (b.has(g)) inter++; });
+  return (2 * inter) / (a.size + b.size);
+}
+
+let curTr = null, curDoc = [], history = [];
+
+/* ---- 8Dの各項目を組み立てる ---- */
+function buildDoc(t) {
+  const useFmea = $('#rfFmea').checked, useSim = $('#rfSim').checked;
+  const fmeaRows = useFmea ? DATA.PFMEA.filter(r => r.src === t.id) : [];
+  const g = grams(t.sym + ' ' + t.cause);
+  const similar = useSim ? DATA.TROUBLES
+    .filter(o => o.id !== t.id)
+    .map(o => ({ o, s: dice(g, grams(o.sym + ' ' + o.cause)) }))
+    .filter(x => x.s >= 0.30).sort((a, b) => b.s - a.s).slice(0, 3) : [];
+  const sameProcOther = DATA.TROUBLES.filter(o => o.proc !== t.proc &&
+    dice(grams(t.cause), grams(o.cause)) >= 0.30);
+
+  const doc = [];
+
+  doc.push({ id: 'D1', name: 'チーム編成', text: '', filled: false,
+    missing: '対応チームの構成員が不具合記録に含まれていません。担当部門と責任者を記入してください。',
+    ref: '' });
+
+  doc.push({ id: 'D2', name: '問題の記述', filled: true,
+    text: `${t.date}、${t.prod}の${procLabel(t.proc)}において、${t.part}に関し「${t.sym}」が発生しました。`
+      + `影響度の評価はS${t.s}、発生度O${t.o}、検出度D${t.d}です。`
+      + (t.leak ? '本件は顧客への流出に至っています。' : '社内で検出し、顧客への流出はありません。'),
+    ref: `不具合記録 ${t.id}` });
+
+  doc.push({ id: 'D3', name: '暫定処置', filled: !!t.tmp,
+    text: t.tmp ? `${t.tmp}を実施しました。` : '',
+    missing: t.tmp ? '' : '暫定処置の記載が不具合記録にありません。実施した内容と実施日を記入してください。',
+    ref: `不具合記録 ${t.id} 暫定対策欄` });
+
+  // 原因は「発生原因」と「流出原因」に分ける。記録が1つしかない場合は流出原因を空欄にする。
+  const detHint = fmeaRows.length ? fmeaRows[0].det : '';
+  doc.push({ id: 'D4', name: '根本原因の特定', filled: true,
+    text: `【発生原因】${t.cause}\n【流出原因】`
+      + (detHint ? `現行の検出手段は「${detHint}」ですが、本件を検出できませんでした。検出できなかった条件は調査中です。` : ''),
+    missing: detHint ? '' : '流出原因（なぜ検出できなかったか）が不具合記録から特定できません。検査記録を確認して記入してください。',
+    ref: `不具合記録 ${t.id} 原因欄` + (fmeaRows.length ? ` ／ 工程FMEA ${procLabel(t.proc)}` : '') });
+
+  doc.push({ id: 'D5', name: '恒久対策の選定', filled: !!t.perm,
+    text: t.perm ? `${t.perm}を恒久対策として選定しました。` : '',
+    missing: t.perm ? '' : '恒久対策が不具合記録に記載されていません。対策内容を記入してください。',
+    ref: `不具合記録 ${t.id} 恒久対策欄` });
+
+  doc.push({ id: 'D6', name: '恒久対策の実施と検証', filled: t.status === '完了',
+    text: t.status === '完了'
+      ? `対策を実施し、対応を完了しています。`
+      : '',
+    missing: t.status === '完了'
+      ? '効果の検証結果（対策後の発生件数・測定値）が記録にありません。検証データを追記してください。'
+      : `本件の対応状態は「${t.status}」です。対策の実施が完了していないため、この項目は記入できません。`,
+    ref: `不具合記録 ${t.id} 状態` });
+
+  const scope = [];
+  if (similar.length) scope.push(`類似する不具合が ${similar.length} 件あります（${similar.map(x => x.o.id).join('、')}）。`);
+  if (sameProcOther.length) scope.push(`同じ原因が他工程でも記録されています（${sameProcOther.map(o => procLabel(o.proc)).join('、')}）。同種の確認が必要です。`);
+  doc.push({ id: 'D7', name: '再発防止（水平展開）', filled: scope.length > 0,
+    text: scope.join('\n'),
+    missing: scope.length ? '' : '類似する不具合の記録がないため、水平展開の範囲を機械的に特定できません。対象機種・工程を検討して記入してください。',
+    ref: similar.length ? `類似記録 ${similar.map(x => x.o.id).join('、')}` : '' });
+
+  doc.push({ id: 'D8', name: 'チームの認識と完了', text: '', filled: false,
+    missing: '承認者と完了日は記録から特定できません。関係者の確認後に記入してください。',
+    ref: '' });
+
+  return doc;
+}
+
+/* ---- 描画 ---- */
+function renderDoc() {
+  const filled = curDoc.filter(d => d.filled).length;
+  const t = curTr;
+  const dest = $('#dest').value;
+
+  $('#genResult').innerHTML = `
+    <div class="card" style="border-left:4px solid var(--color-primary)">
+      <div style="display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap;margin-bottom:var(--space-3)">
+        <span class="status status--ai">AIによる初稿</span>
+        <span class="cell-sub">対象 ${esc(t.id)}　／　提出先 ${esc(dest)}　／　作成 ${today()}</span>
+      </div>
+      <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:var(--space-4);margin-bottom:var(--space-4)">
+        <div><p class="kpi__label">記入できた項目</p><p class="kpi__value" style="font-size:var(--font-section-title)">${filled}<span class="kpi__unit"> / 8</span></p></div>
+        <div><p class="kpi__label">追記が必要な項目</p><p class="kpi__value" style="font-size:var(--font-section-title);color:var(--color-warning)">${8 - filled}<span class="kpi__unit"> 件</span></p></div>
+        <div><p class="kpi__label">状態</p><p class="kpi__value" style="font-size:var(--font-section-title)">未確定</p><p class="kpi__note">担当者の確認が必要</p></div>
+      </div>
+      <p style="line-height:var(--line-height-body)">
+        不具合記録 <span class="mono">${esc(t.id)}</span> の内容を8Dの各項目へ割り当てました。
+        記録から書ける ${filled} 項目を記入し、残り ${8 - filled} 項目は<strong>推測で埋めず空欄にしています</strong>。
+        空欄の項目には、何を追記すべきかを表示しています。
+      </p>
+    </div>
+
+    <div class="section">
+      <h2 class="section__title">8D報告書 初稿</h2>
+      <p class="section__lead">本文は画面上で直接編集できます。編集した項目は担当者修正済みとして記録されます。</p>
+      <div class="table-wrap">
+        <table>
+          <caption class="visually-hidden">8D報告書の初稿</caption>
+          <thead><tr>
+            <th scope="col">項目</th><th scope="col">内容</th><th scope="col">出典</th><th scope="col">状態</th>
+          </tr></thead>
+          <tbody>${curDoc.map((d, i) => `
+            <tr data-i="${i}">
+              <td class="nowrap"><strong>${esc(d.id)}</strong><div class="cell-sub">${esc(d.name)}</div></td>
+              <td class="col-text">
+                ${d.filled
+                  ? `<span class="editcell" contenteditable="true" role="textbox" aria-label="${esc(d.id)}の内容を編集" style="white-space:pre-wrap">${esc(d.text)}</span>`
+                  : `<span class="editcell" contenteditable="true" role="textbox" aria-label="${esc(d.id)}の内容を入力" style="white-space:pre-wrap;min-height:2.4em"></span>
+                     <div class="callout callout--warn" style="margin-top:var(--space-2);padding:var(--space-2) var(--space-3);font-size:var(--font-caption)">
+                       <div><strong>追記が必要です</strong>　${esc(d.missing)}</div>
+                     </div>`}
+              </td>
+              <td class="col-text cell-sub">${d.ref ? esc(d.ref) : '<span class="cell-empty">—</span>'}</td>
+              <td class="nowrap">${d.filled
+                ? '<span class="status status--ai">AI初稿</span>'
+                : '<span class="status status--warn">未記入</span>'}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+      <div style="display:flex;gap:var(--space-3);margin-top:var(--space-4);flex-wrap:wrap">
+        <button class="btn btn--primary" id="btnCsv">報告書をExcelで出力する</button>
+        <button class="btn btn--secondary" id="btnSave">この内容で保存する</button>
+      </div>
+      <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)" id="editNote">
+        編集した項目は緑色で表示されます。
+      </p>
+    </div>
+
+    <div class="callout callout--warn">
+      <div>
+        <p class="callout__title">顧客提出前の確認</p>
+        <p>この報告書はAIによる初稿です。空欄の項目を埋めずに提出しないでください。D4の流出原因、D6の効果検証、D7の水平展開の範囲は、記録だけでは確定できないため担当者の判断が必要です。提出前に品質保証部の承認を受けてください。</p>
+      </div>
+    </div>`;
+
+  wireEditable('#genResult', () => {
+    const n = $$('#genResult tr[data-edited="true"]').length;
+    $('#editNote').textContent = `編集した項目は緑色で表示されます。この初稿で ${n} 項目を担当者が修正しました。`;
+  });
+  $('#btnCsv').addEventListener('click', exportDoc);
+  $('#btnSave').addEventListener('click', () => {
+    const texts = $$('#genResult .editcell').map(e => e.textContent.trim());
+    const done = texts.filter(Boolean).length;
+    history.unshift({ tr: curTr.id, dest, date: today(), filled: done });
+    renderList();
+    toast('報告書を保存しました', `記入済み ${done}/8 項目。作成済み報告書の画面から確認できます。`);
+  });
+}
+
+function exportDoc() {
+  const cells = $$('#genResult .editcell');
+  downloadCsv(`8D報告書_${curTr.id}_${today()}.csv`, [
+    ['項目', '名称', '内容', '出典', '状態'],
+    ...curDoc.map((d, i) => {
+      const txt = cells[i] ? cells[i].textContent.trim() : d.text;
+      return [d.id, d.name, txt, d.ref, txt ? (d.filled ? 'AI初稿' : '担当者記入') : '未記入'];
+    }),
+    [],
+    ['対象不具合', curTr.id, curTr.sym, '', ''],
+    ['提出先', $('#dest').value, '', '', ''],
+    ['作成日', today(), '', '', '']
+  ]);
+  const empty = cells.filter(e => !e.textContent.trim()).length;
+  if (empty) {
+    toast('報告書を出力しました', `未記入が ${empty} 項目あります。提出前に埋めてください。`, 'warn');
+  } else {
+    toast('報告書を出力しました', '全項目が記入されています。提出前に品質保証部の承認を受けてください。');
+  }
+}
+
+/* ---- 作成済み報告書 ---- */
+function renderList() {
+  $('#listMeta').textContent = history.length
+    ? `${history.length} 件の報告書を作成しました（デモ環境のため、ブラウザを閉じると消えます）` : '';
+  $('#listWrap').hidden = history.length === 0;
+  $('#listEmpty').hidden = history.length > 0;
+  $('#listBody').innerHTML = history.map(h => {
+    const t = TR_BY_ID[h.tr];
+    return `<tr>
+      <td class="nowrap mono">${esc(h.tr)}<div class="cell-sub">${esc(t ? t.prod : '')}</div></td>
+      <td class="col-text">${esc(h.dest)}</td>
+      <td class="nowrap mono">${esc(h.date)}</td>
+      <td class="nowrap mono">${h.filled} / 8</td>
+      <td class="nowrap">${h.filled === 8
+        ? '<span class="status status--done">記入済み</span>'
+        : '<span class="status status--warn">未記入あり</span>'}</td>
+      <td class="nowrap"><button class="btn btn--quiet btn--small" data-reopen="${esc(h.tr)}">この不具合で作り直す</button></td>
+    </tr>`;
+  }).join('');
+}
+
+/* ---- 8D様式 ---- */
+function renderForm() {
+  const refs = {
+    D1: '（AIは記入しません）',
+    D2: '不具合記録の発生日・製品・工程・現象・S/O/D評価',
+    D3: '不具合記録の暫定対策欄',
+    D4: '不具合記録の原因欄／工程FMEAの検出手段',
+    D5: '不具合記録の恒久対策欄',
+    D6: '不具合記録の対応状態（実績値は記録になければ空欄）',
+    D7: '類似する不具合記録／同一原因の他工程記録',
+    D8: '（AIは記入しません）'
+  };
+  $('#formBody').innerHTML = DATA.D8_STEPS.map(s => `
+    <tr>
+      <td class="nowrap"><strong>${esc(s.id)}</strong></td>
+      <td class="nowrap">${esc(s.name)}</td>
+      <td class="col-text">${esc(s.hint)}</td>
+      <td class="col-text cell-sub">${esc(refs[s.id])}</td>
+    </tr>`).join('');
+}
+
+/* ---- 初期化 ---- */
+wireShell();
+renderList();
+renderForm();
+
+// 顧客流出のあった記録を先頭に
+const ordered = DATA.TROUBLES.slice().sort((a, b) => (b.leak ? 1 : 0) - (a.leak ? 1 : 0));
+ordered.forEach(t => {
+  const o = document.createElement('option');
+  o.value = t.id;
+  o.textContent = `${t.id}　${t.prod}　${t.sym.slice(0, 22)}${t.leak ? '（流出あり）' : ''}`;
+  $('#trSelect').appendChild(o);
+});
+
+$('#genForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const id = $('#trSelect').value;
+  if (!id) {
+    $('#trError').hidden = false;
+    $('#trSelect').setAttribute('aria-invalid', 'true');
+    toast('対象の不具合を選択してください', '不具合を選ぶと、8D報告書の初稿を作成できます。', 'error');
+    return;
+  }
+  $('#trError').hidden = true;
+  $('#trSelect').removeAttribute('aria-invalid');
+  curTr = TR_BY_ID[id];
+  $('#genIdle').hidden = true;
+  $('#genResult').hidden = true;
+  $('#genLoading').hidden = false;
+  $('#genLoadMeta').textContent =
+    `対象：${id}　${curTr.prod}　${procLabel(curTr.proc)}　／　参照：不具合記録・工程FMEA ${DATA.PFMEA.length}行・類似記録`;
+  runSteps('#genStepper', () => {
+    curDoc = buildDoc(curTr);
+    $('#genLoading').hidden = true;
+    renderDoc();
+    $('#genResult').hidden = false;
+  }, 300);
+});
+
+document.addEventListener('click', e => {
+  const r = e.target.closest('[data-reopen]');
+  if (r) {
+    $('#trSelect').value = r.dataset.reopen;
+    showView('gen');
+    $('#genForm').dispatchEvent(new Event('submit'));
+  }
+});

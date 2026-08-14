@@ -177,6 +177,48 @@ td.col-text{min-width:15em}
 .dist__bar--warn{background:var(--color-warning)}
 .dist__d{color:var(--color-text-secondary)}
 
+/* 故障モードの源泉系統バッジ（設計品質系デモ） */
+.src{display:inline-flex;align-items:center;gap:var(--space-1);padding:2px var(--space-2);border-radius:var(--radius-small);font-size:var(--font-caption);font-weight:700;white-space:nowrap;border:1px solid transparent}
+.src--past{background:var(--color-info-bg);color:var(--color-info);border-color:#c5d7fb}
+.src--func{background:var(--color-success-bg);color:var(--color-success);border-color:#b7dfc6}
+.src--phys{background:var(--color-warning-bg);color:var(--color-warning);border-color:#e8d38a}
+.src--env{background:var(--color-background-muted);color:var(--color-text-secondary);border-color:var(--color-border-light)}
+
+/* インライン編集セル */
+.editcell{display:block;min-height:1.6em;padding:var(--space-1) var(--space-2);border:1px dashed var(--color-border-light);border-radius:var(--radius-small);background:var(--color-background)}
+.editcell:hover{border-color:var(--color-border);background:var(--color-background-subtle)}
+.editcell:focus{outline:3px solid var(--color-primary);outline-offset:1px;border-style:solid;background:var(--color-background)}
+tr[data-edited="true"]{background:var(--color-success-bg)}
+tr[data-edited="true"]:hover{background:var(--color-success-bg)}
+
+/* 知見カード */
+.kcard{padding:var(--space-4);background:var(--color-background);border:1px solid var(--color-border-light);border-left:4px solid var(--color-primary);border-radius:var(--radius-medium);box-shadow:var(--shadow-low);margin-bottom:var(--space-4)}
+.kcard[data-state="approved"]{border-left-color:var(--color-success)}
+.kcard[data-state="fix"]{border-left-color:var(--color-warning)}
+.kcard__head{display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap;margin-bottom:var(--space-2)}
+.kcard__title{font-size:var(--font-subsection-title)}
+.kcard__body{line-height:var(--line-height-body)}
+.kcard__foot{display:flex;gap:var(--space-3);flex-wrap:wrap;margin-top:var(--space-4)}
+
+/* 確認モーダル（生成を止めて人に聞く） */
+.modal-backdrop{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.42)}
+.modal{position:fixed;z-index:61;top:50%;left:50%;transform:translate(-50%,-50%);width:min(680px,calc(100% - 32px));max-height:86vh;overflow-y:auto;padding:var(--space-6);background:var(--color-background);border-radius:var(--radius-large);box-shadow:var(--shadow-high)}
+.modal__title{font-size:var(--font-section-title);margin-bottom:var(--space-3)}
+.modal__lead{color:var(--color-text-secondary);margin-bottom:var(--space-5)}
+.modal__opts{display:flex;flex-direction:column;gap:var(--space-3)}
+.modal__opt{display:block;width:100%;text-align:left;padding:var(--space-4);border:2px solid var(--color-border-light);border-radius:var(--radius-medium);background:var(--color-background);font:inherit;cursor:pointer}
+.modal__opt:hover{border-color:var(--color-primary);background:var(--color-primary-subtle)}
+.modal__opt strong{display:block;font-size:var(--font-body-large);margin-bottom:var(--space-1)}
+.modal__opt span{font-size:var(--font-caption);color:var(--color-text-secondary);line-height:var(--line-height-body)}
+.modal__rec{margin-left:var(--space-2);padding:2px var(--space-2);border-radius:var(--radius-pill);background:var(--color-success-bg);color:var(--color-success);font-size:var(--font-caption);font-weight:700}
+
+/* 簡易図面（SVG） */
+.dwg{width:100%;background:var(--color-background);border:1px solid var(--color-border-light);border-radius:var(--radius-small)}
+.dwg text{font-family:var(--font-mono);font-size:14px;fill:var(--color-text-secondary)}
+.dwg .dim{stroke:var(--color-text-tertiary);stroke-width:1}
+.dwg .part{stroke:var(--color-text-primary);stroke-width:2;fill:none}
+.dwg .hit{stroke:var(--color-error);stroke-width:3;fill:var(--color-error-bg);fill-opacity:.35}
+
 [hidden]{display:none !important}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .view{animation:fadeUp .25s ease}
@@ -660,16 +702,87 @@ const PFMEA = [
 
 /* 設計変更・DRBFM（ACT-230：ACT-220からの変更点） ---------- */
 const DRBFM = [
-  { cp: 'モータをブラシ付からブラシレスへ変更', why: '小型軽量化と寿命延長', worry: '取付フランジ形状が変わり既存の位置決め治具が使えない', mode: '軸芯ずれが規格外となる', eff: '振動増加・軸受の早期摩耗', act: '新モータ用の位置決め治具を設計', s: 7, o: 5, d: 6, status: 'AI提案', src: 'QT-2026-0084' },
-  { cp: 'モータをブラシ付からブラシレスへ変更', why: '小型軽量化と寿命延長', worry: '駆動方式が変わり制御基板の発熱分布が変化する', mode: '基板の局所温度上昇によるはんだ劣化', eff: '温度サイクルで導通不良', act: '熱解析の実施と実測での確認', s: 8, o: 4, d: 6, status: 'AI提案', src: 'QT-2023-0233' },
-  { cp: '減速比を 1:32 から 1:24 へ変更', why: '応答速度の向上', worry: '歯面の面圧が増加する', mode: 'ギヤ歯面の異常摩耗', eff: 'バックラッシ拡大により作動精度が低下', act: '歯面幅を1.5mm拡大し材質を変更', s: 8, o: 4, d: 5, status: '担当者確認済み', src: 'QT-2025-0344' },
-  { cp: '減速比を 1:32 から 1:24 へ変更', why: '応答速度の向上', worry: '作動音の周波数特性が変わる', mode: '既存の判定基準では良否が判定できない', eff: '不良の見逃しまたは過剰排除', act: '新機種用の判定基準を設定', s: 6, o: 5, d: 7, status: 'AI提案', src: 'QT-2026-0012' },
-  { cp: 'ハウジングをPBTからPPS樹脂へ変更', why: '耐熱性の確保', worry: '成形収縮率が変わり軸受穴径が変動する', mode: '穴径が規格外となる', eff: '軸受のガタにより作動音が増加', act: '成形条件の再設定と穴径のSPC管理', s: 6, o: 5, d: 3, status: '担当者確認済み', src: 'QT-2025-0034' },
-  { cp: 'ハウジングをPBTからPPS樹脂へ変更', why: '耐熱性の確保', worry: 'インサートナットの圧入保持力が変わる', mode: '圧入荷重が規格を外れ共回りが発生', eff: '締結不能。組立ラインの停止', act: '圧入条件の再設定と保持力の実測確認', s: 7, o: 4, d: 4, status: 'AI提案', src: 'QT-2024-0056' },
-  { cp: 'ケース締結をM4×4本からM3×6本へ変更', why: '薄肉化への対応', worry: '締結点が増え締付順序が複雑になる', mode: '締付順序の誤りにより面圧が不均一', eff: '合わせ面の隙間による気密不良', act: '順序表示ガイド治具を新設計', s: 7, o: 5, d: 5, status: 'AI提案', src: 'QT-2025-0378' },
-  { cp: 'ケース締結をM4×4本からM3×6本へ変更', why: '薄肉化への対応', worry: 'ねじ径縮小により締付トルクの管理幅が狭くなる', mode: 'トルク過大でねじ部が破損', eff: '締結強度不足。ケース脱落', act: 'トルク管理値の見直しと工具能力の確認', s: 9, o: 3, d: 4, status: 'AI提案', src: '' },
-  { cp: 'コネクタを2極から3極へ変更', why: '信号線の追加', worry: '嵌合力が増加し作業性が変わる', mode: '半嵌合のまま流出する', eff: '車両側で機能喪失', act: 'ロック表示の視認性を確認し引張確認を標準化', s: 8, o: 4, d: 5, status: '担当者確認済み', src: 'QT-2023-0187' },
-  { cp: 'ガスケット材質をNBRからシリコーンへ変更', why: '耐熱性の確保', worry: '圧縮永久歪の特性が変わる', mode: '長期使用で面圧が不足しグリスが漏出', eff: '市場での漏れ不具合', act: '面圧の下限値を設計要件へ明記し長期試験で確認', s: 8, o: 3, d: 7, status: 'AI提案', src: 'QT-2024-0209' }
+  { cp: 'モータをブラシ付からブラシレスへ変更', why: '小型軽量化と寿命延長', worry: '取付フランジ形状が変わり既存の位置決め治具が使えない', mode: '軸芯ずれが規格外となる', eff: '振動増加・軸受の早期摩耗', act: '新モータ用の位置決め治具を設計', s: 7, o: 5, d: 6, srcKind: 'past', status: 'AI提案', src: 'QT-2026-0084' },
+  { cp: 'モータをブラシ付からブラシレスへ変更', why: '小型軽量化と寿命延長', worry: '駆動方式が変わり制御基板の発熱分布が変化する', mode: '基板の局所温度上昇によるはんだ劣化', eff: '温度サイクルで導通不良', act: '熱解析の実施と実測での確認', s: 8, o: 4, d: 6, srcKind: 'phys', status: 'AI提案', src: 'QT-2023-0233' },
+  { cp: '減速比を 1:32 から 1:24 へ変更', why: '応答速度の向上', worry: '歯面の面圧が増加する', mode: 'ギヤ歯面の異常摩耗', eff: 'バックラッシ拡大により作動精度が低下', act: '歯面幅を1.5mm拡大し材質を変更', s: 8, o: 4, d: 5, srcKind: 'phys', status: '担当者確認済み', src: 'QT-2025-0344' },
+  { cp: '減速比を 1:32 から 1:24 へ変更', why: '応答速度の向上', worry: '作動音の周波数特性が変わる', mode: '既存の判定基準では良否が判定できない', eff: '不良の見逃しまたは過剰排除', act: '新機種用の判定基準を設定', s: 6, o: 5, d: 7, srcKind: 'func', status: 'AI提案', src: 'QT-2026-0012' },
+  { cp: 'ハウジングをPBTからPPS樹脂へ変更', why: '耐熱性の確保', worry: '成形収縮率が変わり軸受穴径が変動する', mode: '穴径が規格外となる', eff: '軸受のガタにより作動音が増加', act: '成形条件の再設定と穴径のSPC管理', s: 6, o: 5, d: 3, srcKind: 'past', status: '担当者確認済み', src: 'QT-2025-0034' },
+  { cp: 'ハウジングをPBTからPPS樹脂へ変更', why: '耐熱性の確保', worry: 'インサートナットの圧入保持力が変わる', mode: '圧入荷重が規格を外れ共回りが発生', eff: '締結不能。組立ラインの停止', act: '圧入条件の再設定と保持力の実測確認', s: 7, o: 4, d: 4, srcKind: 'past', status: 'AI提案', src: 'QT-2024-0056' },
+  { cp: 'ケース締結をM4×4本からM3×6本へ変更', why: '薄肉化への対応', worry: '締結点が増え締付順序が複雑になる', mode: '締付順序の誤りにより面圧が不均一', eff: '合わせ面の隙間による気密不良', act: '順序表示ガイド治具を新設計', s: 7, o: 5, d: 5, srcKind: 'func', status: 'AI提案', src: 'QT-2025-0378' },
+  { cp: 'ケース締結をM4×4本からM3×6本へ変更', why: '薄肉化への対応', worry: 'ねじ径縮小により締付トルクの管理幅が狭くなる', mode: 'トルク過大でねじ部が破損', eff: '締結強度不足。ケース脱落', act: 'トルク管理値の見直しと工具能力の確認', s: 9, o: 3, d: 4, srcKind: 'phys', status: 'AI提案', src: '' },
+  { cp: 'コネクタを2極から3極へ変更', why: '信号線の追加', worry: '嵌合力が増加し作業性が変わる', mode: '半嵌合のまま流出する', eff: '車両側で機能喪失', act: 'ロック表示の視認性を確認し引張確認を標準化', s: 8, o: 4, d: 5, srcKind: 'past', status: '担当者確認済み', src: 'QT-2023-0187' },
+  { cp: 'ガスケット材質をNBRからシリコーンへ変更', why: '耐熱性の確保', worry: '圧縮永久歪の特性が変わる', mode: '長期使用で面圧が不足しグリスが漏出', eff: '市場での漏れ不具合', act: '面圧の下限値を設計要件へ明記し長期試験で確認', s: 8, o: 3, d: 7, srcKind: 'phys', status: 'AI提案', src: 'QT-2024-0209' }
+];
+
+/* 故障モードの源泉系統（設計品質系デモのバッジ） ------------- */
+const SRC_KINDS = {
+  past: { label: '過去実績', desc: '類似品番・過去帳票の実績検索から' },
+  func: { label: '機能演繹', desc: '機能→要求→逸脱の演繹から（過去に実績がなくても出せる）' },
+  phys: { label: '物理推論', desc: '材料物性×ストレス条件の推論から' },
+  env:  { label: '環境・一般知見', desc: '使用環境と車載分野の既知故障モードから' }
+};
+
+/* 設計審査（DR）のチェックリスト -----------------------------
+   ゲートごとの標準確認項目。AIはここに変更点・過去トラ・前回指摘を突き合わせて
+   「今回のDRで特に確認すべき項目」を絞り込む。 */
+const DR_CHECKLIST = {
+  DR3: [
+    { id: 'C-01', cat: '製造性', item: '新規形状が既存の製造設備・治具で成立するか' },
+    { id: 'C-02', cat: '製造性', item: '締結部の工具アクセス性と作業姿勢が確保されているか' },
+    { id: 'C-03', cat: '製造性', item: '組付順序が一意に決まり、誤組付が構造的に防止されているか' },
+    { id: 'C-04', cat: '検査性', item: '全数検査すべき特性の判定基準が定量値で定義されているか' },
+    { id: 'C-05', cat: '検査性', item: '検査装置の機種切替時の誤設定が防止されているか' },
+    { id: 'C-06', cat: '構造', item: '変更部位の強度・剛性が計算と試験で確認されているか' },
+    { id: 'C-07', cat: '構造', item: '配線・可動部と締結部の干渉が実機で確認されているか' },
+    { id: 'C-08', cat: '材質', item: '材質変更に伴う成形性・寸法安定性が確認されているか' },
+    { id: 'C-09', cat: '材質', item: 'シール材の長期特性（圧縮永久歪）が確認されているか' },
+    { id: 'C-10', cat: '評価', item: '温度サイクル・振動の試験条件が量産条件を包含しているか' },
+    { id: 'C-11', cat: '評価', item: '電気特性の試験が新規駆動方式を反映しているか' },
+    { id: 'C-12', cat: '法規', item: '法規・保安関連特性の要求が図面に反映されているか' }
+  ]
+};
+
+/* 図面の検図ルールと図面詳細 --------------------------------- */
+const DWG_RULES = [
+  { id: 'R-01', cat: '寸法', rule: '機能寸法に公差が指定されていること', sev: '重' },
+  { id: 'R-02', cat: '寸法', rule: '寸法の二重指定（過剰寸法）がないこと', sev: '中' },
+  { id: 'R-03', cat: '公差', rule: '嵌合部の公差が相手部品と整合していること', sev: '重' },
+  { id: 'R-04', cat: '表記', rule: '特性記号（重要機能・保安・法規）が指定されていること', sev: '重' },
+  { id: 'R-05', cat: '表記', rule: '表面粗さの指定があること', sev: '中' },
+  { id: 'R-06', cat: '整合', rule: '部品表の員数と図中の指示が一致していること', sev: '重' },
+  { id: 'R-07', cat: '整合', rule: '過去不具合の対策内容が図面に反映されていること', sev: '重' },
+  { id: 'R-08', cat: '表記', rule: '改訂履歴欄に変更理由が記載されていること', sev: '軽' }
+];
+
+/* 図面ごとの検図結果（AIの指摘候補）。src は根拠となる過去記録。 */
+const DWG_FINDINGS = {
+  'ACT-230-300': [
+    { rule: 'R-03', sev: '重', where: '合わせ面 ガスケット溝', found: 'ガスケット溝深さ 1.5±0.05 に対し、相手部品ACT-230-100の合わせ面公差が未指定です', why: '嵌合部の公差が片側しか指定されておらず、面圧が成立するか判断できません', src: 'QT-2024-0209' },
+    { rule: 'R-06', sev: '重', where: '部品表 項目8', found: '部品表はM3×6本ですが、図中の締結指示は4箇所しか記入されていません', why: '員数と図中指示が一致していません', src: 'QT-2025-0378' },
+    { rule: 'R-07', sev: '重', where: '注記欄', found: '締付順序の指示が図面にありません。ACT-220では過去に順序誤りで不具合が発生しています', why: '過去不具合QT-2025-0378の対策（順序の明示）が新機種図面に反映されていません', src: 'QT-2025-0378' },
+    { rule: 'R-04', sev: '中', where: '表題欄', found: '特性記号の指定がありません。ACT-220の同等部位は○C（重要機能特性）です', why: '同等部位の特性記号が引き継がれていません', src: '' },
+    { rule: 'R-08', sev: '軽', where: '改訂履歴欄', found: 'Rev.Aの改訂理由が空欄です', why: '変更理由の記載がありません', src: '' }
+  ],
+  'ACT-230-200': [
+    { rule: 'R-01', sev: '重', where: '歯面幅 寸法', found: '歯面幅 8.5 に公差の指定がありません', why: '減速比変更で面圧が増えた機能寸法であり、公差指定が必要です', src: 'QT-2025-0344' },
+    { rule: 'R-05', sev: '中', where: '歯面', found: '歯面の表面粗さ指定がありません', why: '摩耗に影響する面ですが粗さの指示がありません', src: 'QT-2025-0344' }
+  ],
+  'ACT-230-100': [
+    { rule: 'R-03', sev: '重', where: '軸受穴 φ11.0', found: '軸受穴 φ11.0 +0.02/0 に対し、相手のモータ軸径の指定が図面上で確認できません', why: '嵌合の相手側寸法が特定できず、はめあいが成立するか判断できません', src: 'QT-2026-0084' },
+    { rule: 'R-07', sev: '中', where: '配線経路部', found: '配線ガイド形状の指示がありません。ACT-220ではECN-2025-007で追加された形状です', why: '過去不具合QT-2025-0077の対策が新機種に反映されていません', src: 'QT-2025-0077' }
+  ]
+};
+
+/* 8D報告書の様式（D1〜D8） ---------------------------------- */
+const D8_STEPS = [
+  { id: 'D1', name: 'チーム編成', hint: '対応する部門と担当者を決める' },
+  { id: 'D2', name: '問題の記述', hint: '発生事象を5W1Hで具体的に書く' },
+  { id: 'D3', name: '暫定処置', hint: '流出と拡大を止める処置' },
+  { id: 'D4', name: '根本原因の特定', hint: 'なぜ発生したか・なぜ流出したかの両面' },
+  { id: 'D5', name: '恒久対策の選定', hint: '再発を構造的に防ぐ対策' },
+  { id: 'D6', name: '恒久対策の実施と検証', hint: '実施内容と効果の確認方法' },
+  { id: 'D7', name: '再発防止（水平展開）', hint: '他工程・他機種への展開' },
+  { id: 'D8', name: 'チームの認識と完了', hint: '関係者の承認と記録' }
 ];
 
 /* 設計審査（DR） ------------------------------------------- */
@@ -717,7 +830,8 @@ const ECNS = [
 const DATA = {
   CO, PRODUCTS, PROCESSES, MARK_LEGEND, SOD_CRITERIA, DEVIATIONS, PROC_REQS,
   TROUBLES, TROUBLE_TOTAL, PFMEA, PFMEA_TOTAL,
-  DRBFM, DR_GATES, DR_FINDINGS, DRAWINGS, ECNS
+  DRBFM, DR_GATES, DR_FINDINGS, DR_CHECKLIST, DRAWINGS, DWG_RULES, DWG_FINDINGS,
+  ECNS, SRC_KINDS, D8_STEPS
 };
 
 /* JINGS 営業標準デモ 共通スクリプト */
@@ -822,6 +936,75 @@ function wireShell() {
   $('#panelBackdrop').addEventListener('click', closePanel);
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && !$('#panel').hidden) closePanel();
+  });
+}
+
+/* ---- 確認モーダル（生成を止めて人に判断を仰ぐ） ----
+   曖昧な判断をAIが勝手に決めないことを画面で示すための仕組み。
+   背景クリックでは閉じない（選ぶまで進めない）。 */
+function openModal(title, lead, options) {
+  const bd = document.createElement('div');
+  bd.className = 'modal-backdrop';
+  const m = document.createElement('div');
+  m.className = 'modal';
+  m.setAttribute('role', 'dialog');
+  m.setAttribute('aria-modal', 'true');
+  m.innerHTML = `
+    <h2 class="modal__title">${esc(title)}</h2>
+    <p class="modal__lead">${lead}</p>
+    <div class="modal__opts">
+      ${options.map((o, i) => `
+        <button class="modal__opt" type="button" data-opt="${i}">
+          <strong>${esc(o.label)}${o.rec ? '<span class="modal__rec">推奨</span>' : ''}</strong>
+          <span>${esc(o.desc)}</span>
+        </button>`).join('')}
+    </div>
+    <p style="margin-top:var(--space-5);font-size:var(--font-caption);color:var(--color-text-secondary)">
+      この判断は理由とともに記録され、以後のAI判定に反映されます。
+    </p>`;
+  document.body.appendChild(bd);
+  document.body.appendChild(m);
+  m.querySelector('.modal__opt').focus();
+  m.addEventListener('click', e => {
+    const b = e.target.closest('[data-opt]');
+    if (!b) return;
+    const opt = options[Number(b.dataset.opt)];
+    m.remove(); bd.remove();
+    opt.onPick();
+  });
+}
+
+/* ---- 段階ローダー（途中で止められる版） ----
+   pauseAt に指定した段でコールバックを呼び、resume() が呼ばれるまで進めない。 */
+function runStepsPausable(stepperSel, doneFn, perStep, pauseAt, onPause) {
+  const steps = $$(stepperSel + ' .step');
+  steps.forEach(s => s.dataset.state = 'todo');
+  let i = 0;
+  const advance = () => {
+    if (i > 0) {
+      steps[i - 1].dataset.state = 'done';
+      steps[i - 1].querySelector('.step__mark').textContent = '✓';
+    }
+    if (i >= steps.length) { doneFn(); return; }
+    steps[i].dataset.state = 'active';
+    i++;
+    if (pauseAt != null && i === pauseAt) { onPause(() => setTimeout(advance, 120)); return; }
+    setTimeout(advance, perStep || 320);
+  };
+  advance();
+}
+
+/* ---- インライン編集を有効にする ----
+   セルを編集すると行の状態を「担当者修正済み」に変える。 */
+function wireEditable(rootSel, onEdit) {
+  const root = $(rootSel);
+  if (!root) return;
+  root.addEventListener('input', e => {
+    const cell = e.target.closest('.editcell');
+    if (!cell) return;
+    const tr = cell.closest('tr');
+    if (tr) tr.dataset.edited = 'true';
+    if (onEdit) onEdit(cell, tr);
   });
 }
 

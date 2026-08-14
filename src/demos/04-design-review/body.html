@@ -1,0 +1,170 @@
+<!-- ========== 審査ゲート ========== -->
+<section class="view" data-view="gates">
+  <p class="breadcrumb">審査ゲート</p>
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">審査ゲート</h1>
+      <p class="page-lead">ACT-230の設計審査の進行状況です。未完了の指摘が残っているゲートは、次のゲートに進む前に確認が必要です。</p>
+    </div>
+    <div class="page-head__actions">
+      <button class="btn btn--primary" data-goto="prep">DR3の審査準備を始める</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="grid grid--kpi" id="kpiGrid"></div>
+  </div>
+
+  <div class="section">
+    <h2 class="section__title">ゲートの状態</h2>
+    <p class="section__lead">各ゲートの実施日、確認項目数、未完了の指摘件数です。</p>
+    <div class="table-wrap">
+      <table>
+        <caption class="visually-hidden">審査ゲートの一覧</caption>
+        <thead><tr>
+          <th scope="col">ゲート</th><th scope="col">実施日</th><th scope="col">主査</th>
+          <th scope="col">確認項目</th><th scope="col">未完了の指摘</th><th scope="col">状態</th><th scope="col">操作</th>
+        </tr></thead>
+        <tbody id="gateBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2 class="section__title">前のゲートから持ち越している指摘</h2>
+    <p class="section__lead">完了していない指摘です。DR3を開催する前に、対応状況を確認する必要があります。</p>
+    <div class="table-wrap">
+      <table>
+        <caption class="visually-hidden">持ち越している指摘の一覧</caption>
+        <thead><tr>
+          <th scope="col">指摘番号</th><th scope="col">区分</th><th scope="col">指摘内容</th>
+          <th scope="col">担当</th><th scope="col">期限</th><th scope="col">状態</th><th scope="col">根拠</th>
+        </tr></thead>
+        <tbody id="carryBody"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 審査準備（中核） ========== -->
+<section class="view" data-view="prep" hidden>
+  <p class="breadcrumb"><a href="#" data-goto="gates">審査ゲート</a> ／ 審査準備</p>
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">審査準備</h1>
+      <p class="page-lead">標準の確認項目に、今回の変更点・過去不具合・前回DRの指摘を突き合わせて、このDRで特に確認すべき項目を絞り込みます。項目を落とすかどうかは主査が判断します。</p>
+    </div>
+  </div>
+
+  <div class="grid split-grid" style="grid-template-columns:360px 1fr;align-items:start">
+    <form class="card" id="prepForm" novalidate style="position:sticky;top:calc(var(--header-height) + var(--space-5))">
+      <div class="field">
+        <label class="field__label" for="gateSelect">対象ゲート<span class="field__req">必須</span></label>
+        <select class="select" id="gateSelect">
+          <option value="">審査ゲートを選択してください</option>
+        </select>
+        <p class="field__error" id="gateError" hidden>対象ゲートが選択されていません。ゲートを選んでから準備を開始してください。</p>
+        <p class="field__hint">標準の確認項目は、ゲートごとに社内の設計審査規程で定められています。</p>
+      </div>
+      <div class="field">
+        <span class="field__label">突き合わせる情報</span>
+        <label class="check-row"><input type="checkbox" id="mxChange" checked> 今回の変更点（DRBFM）</label>
+        <label class="check-row"><input type="checkbox" id="mxTrouble" checked> 過去不具合の記録</label>
+        <label class="check-row"><input type="checkbox" id="mxPrev" checked> 前回までのDR指摘</label>
+      </div>
+      <button class="btn btn--primary" type="submit" style="width:100%">確認すべき項目を絞り込む</button>
+    </form>
+
+    <div>
+      <div class="empty" id="prepIdle">
+        <h2 class="empty__title">対象ゲートを選択してください</h2>
+        <div class="empty__body">
+          <p>標準の確認項目に対して、次を突き合わせます。</p>
+          <ul>
+            <li>今回の変更点で新たにリスクが生じる項目</li>
+            <li>過去に不具合が発生していて、同じ観点が今回も必要な項目</li>
+            <li>前回までのDRで指摘され、まだ完了していない項目</li>
+          </ul>
+          <p style="margin-top:var(--space-3)">突き合わせの結果が付かなかった項目も、標準項目として残します。AIが確認項目を削ることはしません。</p>
+        </div>
+      </div>
+
+      <div class="card" id="prepLoading" hidden aria-live="polite">
+        <h2 style="font-size:var(--font-subsection-title);margin-bottom:var(--space-2)">確認すべき項目を絞り込んでいます</h2>
+        <p style="font-size:var(--font-caption);color:var(--color-text-secondary);margin-bottom:var(--space-4)" id="prepLoadMeta"></p>
+        <ol class="stepper" id="prepStepper">
+          <li class="step" data-state="todo"><span class="step__mark">1</span><span class="step__text">ゲートの標準確認項目を読み込んでいます</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">2</span><span class="step__text">今回の変更点と突き合わせています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">3</span><span class="step__text">過去不具合の記録と突き合わせています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">4</span><span class="step__text">前回までのDR指摘の未完了を確認しています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">5</span><span class="step__text">確認すべき項目の優先度をまとめています</span></li>
+        </ol>
+      </div>
+
+      <div id="prepResult" hidden></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 指摘事項 ========== -->
+<section class="view" data-view="findings" hidden>
+  <p class="breadcrumb"><a href="#" data-goto="gates">審査ゲート</a> ／ 指摘事項</p>
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">指摘事項</h1>
+      <p class="page-lead">審査で出た指摘の一覧です。担当・期限・状態を管理し、完了まで追跡します。</p>
+    </div>
+    <div class="page-head__actions">
+      <button class="btn btn--quiet" id="btnFindCsv">一覧をCSVで出力する</button>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:var(--space-5)">
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--space-4)">
+      <div class="field" style="margin:0">
+        <label class="field__label" for="fGate">ゲート</label>
+        <select class="select" id="fGate"><option value="">すべて</option></select>
+      </div>
+      <div class="field" style="margin:0">
+        <label class="field__label" for="fStat">状態</label>
+        <select class="select" id="fStat">
+          <option value="">すべて</option><option>未着手</option><option>対応中</option><option>完了</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div class="table-meta" id="findMeta"></div>
+  <div class="table-wrap">
+    <table>
+      <caption class="visually-hidden">指摘事項の一覧</caption>
+      <thead><tr>
+        <th scope="col">指摘番号</th><th scope="col">ゲート</th><th scope="col">区分</th>
+        <th scope="col">指摘内容</th><th scope="col">担当</th><th scope="col">期限</th>
+        <th scope="col">状態</th><th scope="col">操作</th>
+      </tr></thead>
+      <tbody id="findBody"></tbody>
+    </table>
+  </div>
+  <div class="empty" id="findEmpty" hidden>
+    <h2 class="empty__title">該当する指摘が見つかりませんでした</h2>
+    <div class="empty__body">
+      <p>追加で試せること:</p>
+      <ul>
+        <li>絞り込み条件を「すべて」に戻す</li>
+        <li>別のゲートで絞り込む</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 過去指摘の横展開 ========== -->
+<section class="view" data-view="carry" hidden>
+  <p class="breadcrumb"><a href="#" data-goto="gates">審査ゲート</a> ／ 過去指摘の横展開</p>
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">過去指摘の横展開</h1>
+      <p class="page-lead">過去のDRで出た指摘のうち、今回の機種でも同じ観点が必要になりそうなものを提示します。「前も同じことを言われた」を防ぐための機能です。</p>
+    </div>
+  </div>
+  <div class="table-meta" id="carryMeta"></div>
+  <div id="carryCards"></div>
+</section>

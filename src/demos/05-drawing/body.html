@@ -1,0 +1,131 @@
+<!-- ========== 検図（中核） ========== -->
+<section class="view" data-view="check">
+  <p class="breadcrumb">検図</p>
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">検図</h1>
+      <p class="page-lead">出図前の図面を、社内の検図ルールと過去不具合の対策内容に照らして確認します。指摘は候補であり、直すかどうかは設計担当者が判断します。</p>
+    </div>
+  </div>
+
+  <div class="grid split-grid" style="grid-template-columns:340px 1fr;align-items:start">
+    <form class="card" id="ckForm" novalidate style="position:sticky;top:calc(var(--header-height) + var(--space-5))">
+      <div class="field">
+        <label class="field__label" for="dwgSelect">対象図面<span class="field__req">必須</span></label>
+        <select class="select" id="dwgSelect">
+          <option value="">図面番号で選択してください</option>
+        </select>
+        <p class="field__error" id="dwgError" hidden>対象図面が選択されていません。図面を選んでから検図を開始してください。</p>
+        <p class="field__hint">出図前のACT-230の図面を対象にしています。</p>
+      </div>
+      <div class="field">
+        <span class="field__label">確認する観点</span>
+        <label class="check-row"><input type="checkbox" id="ckRule" checked> 社内の検図ルール</label>
+        <label class="check-row"><input type="checkbox" id="ckPast" checked> 過去不具合の対策が反映されているか</label>
+        <label class="check-row"><input type="checkbox" id="ckPrev" checked> 前機種の図面との差分</label>
+      </div>
+      <button class="btn btn--primary" type="submit" style="width:100%">検図を開始する</button>
+    </form>
+
+    <div>
+      <div class="empty" id="ckIdle">
+        <h2 class="empty__title">対象図面を選択してください</h2>
+        <div class="empty__body">
+          <p>選択した図面に対して、次を確認します。</p>
+          <ul>
+            <li>社内の検図ルール（寸法・公差・表記・整合）に対する不足</li>
+            <li>過去に不具合が起きた箇所の対策が、この図面に反映されているか</li>
+            <li>前機種の図面にあった指示が抜けていないか</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card" id="ckLoading" hidden aria-live="polite">
+        <h2 style="font-size:var(--font-subsection-title);margin-bottom:var(--space-2)">図面を確認しています</h2>
+        <p style="font-size:var(--font-caption);color:var(--color-text-secondary);margin-bottom:var(--space-4)" id="ckLoadMeta"></p>
+        <ol class="stepper" id="ckStepper">
+          <li class="step" data-state="todo"><span class="step__mark">1</span><span class="step__text">図面の寸法・公差・注記を読み取っています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">2</span><span class="step__text">社内の検図ルールと照合しています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">3</span><span class="step__text">過去不具合の対策が反映されているか確認しています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">4</span><span class="step__text">前機種の図面と差分を取っています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">5</span><span class="step__text">確認候補をまとめています</span></li>
+        </ol>
+      </div>
+
+      <div id="ckResult" hidden></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 類似図面検索 ========== -->
+<section class="view" data-view="search" hidden>
+  <p class="breadcrumb"><a href="#" data-goto="check">検図</a> ／ 類似図面検索</p>
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">類似図面検索</h1>
+      <p class="page-lead">探している部位や寸法の言葉で、過去の図面を検索します。前機種でどう指示していたかを確認できます。</p>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:var(--space-5);max-width:var(--reading-max-width)">
+    <form id="sForm" novalidate>
+      <div class="field" style="margin-bottom:var(--space-3)">
+        <label class="field__label" for="sq">探している内容<span class="field__req">必須</span></label>
+        <input class="input" id="sq" placeholder="">
+        <p class="field__hint">部位名・寸法・特性など、図面に書かれていそうな言葉で検索できます。</p>
+      </div>
+      <div class="chip-row" id="sChips" style="margin-bottom:var(--space-4)"></div>
+      <button class="btn btn--primary" type="submit">類似する図面を検索する</button>
+    </form>
+  </div>
+  <div id="sResult"></div>
+</section>
+
+<!-- ========== 図面一覧 ========== -->
+<section class="view" data-view="list" hidden>
+  <p class="breadcrumb"><a href="#" data-goto="check">検図</a> ／ 図面一覧</p>
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">図面一覧</h1>
+      <p class="page-lead">登録済みの図面です。検図済みの図面は指摘件数を表示しています。</p>
+    </div>
+  </div>
+  <div class="table-meta" id="listMeta"></div>
+  <div class="table-wrap">
+    <table>
+      <caption class="visually-hidden">図面の一覧</caption>
+      <thead><tr>
+        <th scope="col">図面番号</th><th scope="col">名称</th><th scope="col">製品</th>
+        <th scope="col">版</th><th scope="col">発行日</th><th scope="col">主要寸法</th>
+        <th scope="col">検図</th><th scope="col">操作</th>
+      </tr></thead>
+      <tbody id="listBody"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ========== 検図ルール ========== -->
+<section class="view" data-view="rules" hidden>
+  <p class="breadcrumb"><a href="#" data-goto="check">検図</a> ／ 検図ルール</p>
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">検図ルール</h1>
+      <p class="page-lead">社内の図面チェック規程です。AIはこのルールに対する不足を候補として提示します。ルールにない観点は指摘しません。</p>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <caption class="visually-hidden">検図ルールの一覧</caption>
+      <thead><tr>
+        <th scope="col">ルール番号</th><th scope="col">区分</th><th scope="col">内容</th>
+        <th scope="col">重要度</th><th scope="col">検出実績</th>
+      </tr></thead>
+      <tbody id="rulesBody"></tbody>
+    </table>
+  </div>
+  <div class="callout callout--warn" style="margin-top:var(--space-5)">
+    <div>
+      <p class="callout__title">図面の読み取りについて</p>
+      <p>本デモでは、図面から読み取った寸法・注記・部品表の情報をあらかじめ登録した状態で動作します。本実装では、CADデータまたはPDF図面から寸法・公差・注記を抽出して同じ確認を行います。手書きの補足や写真での指示は読み取り対象外です。</p>
+    </div>
+  </div>
+</section>

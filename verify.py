@@ -186,7 +186,224 @@ async def check_02(pg, errors):
     return "デモ2：工程起点・機能→要求事項→逸脱→故障モードの連鎖・出典根拠・S/O/D候補の非確定・抜け漏れ候補の手動採用・20列CSV"
 
 
-CHECKS = {"index": check_index, "01-knowledge": check_01, "02-process-fmea": check_02}
+async def check_03(pg, errors):
+    await pg.goto((DIST / "03-drbfm.html").as_uri())
+    # 設計系デモの承認マーカーが入っていること
+    html = await pg.content()
+    assert "scope:design-fmea-approved" in html, "設計系デモの承認マーカーがない"
+    # 起点は帳票選択ではなくファイル投げ込み。読み取るまで生成できない
+    assert await pg.is_visible("#triggerFile"), "起点のファイル投入欄がない"
+    assert await pg.is_disabled("#btnGen"), "読み取り前に生成ボタンが押せてしまう"
+    await pg.click("#btnSample")
+    ro = await pg.inner_text("#readout")
+    assert "ACT-230" in ro and "読み取りました" in ro, "読み取り結果が出ない"
+    assert "サンプルを表示しています" in ro, "デモであることが明記されていない"
+    assert not await pg.is_disabled("#btnGen"), "読み取り後も生成ボタンが押せない"
+    # 生成 → 途中で人に確認するモーダルが出て止まる
+    await pg.click("#btnGen")
+    await pg.wait_for_selector(".modal", timeout=8000)
+    m = await pg.inner_text(".modal")
+    assert "類似部材の判定" in m, "類似判定の確認モーダルが出ない"
+    assert "記録され" in m, "判断が記録される旨の明記がない"
+    opts = await pg.eval_on_selector_all(".modal__opt", "e=>e.length")
+    assert opts == 3, f"選択肢が3択でない: {opts}"
+    assert await pg.is_visible("#genLoading"), "モーダル中に生成が進んでしまっている"
+    # 「条件付きで引き継ぐ」を選ぶと要再評価が付く
+    await pg.click('.modal__opt[data-opt="1"]')
+    await pg.wait_for_selector("#genResult:not([hidden])", timeout=12000)
+    r = await pg.inner_text("#genResult")
+    assert "条件付きで引き継ぐ" in r, "選んだ判定が結果に反映されていない"
+    assert "要再評価" in r, "条件付き引き継ぎの要再評価が付いていない"
+    # 4系統バッジ（過去実績だけでないことを示す）
+    for kind in ["過去実績", "機能演繹", "物理推論"]:
+        assert kind in r, f"生成系統「{kind}」が表示されていない"
+    assert "過去実績のない領域" in r, "過去実績のない領域の件数が出ていない"
+    # 根拠パネル：過去記録がない行は演繹で生成したと明示される
+    await pg.click("#genResult [data-ev]")
+    p1 = await pg.inner_text("#panelBody")
+    assert "この心配点を導いた過程" in p1, "導出過程が根拠に出ていない"
+    await pg.click("#panelClose")
+    # インライン編集で行が担当者修正済みになる
+    cell = await pg.query_selector("#genResult .editcell")
+    await cell.click()
+    await pg.keyboard.type("（試験条件を追記）")
+    edited = await pg.eval_on_selector_all('#genResult tr[data-edited="true"]', "e=>e.length")
+    assert edited >= 1, "編集しても行の状態が変わらない"
+    note = await pg.inner_text("#editNote")
+    assert "担当者が修正" in note, "編集件数が表示されていない"
+    # CSV出力（生成系統の列を含む）
+    async with pg.expect_download() as dl:
+        await pg.click("#btnCsv")
+    d = await dl.value
+    head = open(await d.path(), encoding="utf-8-sig").readline()
+    assert "生成系統" in head and "心配点" in head, f"CSV列が不足: {head[:100]}"
+    # 別部材として扱うと過去実績由来の行が除外される
+    await pg.click("#btnGen")
+    await pg.wait_for_selector(".modal", timeout=8000)
+    await pg.click('.modal__opt[data-opt="2"]')
+    await pg.wait_for_selector("#genResult:not([hidden])", timeout=12000)
+    r2 = await pg.inner_text("#genResult")
+    assert "別部材として扱う" in r2, "判定が反映されていない"
+    past_badges = await pg.eval_on_selector_all("#genResult .src--past", "e=>e.length")
+    assert past_badges == 0, f"別部材扱いでも過去実績由来の行が残っている: {past_badges}件"
+    deduced = await pg.eval_on_selector_all("#genResult .src--func, #genResult .src--phys", "e=>e.length")
+    assert deduced > 0, "演繹系統の行まで消えている"
+    # 参照文書に4系統の説明と未登録がある
+    await pg.click('[data-view="docs"]')
+    dc = await pg.inner_text('section[data-view="docs"]')
+    assert "機能演繹" in dc and "未登録" in dc, "参照文書に系統説明・未登録の明示がない"
+    return "デモ3：発議書起点・読み取り前は生成不可・類似判定を人に確認・4系統バッジ・要再評価付与・インライン編集・CSV"
+
+
+async def check_04(pg, errors):
+    await pg.goto((DIST / "04-design-review.html").as_uri())
+    kpi = await pg.inner_text("#kpiGrid")
+    assert "DR3" in kpi and "未完了の指摘" in kpi, "ゲートのKPIが出ていない"
+    gates = await pg.inner_text("#gateBody")
+    assert "DR1" in gates and "DR4" in gates, "ゲート一覧が出ていない"
+    assert await pg.inner_text("#carryBody"), "持ち越し指摘が出ていない"
+    # 審査準備：未選択エラー
+    await pg.click('[data-view="prep"]')
+    await pg.select_option("#gateSelect", "")
+    await pg.click("#prepForm button[type=submit]")
+    assert await pg.is_visible("#gateError"), "ゲート未選択のエラーが出ない"
+    # DR3で絞り込み
+    await pg.select_option("#gateSelect", "DR3")
+    await pg.click("#prepForm button[type=submit]")
+    await pg.wait_for_selector("#prepResult:not([hidden])", timeout=12000)
+    r = await pg.inner_text("#prepResult")
+    assert "重点確認" in r and "標準項目" in r, "優先度の区分が出ていない"
+    assert "削除していません" in r, "標準項目を削らない旨の明記がない"
+    for k in ["変更点", "過去不具合", "前回指摘"]:
+        assert k in r, f"突き合わせ元「{k}」が出ていない"
+    # 標準項目もすべて残っていること（AIが項目を削らない）
+    rows = await pg.eval_on_selector_all("#prepResult tbody tr", "e=>e.length")
+    assert rows == 12, f"標準の確認項目が削られている: {rows}件"
+    # 根拠パネル
+    await pg.click("#prepResult [data-ev]")
+    p1 = await pg.inner_text("#panelBody")
+    assert "根拠" in p1 or "対応" in p1, "根拠パネルの中身が不足"
+    await pg.click("#panelClose")
+    # 起票 → 指摘一覧に増える
+    before = await pg.inner_text("#kpiGrid")
+    await pg.click("#prepResult [data-raise]")
+    await pg.click('[data-view="findings"]')
+    fm = await pg.inner_text("#findMeta")
+    assert "DR3-" in await pg.inner_text("#findBody"), "起票した指摘が一覧に出ない"
+    # 完了にすると状態が変わる
+    await pg.click("#findBody [data-close]")
+    assert await pg.is_visible("#toastArea .toast"), "完了操作の通知が出ない"
+    # 絞り込みと空状態
+    await pg.select_option("#fGate", "DR1")
+    assert await pg.is_visible("#findEmpty"), "該当なしの空状態が出ない"
+    await pg.select_option("#fGate", "")
+    async with pg.expect_download() as dl:
+        await pg.click("#btnFindCsv")
+    d = await dl.value
+    head = open(await d.path(), encoding="utf-8-sig").readline()
+    assert "指摘番号" in head, f"CSV列が不正: {head[:80]}"
+    # 過去指摘の横展開
+    await pg.click('[data-view="carry"]')
+    c = await pg.inner_text('section[data-view="carry"]')
+    assert "横展開" in c, "横展開の画面が出ていない"
+    card = await pg.query_selector("#carryCards [data-carryadd]")
+    if card:
+        await pg.click("#carryCards [data-carryev]")
+        await pg.click("#panelClose")
+        await pg.click("#carryCards [data-carryadd]")
+        assert await pg.query_selector('.kcard[data-state="approved"]'), "追加してもカードの状態が変わらない"
+    return "デモ4：ゲート管理・標準項目を削らない絞り込み・突き合わせ根拠・起票と完了の追跡・横展開"
+
+
+async def check_05(pg, errors):
+    await pg.goto((DIST / "05-drawing.html").as_uri())
+    await pg.click("#ckForm button[type=submit]")
+    assert await pg.is_visible("#dwgError"), "図面未選択のエラーが出ない"
+    await pg.select_option("#dwgSelect", "ACT-230-300")
+    await pg.click("#ckForm button[type=submit]")
+    await pg.wait_for_selector("#ckResult:not([hidden])", timeout=12000)
+    r = await pg.inner_text("#ckResult")
+    assert "確認候補" in r and "検図ルール" in r, "検図結果の構成が不足"
+    assert "R-0" in r, "どの検図ルールに対する不足かが出ていない"
+    assert "設計意図" in r, "確認範囲の限界が明記されていない"
+    assert await pg.query_selector("#ckResult svg.dwg"), "図面の簡易表示がない"
+    # 根拠にルール原文と過去不具合が出る
+    await pg.click("#ckResult [data-ev]")
+    p1 = await pg.inner_text("#panelBody")
+    assert "照合した検図ルール" in p1, "根拠にルールが出ていない"
+    await pg.click("#panelClose")
+    async with pg.expect_download() as dl:
+        await pg.click("#btnCkCsv")
+    d = await dl.value
+    head = open(await d.path(), encoding="utf-8-sig").readline()
+    assert "検図ルール番号" in head, f"CSV列が不正: {head[:80]}"
+    # 類似図面検索
+    await pg.click('[data-view="search"]')
+    await pg.click("#sForm button[type=submit]")
+    assert await pg.is_visible("#toastArea .toast"), "未入力エラーが出ない"
+    await pg.click("#sChips .chip")
+    s = await pg.inner_text("#sResult")
+    assert "関連度" in s, "検索結果が出ない"
+    await pg.fill("#sq", "まったく無関係な語句で空状態を確認する")
+    await pg.click("#sForm button[type=submit]")
+    s2 = await pg.inner_text("#sResult")
+    assert "見つかりませんでした" in s2 and "追加で試せること" in s2, "空状態に次の手がない"
+    # 一覧から検図へ
+    await pg.click('[data-view="list"]')
+    await pg.click("#listBody [data-check]")
+    await pg.wait_for_selector("#ckResult:not([hidden])", timeout=12000)
+    # ルール画面
+    await pg.click('[data-view="rules"]')
+    ru = await pg.inner_text('section[data-view="rules"]')
+    assert "R-01" in ru and "読み取り対象外" in ru, "ルール画面の説明が不足"
+    return "デモ5：検図ルール起点・ルール原文と過去不具合の根拠・簡易図面・類似検索と空状態・CSV"
+
+
+async def check_06(pg, errors):
+    await pg.goto((DIST / "06-8d-report.html").as_uri())
+    await pg.click("#genForm button[type=submit]")
+    assert await pg.is_visible("#trError"), "不具合未選択のエラーが出ない"
+    # 顧客流出のある記録で作成
+    await pg.select_option("#trSelect", "QT-2023-0187")
+    await pg.click("#genForm button[type=submit]")
+    await pg.wait_for_selector("#genResult:not([hidden])", timeout=12000)
+    r = await pg.inner_text("#genResult")
+    for d in ["D1", "D2", "D4", "D7", "D8"]:
+        assert d in r, f"{d}の項目がない"
+    assert "追記が必要です" in r, "空欄項目の追記指示が出ていない"
+    assert "推測で埋めず" in r, "推測で埋めない方針が明記されていない"
+    assert "発生原因" in r and "流出原因" in r, "原因が発生と流出に分かれていない"
+    # D1・D8はAIが埋めない
+    rows = await pg.eval_on_selector_all("#genResult tbody tr", "e=>e.length")
+    assert rows == 8, f"8D の項目数が8でない: {rows}"
+    unfilled = await pg.eval_on_selector_all("#genResult .status--warn", "e=>e.length")
+    assert unfilled >= 2, "未記入として扱われる項目が少なすぎる（D1・D8は埋めない方針）"
+    # 編集すると担当者修正済みになる
+    cell = await pg.query_selector("#genResult .editcell")
+    await cell.click()
+    await pg.keyboard.type("（確認済み）")
+    assert await pg.eval_on_selector_all('#genResult tr[data-edited="true"]', "e=>e.length") >= 1, "編集が反映されない"
+    # 出力（未記入があると警告）
+    async with pg.expect_download() as dl:
+        await pg.click("#btnCsv")
+    d = await dl.value
+    body = open(await d.path(), encoding="utf-8-sig").read()
+    assert "D1" in body and "未記入" in body, "CSVに未記入の状態が出ていない"
+    # 保存すると履歴に出る
+    await pg.click("#btnSave")
+    await pg.click('[data-view="list"]')
+    lst = await pg.inner_text('section[data-view="list"]')
+    assert "QT-2023-0187" in lst, "保存した報告書が履歴に出ない"
+    # 様式画面
+    await pg.click('[data-view="form"]')
+    fm = await pg.inner_text('section[data-view="form"]')
+    assert "AIは記入しません" in fm, "AIが埋めない項目の明示がない"
+    return "デモ6：記録からの割り当て・空欄と追記指示・発生/流出原因の分離・編集・出力・履歴"
+
+
+CHECKS = {"index": check_index, "01-knowledge": check_01, "02-process-fmea": check_02,
+          "03-drbfm": check_03, "04-design-review": check_04,
+          "05-drawing": check_05, "06-8d-report": check_06}
 
 
 async def main() -> int:

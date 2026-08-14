@@ -1,0 +1,122 @@
+<!-- ========== 報告書作成（中核） ========== -->
+<section class="view" data-view="gen">
+  <p class="breadcrumb">報告書作成</p>
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">報告書作成</h1>
+      <p class="page-lead">不具合記録から8D報告書の初稿を作ります。記録に書かれていない項目は埋めずに空欄とし、何が不足しているかを示します。文章は画面上で直接編集できます。</p>
+    </div>
+  </div>
+
+  <div class="grid split-grid" style="grid-template-columns:380px 1fr;align-items:start">
+    <form class="card" id="genForm" novalidate style="position:sticky;top:calc(var(--header-height) + var(--space-5))">
+      <div class="field">
+        <label class="field__label" for="trSelect">対象の不具合<span class="field__req">必須</span></label>
+        <select class="select" id="trSelect">
+          <option value="">管理番号で選択してください</option>
+        </select>
+        <p class="field__error" id="trError" hidden>対象の不具合が選択されていません。不具合を選んでから作成を開始してください。</p>
+        <p class="field__hint">顧客流出のあった記録は先頭に表示しています。</p>
+      </div>
+      <div class="field">
+        <label class="field__label" for="dest">提出先</label>
+        <select class="select" id="dest">
+          <option>顧客A社 品質保証部</option>
+          <option>顧客B社 調達部</option>
+          <option>社内（是正処置記録として保管）</option>
+        </select>
+      </div>
+      <div class="field">
+        <span class="field__label">参照する情報</span>
+        <label class="check-row"><input type="checkbox" id="rfTrouble" checked disabled> 不具合記録（必須）</label>
+        <label class="check-row"><input type="checkbox" id="rfFmea" checked> 工程FMEA（対策の裏付け）</label>
+        <label class="check-row"><input type="checkbox" id="rfSim" checked> 類似不具合（水平展開の範囲）</label>
+      </div>
+      <button class="btn btn--primary" type="submit" style="width:100%">8D報告書の初稿を作成する</button>
+    </form>
+
+    <div>
+      <div class="empty" id="genIdle">
+        <h2 class="empty__title">対象の不具合を選択してください</h2>
+        <div class="empty__body">
+          <p>不具合記録の内容をD1〜D8の各項目に割り当てて初稿を作ります。</p>
+          <ul>
+            <li>記録に書かれている内容だけを使います</li>
+            <li>記録から書けない項目は空欄にし、何を追記すべきかを示します</li>
+            <li>水平展開（D7）は、類似する不具合の有無から範囲を提示します</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card" id="genLoading" hidden aria-live="polite">
+        <h2 style="font-size:var(--font-subsection-title);margin-bottom:var(--space-2)">8D報告書の初稿を作成しています</h2>
+        <p style="font-size:var(--font-caption);color:var(--color-text-secondary);margin-bottom:var(--space-4)" id="genLoadMeta"></p>
+        <ol class="stepper" id="genStepper">
+          <li class="step" data-state="todo"><span class="step__mark">1</span><span class="step__text">不具合記録の内容を読み込んでいます</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">2</span><span class="step__text">発生の経緯と暫定処置を整理しています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">3</span><span class="step__text">原因の記載を発生原因と流出原因に分けています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">4</span><span class="step__text">工程FMEAで対策の裏付けを確認しています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">5</span><span class="step__text">類似する不具合から水平展開の範囲を調べています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">6</span><span class="step__text">各項目に割り当てて初稿をまとめています</span></li>
+        </ol>
+      </div>
+
+      <div id="genResult" hidden></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 作成済み報告書 ========== -->
+<section class="view" data-view="list" hidden>
+  <p class="breadcrumb"><a href="#" data-goto="gen">報告書作成</a> ／ 作成済み報告書</p>
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">作成済み報告書</h1>
+      <p class="page-lead">この画面で作成した報告書の履歴です。デモ環境のため、ブラウザを閉じると履歴は消えます。</p>
+    </div>
+  </div>
+  <div class="table-meta" id="listMeta"></div>
+  <div class="table-wrap" id="listWrap" hidden>
+    <table>
+      <caption class="visually-hidden">作成済み報告書の一覧</caption>
+      <thead><tr>
+        <th scope="col">対象</th><th scope="col">提出先</th><th scope="col">作成日</th>
+        <th scope="col">記入済み</th><th scope="col">状態</th><th scope="col">操作</th>
+      </tr></thead>
+      <tbody id="listBody"></tbody>
+    </table>
+  </div>
+  <div class="empty" id="listEmpty">
+    <h2 class="empty__title">まだ報告書を作成していません</h2>
+    <div class="empty__body">
+      <p>「報告書作成」の画面で対象の不具合を選ぶと、8D報告書の初稿を作れます。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 8D様式 ========== -->
+<section class="view" data-view="form" hidden>
+  <p class="breadcrumb"><a href="#" data-goto="gen">報告書作成</a> ／ 8D様式</p>
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">8D様式</h1>
+      <p class="page-lead">社内で使用している8D報告書の様式です。AIが各項目に何を割り当てるかを示しています。</p>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <caption class="visually-hidden">8D様式の項目</caption>
+      <thead><tr>
+        <th scope="col">項目</th><th scope="col">名称</th><th scope="col">記入する内容</th>
+        <th scope="col">AIが参照する情報</th>
+      </tr></thead>
+      <tbody id="formBody"></tbody>
+    </table>
+  </div>
+  <div class="callout callout--warn" style="margin-top:var(--space-5)">
+    <div>
+      <p class="callout__title">AIが埋めない項目について</p>
+      <p>D1（チーム編成）とD8（承認）は、記録から自動で決められないため空欄のままにしています。担当者名や承認者を推測して埋めると、顧客提出物として誤った情報が残るためです。D6の効果検証も、実績が記録に無い場合は空欄にします。</p>
+    </div>
+  </div>
+</section>

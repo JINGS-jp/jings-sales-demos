@@ -1,0 +1,144 @@
+<!-- ========== DRBFM生成（中核） ========== -->
+<section class="view" data-view="gen">
+  <p class="breadcrumb">DRBFM生成</p>
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">DRBFM生成</h1>
+      <p class="page-lead">変更発議書を起点に、変更点ごとの心配点・故障モード・影響・対策の初版を生成します。過去に実績のない変更でも、機能からの演繹と材料物性からの推論で候補を出します。リスク評価は自動確定せず、設計担当者が判断します。</p>
+    </div>
+  </div>
+
+  <div class="grid split-grid" style="grid-template-columns:380px 1fr;align-items:start">
+    <form class="card" id="genForm" novalidate style="position:sticky;top:calc(var(--header-height) + var(--space-5))">
+      <div class="field">
+        <label class="field__label" for="triggerFile">起点ファイル（変更発議書）<span class="field__req">必須</span></label>
+        <input class="input" type="file" id="triggerFile" accept=".xlsx,.xls,.pdf" style="padding-top:10px">
+        <p class="field__hint">投げ込むと内容をAIが読み取ります。デモ環境では読み取り結果をサンプルで表示します（本実装では実ファイルを解析します）。</p>
+        <button type="button" class="btn btn--quiet btn--small" id="btnSample" style="margin-top:var(--space-2)">サンプルの発議書で試す</button>
+        <div id="readout" hidden style="margin-top:var(--space-4)"></div>
+      </div>
+
+      <div class="field">
+        <span class="field__label">生成範囲</span>
+        <label class="check-row"><input type="checkbox" id="scPast" checked> 過去実績（類似品番・過去帳票）</label>
+        <label class="check-row"><input type="checkbox" id="scFunc" checked> 機能演繹（機能→要求→逸脱）</label>
+        <label class="check-row"><input type="checkbox" id="scPhys" checked> 物理推論（材料物性×ストレス）</label>
+        <label class="check-row"><input type="checkbox" id="scEnv" checked> 環境・一般知見（車載の既知故障モード）</label>
+        <p class="field__hint">系統ごとに生成の根拠が変わります。結果には行ごとに系統を表示します。</p>
+      </div>
+
+      <button class="btn btn--primary" type="submit" id="btnGen" style="width:100%" disabled>DRBFMの初版を生成する</button>
+      <p class="field__hint" id="genHint">発議書を読み取ると押せます。</p>
+    </form>
+
+    <div>
+      <div class="empty" id="genIdle">
+        <h2 class="empty__title">変更発議書を投げ込んでください</h2>
+        <div class="empty__body">
+          <p>発議書から変更点・変更理由・対象品番を読み取り、変更点ごとに次を生成します。</p>
+          <ul>
+            <li>その変更で何が心配か（心配点）</li>
+            <li>心配点が現実になったときの故障モードと影響</li>
+            <li>取るべき対策の候補と、確認すべき試験</li>
+            <li>候補ごとの生成根拠（過去実績・機能演繹・物理推論・環境知見のどれか）</li>
+          </ul>
+          <p style="margin-top:var(--space-3)">手元にファイルがない場合は「サンプルの発議書で試す」を押してください。</p>
+        </div>
+      </div>
+
+      <div class="card" id="genLoading" hidden aria-live="polite">
+        <h2 style="font-size:var(--font-subsection-title);margin-bottom:var(--space-2)">DRBFMの初版を生成しています</h2>
+        <p style="font-size:var(--font-caption);color:var(--color-text-secondary);margin-bottom:var(--space-4)" id="genLoadMeta"></p>
+        <ol class="stepper" id="genStepper">
+          <li class="step" data-state="todo"><span class="step__mark">1</span><span class="step__text">発議書から変更点と変更理由を整理しています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">2</span><span class="step__text">変更部位に関係する機能と要求を特定しています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">3</span><span class="step__text">類似部材の判定を確認しています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">4</span><span class="step__text">過去実績から同種の心配点を検索しています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">5</span><span class="step__text">機能と材料物性から心配点を演繹しています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">6</span><span class="step__text">故障モードと影響、対策候補をまとめています</span></li>
+        </ol>
+      </div>
+
+      <div id="genResult" hidden></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 変更点一覧 ========== -->
+<section class="view" data-view="changes" hidden>
+  <p class="breadcrumb"><a href="#" data-goto="gen">DRBFM生成</a> ／ 変更点一覧</p>
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">変更点一覧</h1>
+      <p class="page-lead">ACT-230でACT-220から変更した点です。変更点ごとに、生成済みの心配点の件数を表示しています。</p>
+    </div>
+  </div>
+  <div class="table-meta" id="chMeta"></div>
+  <div class="table-wrap">
+    <table>
+      <caption class="visually-hidden">変更点の一覧</caption>
+      <thead><tr>
+        <th scope="col">変更点</th><th scope="col">変更理由</th>
+        <th scope="col">心配点</th><th scope="col">最も高い影響度</th><th scope="col">操作</th>
+      </tr></thead>
+      <tbody id="chBody"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ========== 登録済みDRBFM ========== -->
+<section class="view" data-view="existing" hidden>
+  <p class="breadcrumb"><a href="#" data-goto="gen">DRBFM生成</a> ／ 登録済みDRBFM</p>
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">登録済みDRBFM</h1>
+      <p class="page-lead">確認状態が「担当者確認済み」の行と、AI提案のまま残っている行を表示しています。</p>
+    </div>
+    <div class="page-head__actions">
+      <button class="btn btn--quiet" id="btnExCsv">一覧をCSVで出力する</button>
+    </div>
+  </div>
+  <div class="table-meta" id="exMeta"></div>
+  <div class="table-wrap">
+    <table>
+      <caption class="visually-hidden">登録済みDRBFMの一覧</caption>
+      <thead><tr>
+        <th scope="col">変更点</th><th scope="col">心配点</th><th scope="col">故障モード</th>
+        <th scope="col">対策</th><th scope="col">S・O・D</th><th scope="col">系統</th><th scope="col">状態</th><th scope="col">根拠</th>
+      </tr></thead>
+      <tbody id="exBody"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ========== 参照文書 ========== -->
+<section class="view" data-view="docs" hidden>
+  <p class="breadcrumb"><a href="#" data-goto="gen">DRBFM生成</a> ／ 参照文書</p>
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">参照文書</h1>
+      <p class="page-lead">心配点の生成に使っている情報源です。系統ごとに、どの情報から生成しているかを表示しています。</p>
+    </div>
+  </div>
+  <div class="section">
+    <h2 class="section__title">生成の4系統</h2>
+    <p class="section__lead">「過去データを検索しているだけではないか」という疑問に答えるため、行ごとにどの系統から生成したかを表示しています。過去実績のない新規領域は、機能演繹と物理推論で候補を出します。</p>
+    <div class="table-wrap">
+      <table>
+        <caption class="visually-hidden">生成の4系統</caption>
+        <thead><tr><th scope="col">系統</th><th scope="col">生成の根拠</th><th scope="col">参照する情報</th><th scope="col">状態</th></tr></thead>
+        <tbody id="srcBody"></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="section">
+    <h2 class="section__title">取り込んでいる文書</h2>
+    <div class="table-wrap">
+      <table>
+        <caption class="visually-hidden">取り込んでいる文書</caption>
+        <thead><tr><th scope="col">文書</th><th scope="col">種別</th><th scope="col">件数</th><th scope="col">状態</th></tr></thead>
+        <tbody id="docsBody"></tbody>
+      </table>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,14 @@
+{
+  "id": "05-drawing",
+  "title": "図面検索・検図支援AI",
+  "context": "設計部 ／ 出図前の検図と類似図面の参照",
+  "icon": "drawing",
+  "pitch": "出図前の図面を検図ルールと過去不具合に照らして確認候補を出します。類似図面から前機種の指示内容も引けます。",
+  "minutes": 4,
+  "nav": [
+    { "view": "check", "label": "検図", "icon": "check" },
+    { "view": "search", "label": "類似図面検索", "icon": "search" },
+    { "view": "list", "label": "図面一覧", "icon": "drawing" },
+    { "view": "rules", "label": "検図ルール", "icon": "doc" }
+  ]
+}

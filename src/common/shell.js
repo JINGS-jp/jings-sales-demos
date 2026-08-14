@@ -103,6 +103,75 @@ function wireShell() {
   });
 }
 
+/* ---- 確認モーダル（生成を止めて人に判断を仰ぐ） ----
+   曖昧な判断をAIが勝手に決めないことを画面で示すための仕組み。
+   背景クリックでは閉じない（選ぶまで進めない）。 */
+function openModal(title, lead, options) {
+  const bd = document.createElement('div');
+  bd.className = 'modal-backdrop';
+  const m = document.createElement('div');
+  m.className = 'modal';
+  m.setAttribute('role', 'dialog');
+  m.setAttribute('aria-modal', 'true');
+  m.innerHTML = `
+    <h2 class="modal__title">${esc(title)}</h2>
+    <p class="modal__lead">${lead}</p>
+    <div class="modal__opts">
+      ${options.map((o, i) => `
+        <button class="modal__opt" type="button" data-opt="${i}">
+          <strong>${esc(o.label)}${o.rec ? '<span class="modal__rec">推奨</span>' : ''}</strong>
+          <span>${esc(o.desc)}</span>
+        </button>`).join('')}
+    </div>
+    <p style="margin-top:var(--space-5);font-size:var(--font-caption);color:var(--color-text-secondary)">
+      この判断は理由とともに記録され、以後のAI判定に反映されます。
+    </p>`;
+  document.body.appendChild(bd);
+  document.body.appendChild(m);
+  m.querySelector('.modal__opt').focus();
+  m.addEventListener('click', e => {
+    const b = e.target.closest('[data-opt]');
+    if (!b) return;
+    const opt = options[Number(b.dataset.opt)];
+    m.remove(); bd.remove();
+    opt.onPick();
+  });
+}
+
+/* ---- 段階ローダー（途中で止められる版） ----
+   pauseAt に指定した段でコールバックを呼び、resume() が呼ばれるまで進めない。 */
+function runStepsPausable(stepperSel, doneFn, perStep, pauseAt, onPause) {
+  const steps = $$(stepperSel + ' .step');
+  steps.forEach(s => s.dataset.state = 'todo');
+  let i = 0;
+  const advance = () => {
+    if (i > 0) {
+      steps[i - 1].dataset.state = 'done';
+      steps[i - 1].querySelector('.step__mark').textContent = '✓';
+    }
+    if (i >= steps.length) { doneFn(); return; }
+    steps[i].dataset.state = 'active';
+    i++;
+    if (pauseAt != null && i === pauseAt) { onPause(() => setTimeout(advance, 120)); return; }
+    setTimeout(advance, perStep || 320);
+  };
+  advance();
+}
+
+/* ---- インライン編集を有効にする ----
+   セルを編集すると行の状態を「担当者修正済み」に変える。 */
+function wireEditable(rootSel, onEdit) {
+  const root = $(rootSel);
+  if (!root) return;
+  root.addEventListener('input', e => {
+    const cell = e.target.closest('.editcell');
+    if (!cell) return;
+    const tr = cell.closest('tr');
+    if (tr) tr.dataset.edited = 'true';
+    if (onEdit) onEdit(cell, tr);
+  });
+}
+
 /* ---- 日付表示 ---- */
 function today() {
   const d = new Date();
