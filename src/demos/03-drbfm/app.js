@@ -212,6 +212,8 @@ function openEv(key) {
           <p>この心配点は過去実績の検索ではなく、${esc(k ? k.desc : '')}で生成しています。実際に成立するかどうかは、試験または解析での確認が必要です。</p>
         </div>
       </div>`}
+    ${sheetShot('ecr', '設計変更発議書 ECR-2026-014（ACT-230）',
+       '変更点と変更理由は、この発議書の該当行から読み取っています。')}
     ${r.recheck ? `
       <div class="callout callout--warn" style="margin-top:var(--space-4)">
         <div>

@@ -205,6 +205,18 @@ tr[data-edited="true"]:hover{background:var(--color-success-bg)}
 .modal__opt span{font-size:var(--font-caption);color:var(--color-text-secondary);line-height:var(--line-height-body)}
 .modal__rec{margin-left:var(--space-2);padding:2px var(--space-2);border-radius:var(--radius-pill);background:var(--color-success-bg);color:var(--color-success);font-size:var(--font-caption);font-weight:700}
 
+/* 帳票の実物スクショ */
+.sheet-shot{display:block;width:100%;padding:0;border:1px solid var(--color-border);border-radius:var(--radius-small);background:var(--color-background);cursor:zoom-in;overflow:hidden}
+.sheet-shot:hover{border-color:var(--color-primary)}
+.sheet-shot img{display:block;width:100%;height:auto}
+.shot-zoom{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.86);overflow:auto;padding:var(--space-5);cursor:zoom-out}
+.shot-zoom img{display:block;width:auto;min-width:1400px;max-width:none;margin:0 auto;background:#fff}
+.shot-zoom__close{position:fixed;top:var(--space-5);right:var(--space-5);z-index:71}
+
+/* 投げ込み（ファイル起点） */
+.drop{padding:var(--space-4);border:2px dashed var(--color-border);border-radius:var(--radius-medium);background:var(--color-background-subtle)}
+.drop__hint{margin-top:var(--space-2);font-size:var(--font-caption);color:var(--color-text-secondary)}
+
 /* 簡易図面（SVG） */
 .dwg{width:100%;background:var(--color-background);border:1px solid var(--color-border-light);border-radius:var(--radius-small)}
 .dwg text{font-family:var(--font-mono);font-size:14px;fill:var(--color-text-secondary)}

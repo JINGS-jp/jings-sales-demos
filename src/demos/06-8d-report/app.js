@@ -25,6 +25,9 @@ function dice(a, b) {
   return (2 * inter) / (a.size + b.size);
 }
 
+/* 苦情報告書の実物スクショを持っている不具合 */
+const COMPLAINT_SHOT = {"QT-2023-0187": "complaint", "QT-2025-0344": "complaint_QT-2025-0344", "QT-2025-0378": "complaint_QT-2025-0378", "QT-2026-0012": "complaint_QT-2026-0012", "QT-2026-0038": "complaint_QT-2026-0038", "QT-2026-0061": "complaint_QT-2026-0061", "QT-2026-0084": "complaint_QT-2026-0084", "QT-2026-0103": "complaint_QT-2026-0103", "QT-2026-0121": "complaint_QT-2026-0121", "QT-2024-0209": "complaint_QT-2024-0209", "QT-2024-0312": "complaint_QT-2024-0312", "QT-2023-0142": "complaint_QT-2023-0142", "QT-2025-0077": "complaint_QT-2025-0077", "QT-2023-0301": "complaint_QT-2023-0301"};
+
 let curTr = null, curDoc = [], history = [];
 
 /* ---- 8Dの各項目を組み立てる ---- */
@@ -152,6 +155,14 @@ function renderDoc() {
       <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)" id="editNote">
         編集した項目は緑色で表示されます。
       </p>
+    </div>
+
+    <div class="section">
+      <h2 class="section__title">この初稿の出典</h2>
+      <p class="section__lead">各項目の内容は、次の帳票の該当欄から取得しています。画像をクリックすると拡大して確認できます。</p>
+      <div class="card">${sheetShot(COMPLAINT_SHOT[curTr.id] || 'complaint',
+        '苦情報告書 ' + curTr.id + '（品質苦情処理規定 QR-2201）',
+        'D2〜D5はこの帳票の記載をそのまま使い、記載がない項目は空欄にしています。')}</div>
     </div>
 
     <div class="callout callout--warn">

@@ -47,6 +47,22 @@ async def check_01(pg, errors):
     p = await pg.inner_text("#panelBody")
     assert "記録原文" in p and "恒久対策" in p, "根拠パネルの中身が不足"
     await pg.click("#panelClose")
+    # 帳票の実物スクショ（出典の裏取り）— 要対応の記録すべてで出ること
+    rows = await pg.eval_on_selector_all("#openBody [data-tr]", "e => e.map(x => x.dataset.tr)")
+    assert rows, "要対応の記録がない"
+    for tid in rows:
+        await pg.click(f'#openBody [data-tr="{tid}"]')
+        assert await pg.query_selector("#panelBody .sheet-shot img"), f"{tid} に帳票スクショがない"
+        ok = await pg.eval_on_selector("#panelBody .sheet-shot img",
+                                       "e => e.complete && e.naturalWidth > 600")
+        assert ok, f"{tid} の帳票スクショが読み込めていない"
+        await pg.click("#panelClose")
+    # 拡大表示
+    await pg.click(f'#openBody [data-tr="{rows[0]}"]')
+    await pg.click("#panelBody .sheet-shot")
+    assert await pg.is_visible(".shot-zoom img"), "拡大表示が開かない"
+    await pg.click(".shot-zoom")
+    await pg.click("#panelClose")
     # 検索：未入力エラー
     await pg.click('[data-view="search"]')
     await pg.click("#qForm button[type=submit]")
@@ -331,6 +347,10 @@ async def check_05(pg, errors):
     await pg.click("#ckResult [data-ev]")
     p1 = await pg.inner_text("#panelBody")
     assert "照合した検図ルール" in p1, "根拠にルールが出ていない"
+    assert "図面属性表" in p1, "図面属性表の実物が出ていない"
+    ok = await pg.eval_on_selector("#panelBody .sheet-shot img",
+                                   "e => e.complete && e.naturalWidth > 600")
+    assert ok, "図面属性表のスクショが読み込めていない"
     await pg.click("#panelClose")
     async with pg.expect_download() as dl:
         await pg.click("#btnCkCsv")
@@ -389,6 +409,11 @@ async def check_06(pg, errors):
     d = await dl.value
     body = open(await d.path(), encoding="utf-8-sig").read()
     assert "D1" in body and "未記入" in body, "CSVに未記入の状態が出ていない"
+    # 出典に苦情報告書の実物が出る
+    assert "この初稿の出典" in r, "出典セクションがない"
+    ok = await pg.eval_on_selector("#genResult .sheet-shot img",
+                                   "e => e.complete && e.naturalWidth > 600")
+    assert ok, "苦情報告書のスクショが読み込めていない"
     # 保存すると履歴に出る
     await pg.click("#btnSave")
     await pg.click('[data-view="list"]')

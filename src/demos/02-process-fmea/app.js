@@ -434,6 +434,8 @@ function evFlow() {
       <p style="margin-top:var(--space-2)"><strong>要求事項の記載</strong>　${esc(p.req)}</p>
       <p style="margin-top:var(--space-2)"><strong>特性記号</strong>　${esc(p.mark || 'なし')}</p>
     </div>
+    ${sheetShot('flow', '工程フロー図 ACT-220（QC工程表を同一帳票に含む）',
+       '工程の機能は、この帳票の該当行の作業内容欄から整理しています。')}
     <p style="margin-top:var(--space-4);font-size:var(--font-caption);color:var(--color-text-secondary)">この情報を根拠とした理由：工程の機能は工程フローの作業内容欄から整理しています。工程FMEAの起点を工程に固定するため、機能の出典は必ず工程フローとしています。</p>`);
 }
 
@@ -497,6 +499,8 @@ function evRow(key) {
         <dt>検出度D：${b.d}（AI候補）</dt><dd>${esc(critLabel('d', b.d))}</dd>
       </dl>
       <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)">判定基準：${esc(DATA.SOD_CRITERIA.doc)}。引き当て元の行と同じ影響区分と仮定した候補値です。担当者による確認が必要です。</p>
+      ${sheetShot('pfmea', '工程FMEA ACT-220 Ver.09（様式1）— 引き当て元の帳票',
+        '影響・原因・予防・検出は、この帳票の該当行から引き当てています。')}
       ${b.src && TR_BY_ID[b.src] ? `
         <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">引き当て元の登録契機となった不具合</h3>
         <p><span class="mono">${esc(b.src)}</span>（${esc(TR_BY_ID[b.src].date)}）${esc(TR_BY_ID[b.src].sym)}</p>` : ''}

@@ -11,6 +11,7 @@ src/common/（共通CSS・共通JS・共通データ）と src/demos/<id>/（画
     python3 build.py 01         # 指定デモのみ
 """
 import json
+import shutil
 import sys
 from pathlib import Path
 
@@ -51,7 +52,17 @@ BRAND_ICON = ('<svg viewBox="0 0 24 24" width="22" height="22" fill="none" '
               '<path d="M3 9h18M9 9v12"/></svg>')
 
 
-def build_demo(demo_dir: Path, css: str, shell_js: str, data_js: str) -> Path:
+def load_sheet_imgs() -> dict:
+    """sheets/snap.py が作った帳票画像のdata URI。無ければ空で進む（ビルドは止めない）。"""
+    f = ROOT / "sheets" / "sheets.json"
+    if not f.exists():
+        print("  （帳票画像なし: python3 sheets/snap.py で生成できます）")
+        return {}
+    return json.loads(f.read_text(encoding="utf-8"))
+
+
+def build_demo(demo_dir: Path, css: str, shell_js: str, data_js: str,
+               sheet_imgs: dict) -> Path:
     meta = json.loads((demo_dir / "meta.json").read_text(encoding="utf-8"))
     body = (demo_dir / "body.html").read_text(encoding="utf-8")
     app = (demo_dir / "app.js").read_text(encoding="utf-8")
@@ -64,6 +75,15 @@ def build_demo(demo_dir: Path, css: str, shell_js: str, data_js: str) -> Path:
     )
 
     scope = "\n<!-- scope:design-fmea-approved -->" if meta.get("designScope") else ""
+
+    # このデモで使う帳票画像だけを埋め込む
+    want = meta.get("sheets", [])
+    imgs = {k: sheet_imgs[k] for k in want if k in sheet_imgs}
+    missing = [k for k in want if k not in sheet_imgs]
+    if missing:
+        print(f"    警告: 帳票画像が見つかりません: {missing}")
+    # check_demo.py の長大行スキップに合わせ1行で出す
+    sheet_js = "const SHEET_IMG = " + json.dumps(imgs, ensure_ascii=False) + ";"
 
     html = f"""<!DOCTYPE html>
 <html lang="ja">
@@ -114,6 +134,7 @@ def build_demo(demo_dir: Path, css: str, shell_js: str, data_js: str) -> Path:
 <div class="toast-area" id="toastArea" aria-live="polite"></div>
 
 <script>
+{sheet_js}
 {data_js}
 {shell_js}
 (function(){{
@@ -215,6 +236,7 @@ def main() -> int:
     shell_js = (COMMON / "shell.js").read_text(encoding="utf-8")
     data_js = (COMMON / "data.js").read_text(encoding="utf-8")
 
+    sheet_imgs = load_sheet_imgs()
     only = sys.argv[1] if len(sys.argv) > 1 else None
     dirs = sorted(d for d in DEMOS.iterdir() if d.is_dir() and (d / "meta.json").exists())
     metas = []
@@ -223,8 +245,16 @@ def main() -> int:
         metas.append(meta)
         if only and meta["id"] != only:
             continue
-        out = build_demo(d, css, shell_js, data_js)
+        out = build_demo(d, css, shell_js, data_js, sheet_imgs)
         print(f"  {out.relative_to(ROOT)}  {out.stat().st_size // 1024} KB")
+
+    src_sheets = ROOT / "sheets" / "out"
+    if src_sheets.exists():
+        dst = DIST / "帳票サンプル"
+        dst.mkdir(exist_ok=True)
+        for f in src_sheets.glob("*.xlsx"):
+            shutil.copy2(f, dst / f.name)
+        print(f"  帳票サンプル {len(list(dst.glob('*.xlsx')))} 件を dist/帳票サンプル/ に配置")
 
     if not only:
         out = build_index(css, metas)

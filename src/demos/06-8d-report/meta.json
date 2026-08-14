@@ -6,8 +6,36 @@
   "pitch": "不具合記録から8D報告書のD1〜D8の初稿を作ります。書けない項目は空欄のまま「情報が不足」と示します。",
   "minutes": 4,
   "nav": [
-    { "view": "gen", "label": "報告書作成", "icon": "report" },
-    { "view": "list", "label": "作成済み報告書", "icon": "folder" },
-    { "view": "form", "label": "8D様式", "icon": "doc" }
+    {
+      "view": "gen",
+      "label": "報告書作成",
+      "icon": "report"
+    },
+    {
+      "view": "list",
+      "label": "作成済み報告書",
+      "icon": "folder"
+    },
+    {
+      "view": "form",
+      "label": "8D様式",
+      "icon": "doc"
+    }
+  ],
+  "sheets": [
+    "complaint",
+    "complaint_QT-2025-0344",
+    "complaint_QT-2025-0378",
+    "complaint_QT-2026-0012",
+    "complaint_QT-2026-0038",
+    "complaint_QT-2026-0061",
+    "complaint_QT-2026-0084",
+    "complaint_QT-2026-0103",
+    "complaint_QT-2026-0121",
+    "complaint_QT-2024-0209",
+    "complaint_QT-2024-0312",
+    "complaint_QT-2023-0142",
+    "complaint_QT-2025-0077",
+    "complaint_QT-2023-0301"
   ]
 }

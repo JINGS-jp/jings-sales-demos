@@ -6,9 +6,42 @@
   "pitch": "「似た不具合が過去にないか」を自然な言葉で聞くと、過去トラ・工程FMEA・設計変更を横断して根拠付きで返します。",
   "minutes": 4,
   "nav": [
-    { "view": "dashboard", "label": "ダッシュボード", "icon": "dashboard" },
-    { "view": "search", "label": "ナレッジ検索", "icon": "search" },
-    { "view": "list", "label": "不具合記録一覧", "icon": "folder" },
-    { "view": "docs", "label": "登録文書", "icon": "doc" }
+    {
+      "view": "dashboard",
+      "label": "ダッシュボード",
+      "icon": "dashboard"
+    },
+    {
+      "view": "search",
+      "label": "ナレッジ検索",
+      "icon": "search"
+    },
+    {
+      "view": "list",
+      "label": "不具合記録一覧",
+      "icon": "folder"
+    },
+    {
+      "view": "docs",
+      "label": "登録文書",
+      "icon": "doc"
+    }
+  ],
+  "sheets": [
+    "complaint",
+    "complaint_QT-2025-0344",
+    "complaint_QT-2025-0378",
+    "complaint_QT-2026-0012",
+    "complaint_QT-2026-0038",
+    "complaint_QT-2026-0061",
+    "complaint_QT-2026-0084",
+    "complaint_QT-2026-0103",
+    "complaint_QT-2026-0121",
+    "complaint_QT-2024-0209",
+    "complaint_QT-2024-0312",
+    "complaint_QT-2023-0142",
+    "complaint_QT-2025-0077",
+    "complaint_QT-2023-0301",
+    "pfmea"
   ]
 }

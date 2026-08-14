@@ -286,6 +286,9 @@ function renderResult(q) {
     </div>`;
 }
 
+/* 苦情報告書の実物スクショを持っている不具合（デモで押される記録） */
+const COMPLAINT_SHOT = {"QT-2023-0187": "complaint", "QT-2025-0344": "complaint_QT-2025-0344", "QT-2025-0378": "complaint_QT-2025-0378", "QT-2026-0012": "complaint_QT-2026-0012", "QT-2026-0038": "complaint_QT-2026-0038", "QT-2026-0061": "complaint_QT-2026-0061", "QT-2026-0084": "complaint_QT-2026-0084", "QT-2026-0103": "complaint_QT-2026-0103", "QT-2026-0121": "complaint_QT-2026-0121", "QT-2024-0209": "complaint_QT-2024-0209", "QT-2024-0312": "complaint_QT-2024-0312", "QT-2023-0142": "complaint_QT-2023-0142", "QT-2025-0077": "complaint_QT-2025-0077", "QT-2023-0301": "complaint_QT-2023-0301"};
+
 /* ---- 根拠パネル ---- */
 function openTroublePanel(id) {
   const t = TR_BY_ID[id];
@@ -319,6 +322,13 @@ function openTroublePanel(id) {
       <ul style="margin:0;padding-left:1.2em;line-height:var(--line-height-body)">
         ${ecn.map(e => `<li><span class="mono">${esc(e.no)}</span>　${esc(e.title)}</li>`).join('')}
       </ul>` : ''}
+    ${COMPLAINT_SHOT[t.id]
+      ? sheetShot(COMPLAINT_SHOT[t.id],
+          '苦情報告書 ' + t.id + '（品質苦情処理規定 QR-2201）',
+          'AIが引用した記載は、この帳票の該当欄から取得しています。')
+      : `<p style="margin-top:var(--space-5);font-size:var(--font-caption);color:var(--color-text-secondary)">
+           この記録の帳票原本は、デモ環境には取り込んでいません（代表 ${Object.keys(COMPLAINT_SHOT).length} 件のみ）。
+         </p>`}
     <p style="margin-top:var(--space-5);font-size:var(--font-caption);color:var(--color-text-secondary)">出典：不具合記録データベース（架空データ）。原本の記載をそのまま表示しています。</p>`);
 }
 
@@ -348,6 +358,8 @@ function openFmeaPanel(key) {
       <p><span class="mono">${esc(src.id)}</span>（${esc(src.date)}）${esc(src.sym)}</p>
       <p style="margin-top:var(--space-2)"><button class="btn btn--quiet btn--small" data-tr="${esc(src.id)}">この不具合記録を確認する</button></p>` : `
       <p style="margin-top:var(--space-5);font-size:var(--font-caption);color:var(--color-text-secondary)">この行に紐づく不具合記録はありません。過去の設計知見または類似機種からの流用で登録された行です。</p>`}
+    ${sheetShot('pfmea', '工程FMEA ACT-220 Ver.09（様式1）',
+       'この行は帳票の該当行から取得しています。本実装では該当セルへ直接ジャンプします。')}
     <p style="margin-top:var(--space-5);font-size:var(--font-caption);color:var(--color-text-secondary)">出典：工程FMEA ACT-220（架空データ）。</p>`);
 }
 

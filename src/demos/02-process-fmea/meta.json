@@ -6,9 +6,29 @@
   "pitch": "工程を選ぶと、工程フローから機能を整理し、図面・条件表・作業標準から要求事項を抽出して、逸脱として故障モード候補を根拠付きで生成します。",
   "minutes": 5,
   "nav": [
-    { "view": "draft", "label": "FMEAドラフト生成", "icon": "doc" },
-    { "view": "flow", "label": "工程フロー", "icon": "flow" },
-    { "view": "existing", "label": "既存の工程FMEA", "icon": "folder" },
-    { "view": "docs", "label": "参照文書", "icon": "drawing" }
+    {
+      "view": "draft",
+      "label": "FMEAドラフト生成",
+      "icon": "doc"
+    },
+    {
+      "view": "flow",
+      "label": "工程フロー",
+      "icon": "flow"
+    },
+    {
+      "view": "existing",
+      "label": "既存の工程FMEA",
+      "icon": "folder"
+    },
+    {
+      "view": "docs",
+      "label": "参照文書",
+      "icon": "drawing"
+    }
+  ],
+  "sheets": [
+    "pfmea",
+    "flow"
   ]
 }

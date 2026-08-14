@@ -1,0 +1,116 @@
+[
+  {
+    "key": "pfmea",
+    "file": "sheets/out/工程FMEA_ACT-220_Ver.09.xlsx",
+    "sheet": "工程FMEA",
+    "area": "A1:Q22"
+  },
+  {
+    "key": "complaint",
+    "file": "sheets/out/苦情報告書_QT-2023-0187_ACT-220.xlsx",
+    "sheet": "苦情報告書A",
+    "area": "A1:H19"
+  },
+  {
+    "key": "ecr",
+    "file": "sheets/out/変更発議書_ACT-230_20260701.xlsx",
+    "sheet": "変更発議書",
+    "area": "A1:F17"
+  },
+  {
+    "key": "flow",
+    "file": "sheets/out/工程フロー_QC工程表_ACT-220.xlsx",
+    "sheet": "工程フロー図",
+    "area": "A1:G15"
+  },
+  {
+    "key": "dr",
+    "file": "sheets/out/設計審査記録_DR3_ACT-230.xlsx",
+    "sheet": "設計審査記録",
+    "area": "A1:G18"
+  },
+  {
+    "key": "drawing",
+    "file": "sheets/out/図面属性表_ACT-230-300_RevA.xlsx",
+    "sheet": "図面属性表",
+    "area": "A1:F34"
+  },
+  {
+    "key": "complaint_QT-2025-0344",
+    "file": "sheets/out/苦情報告書_QT-2025-0344_ACT-230.xlsx",
+    "sheet": "苦情報告書A",
+    "area": "A1:H19"
+  },
+  {
+    "key": "complaint_QT-2025-0378",
+    "file": "sheets/out/苦情報告書_QT-2025-0378_ACT-220.xlsx",
+    "sheet": "苦情報告書A",
+    "area": "A1:H19"
+  },
+  {
+    "key": "complaint_QT-2026-0012",
+    "file": "sheets/out/苦情報告書_QT-2026-0012_ACT-220.xlsx",
+    "sheet": "苦情報告書A",
+    "area": "A1:H19"
+  },
+  {
+    "key": "complaint_QT-2026-0038",
+    "file": "sheets/out/苦情報告書_QT-2026-0038_SNS-100.xlsx",
+    "sheet": "苦情報告書A",
+    "area": "A1:H19"
+  },
+  {
+    "key": "complaint_QT-2026-0061",
+    "file": "sheets/out/苦情報告書_QT-2026-0061_ACT-220.xlsx",
+    "sheet": "苦情報告書A",
+    "area": "A1:H19"
+  },
+  {
+    "key": "complaint_QT-2026-0084",
+    "file": "sheets/out/苦情報告書_QT-2026-0084_ACT-230.xlsx",
+    "sheet": "苦情報告書A",
+    "area": "A1:H19"
+  },
+  {
+    "key": "complaint_QT-2026-0103",
+    "file": "sheets/out/苦情報告書_QT-2026-0103_ACT-220.xlsx",
+    "sheet": "苦情報告書A",
+    "area": "A1:H19"
+  },
+  {
+    "key": "complaint_QT-2026-0121",
+    "file": "sheets/out/苦情報告書_QT-2026-0121_ACT-220.xlsx",
+    "sheet": "苦情報告書A",
+    "area": "A1:H19"
+  },
+  {
+    "key": "complaint_QT-2024-0209",
+    "file": "sheets/out/苦情報告書_QT-2024-0209_ACT-210.xlsx",
+    "sheet": "苦情報告書A",
+    "area": "A1:H19"
+  },
+  {
+    "key": "complaint_QT-2024-0312",
+    "file": "sheets/out/苦情報告書_QT-2024-0312_ACT-220.xlsx",
+    "sheet": "苦情報告書A",
+    "area": "A1:H19"
+  },
+  {
+    "key": "complaint_QT-2023-0142",
+    "file": "sheets/out/苦情報告書_QT-2023-0142_ACT-220.xlsx",
+    "sheet": "苦情報告書A",
+    "area": "A1:H19"
+  },
+  {
+    "key": "complaint_QT-2025-0077",
+    "file": "sheets/out/苦情報告書_QT-2025-0077_ACT-220.xlsx",
+    "sheet": "苦情報告書A",
+    "area": "A1:H19"
+  },
+  {
+    "key": "complaint_QT-2023-0301",
+    "file": "sheets/out/苦情報告書_QT-2023-0301_ACT-220.xlsx",
+    "sheet": "苦情報告書A",
+    "area": "A1:H19"
+  }
+]

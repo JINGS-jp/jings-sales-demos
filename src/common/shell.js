@@ -43,6 +43,44 @@ function closePanel() {
   if (_lastFocus) _lastFocus.focus();
 }
 
+/* ---- 帳票の実物スクショ（出典の裏取り） ----
+   SHEET_IMG はビルド時に埋め込まれる {キー: dataURI}。
+   AIの引用テキストの隣に実物を並べることで、出典が本物であることを見せる。 */
+function sheetShot(key, caption, note) {
+  const src = (typeof SHEET_IMG !== 'undefined') && SHEET_IMG[key];
+  if (!src) return '';
+  return `
+    <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">帳票の実物</h3>
+    <figure style="margin:0">
+      <button class="sheet-shot" type="button" data-zoom="${esc(key)}"
+              aria-label="${esc(caption)}を拡大表示する">
+        <img src="${src}" alt="${esc(caption)}">
+      </button>
+      <figcaption style="margin-top:var(--space-2);font-size:var(--font-caption);color:var(--color-text-secondary)">
+        ${esc(caption)}　／　画像をクリックすると拡大します
+      </figcaption>
+    </figure>
+    <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)">
+      ${esc(note || '本実装では、該当セルへ直接ジャンプできるようにします。')}
+    </p>`;
+}
+
+/* 拡大表示（画面いっぱいで帳票を読む） */
+function wireSheetZoom() {
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-zoom]');
+    if (!b) return;
+    const src = SHEET_IMG[b.dataset.zoom];
+    if (!src) return;
+    const bd = document.createElement('div');
+    bd.className = 'shot-zoom';
+    bd.innerHTML = `<img src="${src}" alt="帳票の拡大表示">
+      <button class="btn btn--quiet shot-zoom__close" type="button">閉じる</button>`;
+    bd.addEventListener('click', () => bd.remove());
+    document.body.appendChild(bd);
+  });
+}
+
 /* ---- 通知 ---- */
 function toast(title, body, kind) {
   const el = document.createElement('div');
@@ -96,6 +134,7 @@ function wireShell() {
   });
   const tg = $('#navToggle');
   if (tg) tg.addEventListener('click', () => setSidebar($('#sidebar').dataset.open !== 'true'));
+  wireSheetZoom();
   $('#panelClose').addEventListener('click', closePanel);
   $('#panelBackdrop').addEventListener('click', closePanel);
   document.addEventListener('keydown', e => {

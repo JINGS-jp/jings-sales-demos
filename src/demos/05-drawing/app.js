@@ -114,7 +114,7 @@ function renderCheck() {
       </p>
       <div style="margin-top:var(--space-4)">${drawSvg(curNo, curHits)}</div>
       <p style="margin-top:var(--space-2);font-size:var(--font-caption);color:var(--color-text-secondary)">
-        図は部位の位置関係を示す簡易表示です。実際の図面形状ではありません。本実装ではCADデータ上の該当箇所を強調表示します。
+        図は部位の位置関係を示す簡易表示で、実際の図面ではありません。AIが照合しているのは図面から読み取った寸法・公差・注記です（根拠パネルで実物を確認できます）。
       </p>
     </div>
 
@@ -200,6 +200,9 @@ function openEv(i) {
       <p style="margin-top:var(--space-4);font-size:var(--font-caption);color:var(--color-text-secondary)">
         この確認候補に対応する過去不具合はありません。検図ルールに対する不足としてのみ検出しています。
       </p>`}
+    ${curNo === 'ACT-230-300' ? sheetShot('drawing',
+       '図面属性表 ACT-230-300（図面から読み取った寸法・公差・注記・部品表）',
+       'AIが照合しているのは、図面から読み取ったこの内容です。本実装ではCADデータまたはPDF図面から同じ項目を抽出し、該当箇所を強調します。') : ''}
     ${prev ? `
       <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">前機種の対応図面</h3>
       <p><span class="mono">${esc(prev.no)}</span>　${esc(prev.name)}（${esc(prev.rev)}版・${esc(prev.date)}）</p>

@@ -189,6 +189,8 @@ function openPrepEv(i) {
           <p style="margin-top:var(--space-2)">担当：${esc(h.rec.by)}　期限：${esc(h.rec.due)}　状態：${esc(h.rec.status)}</p>
         </div>`;
     }).join('')}
+    ${sheetShot('dr', '設計審査記録 DR3（ACT-230 詳細設計審査）',
+       '標準の確認項目は、この帳票の該当行から読み込んでいます。')}
     <p style="margin-top:var(--space-5);font-size:var(--font-caption);color:var(--color-text-secondary)">突き合わせは記載内容の一致度によるものです。実際に確認が必要かどうかは主査が判断してください。</p>`);
 }
 
