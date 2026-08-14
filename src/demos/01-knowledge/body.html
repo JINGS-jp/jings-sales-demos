@@ -41,63 +41,40 @@
   </div>
 </section>
 
-<!-- ========== ナレッジ検索 ========== -->
+<!-- ========== ナレッジ検索（チャット） ========== -->
 <section class="view" data-view="search" hidden>
   <p class="breadcrumb"><a href="#" data-goto="dashboard">ホーム</a> ／ ナレッジ検索</p>
   <div class="page-head">
     <div>
       <h1 class="page-title">ナレッジ検索</h1>
-      <p class="page-lead">発生した事象を普段の言葉で入力してください。過去の不具合記録・工程FMEA・設計変更通知を横断して検索し、根拠となる記録を示します。結論の採否は担当者が判断します。</p>
+      <p class="page-lead">発生した事象を普段の言葉で聞いてください。過去の不具合記録・工程FMEA・設計変更通知を横断して答えます。続けて質問すると、前のやりとりを踏まえて絞り込みます。結論の採否は担当者が判断します。</p>
+    </div>
+    <div class="page-head__actions">
+      <button class="btn btn--quiet" id="btnChatClear">会話をやり直す</button>
     </div>
   </div>
 
-  <div class="grid split-grid" style="grid-template-columns:380px 1fr;align-items:start">
-    <form class="card" id="qForm" style="position:sticky;top:calc(var(--header-height) + var(--space-5))">
-      <div class="field">
-        <label class="field__label" for="q">発生している事象<span class="field__req">必須</span></label>
-        <textarea class="textarea" id="q" rows="4" aria-describedby="qHint"></textarea>
-        <p class="field__hint" id="qHint">製品名・工程名・現象を含めると精度が上がります。文章のままで構いません。</p>
-      </div>
-      <div class="field">
-        <span class="field__label">よく聞かれる事象から選ぶ</span>
-        <div class="chip-row" id="qChips"></div>
-      </div>
-      <div class="field">
-        <span class="field__label">検索範囲</span>
-        <label class="check-row"><input type="checkbox" id="scTr" checked> 不具合記録（過去トラ）</label>
-        <label class="check-row"><input type="checkbox" id="scFm" checked> 工程FMEA</label>
-        <label class="check-row"><input type="checkbox" id="scEc" checked> 設計変更通知（ECN）</label>
-      </div>
-      <button class="btn btn--primary" type="submit" style="width:100%">類似する記録を検索する</button>
-    </form>
+  <div class="chat">
+    <div class="chat__log" id="chatLog" aria-live="polite" aria-label="やりとりの履歴"></div>
 
-    <div>
-      <div class="empty" id="qIdle">
-        <h2 class="empty__title">事象を入力して検索してください</h2>
-        <div class="empty__body">
-          <p>検索すると、次の内容を根拠付きで表示します。</p>
-          <ul>
-            <li>類似する過去の不具合記録と、その原因・対策</li>
-            <li>同じ工程の工程FMEAに登録済みの故障モード</li>
-            <li>関連する設計変更通知</li>
-            <li>今回確認すべき項目の候補</li>
-          </ul>
+    <div class="chat__form">
+      <div class="chat__starters" id="qChips"></div>
+      <form id="qForm" novalidate>
+        <div class="chat__row">
+          <div style="flex:1">
+            <label class="visually-hidden" for="q">質問または発生している事象</label>
+            <textarea class="textarea" id="q" rows="2" aria-describedby="qHint"
+              placeholder=""></textarea>
+          </div>
+          <button class="btn btn--primary" type="submit" id="btnSend">送信する</button>
         </div>
-      </div>
-
-      <div class="card" id="qLoading" hidden aria-live="polite">
-        <h2 style="font-size:var(--font-subsection-title);margin-bottom:var(--space-2)">類似する記録を検索しています</h2>
-        <p style="font-size:var(--font-caption);color:var(--color-text-secondary);margin-bottom:var(--space-4)" id="qLoadMeta"></p>
-        <ol class="stepper" id="qStepper">
-          <li class="step" data-state="todo"><span class="step__mark">1</span><span class="step__text">入力内容から製品・工程・現象を整理しています</span></li>
-          <li class="step" data-state="todo"><span class="step__mark">2</span><span class="step__text">過去の不具合記録を検索しています</span></li>
-          <li class="step" data-state="todo"><span class="step__mark">3</span><span class="step__text">工程FMEAの故障モードと照合しています</span></li>
-          <li class="step" data-state="todo"><span class="step__mark">4</span><span class="step__text">原因と対策の傾向を比較しています</span></li>
-          <li class="step" data-state="todo"><span class="step__mark">5</span><span class="step__text">確認すべき項目をまとめています</span></li>
-        </ol>
-      </div>
-
-      <div id="qResult" hidden></div>
+        <p class="field__hint" id="qHint">製品名・工程名・現象を含めると精度が上がります。Enterで改行、送信はボタンです。</p>
+        <div class="chip-row" style="margin-top:var(--space-2)">
+          <label class="check-row"><input type="checkbox" id="scTr" checked> 不具合記録</label>
+          <label class="check-row"><input type="checkbox" id="scFm" checked> 工程FMEA</label>
+          <label class="check-row"><input type="checkbox" id="scEc" checked> 設計変更通知</label>
+        </div>
+      </form>
     </div>
   </div>
 </section>

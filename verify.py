@@ -63,33 +63,50 @@ async def check_01(pg, errors):
     assert await pg.is_visible(".shot-zoom img"), "拡大表示が開かない"
     await pg.click(".shot-zoom")
     await pg.click("#panelClose")
-    # 検索：未入力エラー
+    # チャット：挨拶が出ている
     await pg.click('[data-view="search"]')
+    assert await pg.query_selector("#chatLog .msg--ai"), "チャットの初回メッセージが出ていない"
+    g = await pg.inner_text("#chatLog")
+    assert "答えられること" in g and "原因の断定はしません" in g, "答えられる範囲と限界が示されていない"
+    # 未入力エラー
     await pg.click("#qForm button[type=submit]")
     assert await pg.is_visible("#toastArea .toast"), "未入力時のエラー通知が出ない"
-    # 検索：例文チップ→検索
+    # 例文から質問→回答
     await pg.click("#qChips .chip")
-    q = await pg.input_value("#q")
-    assert q, "チップから事象が入らない"
-    await pg.click("#qForm button[type=submit]")
-    await pg.wait_for_selector("#qResult:not([hidden])", timeout=10000)
-    r = await pg.inner_text("#qResult")
-    assert "確認結果" in r, "結論が出ていない"
-    assert "類似する不具合記録" in r, "類似記録の表が出ていない"
+    await pg.wait_for_selector("#chatLog .followup", timeout=15000)
+    n1 = await pg.eval_on_selector_all("#chatLog .msg", "e => e.length")
+    assert n1 == 3, f"挨拶＋質問＋回答の3件にならない: {n1}"
+    r = await pg.inner_text("#chatLog")
+    assert "確認結果" in r and "類似する不具合記録" in r, "回答の中身が不足"
     assert "工程FMEAに登録済みの故障モード" in r, "工程FMEAとの照合が出ていない"
     assert "今回確認すべき項目" in r, "確認項目が出ていない"
-    assert "%" in r, "関連度が出ていない"
-    # 検索結果からFMEAの根拠
-    await pg.click("#qResult [data-fm]")
+    assert "参照：不具合記録" in r, "参照元の件数が示されていない"
+    # 回答内の根拠パネルが開く
+    await pg.click("#chatLog [data-fm]")
     p2 = await pg.inner_text("#panelBody")
     assert "工程FMEAの記載" in p2 and "RPN" in p2, "FMEA根拠パネルの中身が不足"
     await pg.click("#panelClose")
-    # 一致なしの空状態
+    # 続けて聞く（会話が続き、文脈を引き継ぐ）
+    # 回答が完成すると followup が増えるので、それを完了の合図にする
+    await pg.click("#chatLog .followup .chip")
+    await pg.wait_for_function(
+        "document.querySelectorAll('#chatLog .followup').length >= 2", timeout=15000)
+    n2 = await pg.eval_on_selector_all("#chatLog .msg", "e => e.length")
+    assert n2 >= 5, f"追加質問で会話が続かない: {n2}"
+    # 会話をやり直すと履歴が消える
+    await pg.click("#btnChatClear")
+    n3 = await pg.eval_on_selector_all("#chatLog .msg", "e => e.length")
+    assert n3 == 1, f"やり直しで挨拶だけに戻らない: {n3}"
+    # 一致なしのときは次の手を示す
     await pg.fill("#q", "該当しない語句をあえて入力して空状態を確認する")
     await pg.click("#qForm button[type=submit]")
-    await pg.wait_for_selector("#qResult:not([hidden])", timeout=10000)
-    r2 = await pg.inner_text("#qResult")
-    assert "見つかりませんでした" in r2 and "追加で試せること" in r2, "空状態に次の手が示されていない"
+    # 最後のAI回答が空状態になるまで待つ
+    await pg.wait_for_function(
+        "(() => { const a = document.querySelectorAll('#chatLog .msg--ai');"
+        " return a.length > 1 && a[a.length - 1].innerText.includes('見つかりませんでした'); })()",
+        timeout=15000)
+    r2 = await pg.inner_text("#chatLog")
+    assert "追加で試せること" in r2, "空状態に次の手が示されていない"
     # 一覧の絞り込みとCSV
     await pg.click('[data-view="list"]')
     before = await pg.inner_text("#listMeta")
@@ -105,7 +122,7 @@ async def check_01(pg, errors):
     await pg.click('[data-view="docs"]')
     docs = await pg.inner_text("#docsBody")
     assert "未登録" in docs, "未登録文書が明示されていない"
-    return "デモ1：ダッシュボード・検索（結論/類似/FMEA照合/確認項目）・空状態・絞り込み・CSV・根拠パネル"
+    return "デモ1：チャットで対話（文脈引き継ぎ・続けて聞く・やり直し）・根拠パネル・帳票実物・空状態・CSV"
 
 
 async def check_02(pg, errors):

@@ -119,28 +119,33 @@ function renderDashboard() {
 /* ---- 検索結果 ---- */
 function pct(x) { return Math.round(x * 100); }
 
-function renderResult(q) {
+/* 会話の文脈。直前の話題（工程・製品・記録）を覚えて追加質問の解釈に使う */
+let ctx = { proc: '', prod: '', ids: [], turns: 0 };
+
+function buildAnswer(qRaw) {
   const useTr = $('#scTr').checked, useFm = $('#scFm').checked, useEc = $('#scEc').checked;
+  // 追加質問は前の話題を足して解釈する（「その工程の他の不具合は？」に答えられるようにする）
+  const isFollow = ctx.turns > 0 && qRaw.length < 40;
+  const q = isFollow && (ctx.proc || ctx.prod)
+    ? qRaw + ' ' + [ctx.prod, ctx.proc && PROC_BY_NO[ctx.proc] ? PROC_BY_NO[ctx.proc].name : ''].join(' ')
+    : qRaw;
   const trs = useTr ? searchTroubles(q).slice(0, 5) : [];
   const topProc = trs.length ? trs[0].rec.proc : '';
   const fms = useFm ? searchPfmea(q, topProc).slice(0, 4) : [];
   const ecs = useEc ? searchEcn(q).slice(0, 3) : [];
 
   if (!trs.length && !fms.length && !ecs.length) {
-    $('#qResult').innerHTML = `
-      <div class="empty">
-        <h2 class="empty__title">該当する記録が見つかりませんでした</h2>
-        <div class="empty__body">
-          <p>追加で試せること:</p>
-          <ul>
-            <li>製品名を外して、現象だけで検索する</li>
-            <li>「異音」「リーク」「かみ込み」など、現象の表現を変える</li>
-            <li>検索範囲の工程FMEAと設計変更通知を有効にする</li>
-            <li>未登録の作業要領書・検査記録を取り込む（登録文書の画面を参照）</li>
-          </ul>
-        </div>
-      </div>`;
-    return;
+    return { html: `
+      <p>該当する記録が見つかりませんでした。</p>
+      <div class="msg__sec">
+        <h4>追加で試せること</h4>
+        <ul style="margin:0;padding-left:1.2em;line-height:var(--line-height-body)">
+          <li>製品名を外して、現象だけで聞く</li>
+          <li>「異音」「リーク」「かみ込み」など、現象の言い方を変える</li>
+          <li>下の検索範囲で工程FMEAと設計変更通知を有効にする</li>
+          <li>未登録の作業要領書・検査記録を取り込む（登録文書の画面を参照）</li>
+        </ul>
+      </div>`, follow: [], ctx: null };
   }
 
   const t0 = trs.length ? trs[0].rec : null;
@@ -256,7 +261,7 @@ function renderResult(q) {
   }
   checks.push(`作業要領書と検査記録が未登録のため、作業条件・測定値の実績はシステム外での確認が必要`);
 
-  $('#qResult').innerHTML = `
+  const body = `
     <div class="card" style="border-left:4px solid var(--color-primary)">
       <div style="display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap;margin-bottom:var(--space-3)">
         <span class="status status--ai">AIによる整理結果</span>
@@ -280,10 +285,100 @@ function renderResult(q) {
 
     <div class="callout callout--warn">
       <div>
-        <p class="callout__title">この結果を使うときの注意</p>
+        <p class="callout__title">この回答を使うときの注意</p>
         <p>関連度は文章の一致度による並び替えであり、原因の断定ではありません。作業要領書・検査記録が未登録のため、作業条件まで遡った確認はシステム外で行う必要があります。最終的な原因の特定と対策の決定は担当者が行ってください。</p>
       </div>
     </div>`;
+
+  // 追加で聞ける質問を、いま出た内容から作る（会話を続けられるようにする）
+  const follow = [];
+  if (t0) {
+    follow.push(`${procLabel(t0.proc)}で他に起きている不具合は`);
+    follow.push(`${t0.id} の対策は効いているか`);
+    if (leaked.length) follow.push('顧客流出した記録だけ見せて');
+    if (fms.length) follow.push(`${procLabel(t0.proc)}のFMEAで未登録の観点はないか`);
+  }
+  if (ecs.length) follow.push('関連する設計変更の反映状況は');
+  follow.push('同じ原因が他工程にもあるか');
+
+  return {
+    html: body,
+    follow: follow.slice(0, 4),
+    ctx: t0 ? { proc: t0.proc, prod: t0.prod, ids: trs.map(x => x.rec.id) } : null
+  };
+}
+
+/* ---- チャット ---- */
+const AI_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" '
+  + 'stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4.5-4.5"/></svg>';
+
+function addMsg(kind, inner, meta) {
+  const el = document.createElement('div');
+  el.className = 'msg msg--' + kind;
+  el.innerHTML = `
+    <div class="msg__who" aria-hidden="true">${kind === 'ai' ? AI_ICON : '山田'}</div>
+    <div class="msg__body">
+      <div class="msg__bubble">${inner}</div>
+      ${meta ? `<p class="msg__meta">${meta}</p>` : ''}
+    </div>`;
+  $('#chatLog').appendChild(el);
+  $('#chatLog').scrollTop = $('#chatLog').scrollHeight;
+  return el;
+}
+
+function chatGreeting() {
+  $('#chatLog').innerHTML = '';
+  ctx = { proc: '', prod: '', ids: [], turns: 0 };
+  addMsg('ai', `
+    <p>不具合の調査をお手伝いします。発生している事象を、普段の言葉で聞いてください。</p>
+    <div class="msg__sec">
+      <h4>答えられること</h4>
+      <ul style="margin:0;padding-left:1.2em;line-height:var(--line-height-body)">
+        <li>過去に似た不具合がなかったか（${DATA.TROUBLE_TOTAL.toLocaleString()}件の記録から）</li>
+        <li>その工程の工程FMEAに、同じ観点が登録されているか</li>
+        <li>過去に設計変更で対応した実績があるか</li>
+        <li>今回確認すべき項目</li>
+      </ul>
+    </div>
+    <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)">
+      答えには必ず出典の記録を付けます。原因の断定はしません。続けて質問すると、前のやりとりを踏まえて絞り込みます。
+    </p>`);
+}
+
+function ask(qRaw) {
+  addMsg('me', esc(qRaw).replace(/\n/g, '<br>'));
+  $('#q').value = '';
+  $('#btnSend').disabled = true;
+
+  const thinking = addMsg('ai',
+    `<span class="typing" aria-label="回答を作成しています"><span></span><span></span><span></span></span>
+     <span style="margin-left:var(--space-2);color:var(--color-text-secondary)" id="thinkStep">記録を検索しています</span>`);
+  const steps = ['記録を検索しています', '工程FMEAと照合しています', '設計変更を確認しています', '回答をまとめています'];
+  let si = 0;
+  const timer = setInterval(() => {
+    si++;
+    const el = thinking.querySelector('#thinkStep');
+    if (el && si < steps.length) el.textContent = steps[si];
+  }, 340);
+
+  setTimeout(() => {
+    clearInterval(timer);
+    const a = buildAnswer(qRaw);
+    thinking.remove();
+    const meta = `参照：不具合記録 ${DATA.TROUBLE_TOTAL.toLocaleString()}件／工程FMEA ${DATA.PFMEA_TOTAL.toLocaleString()}行／設計変更 ${DATA.ECNS.length}件　・　${today()}`;
+    const el = addMsg('ai', a.html, meta);
+    if (a.follow.length) {
+      const f = document.createElement('div');
+      f.className = 'followup';
+      f.innerHTML = '<span class="followup__label">続けて聞く</span>'
+        + a.follow.map(x => `<button class="chip" type="button" data-q="${esc(x)}">${esc(x)}</button>`).join('');
+      el.querySelector('.msg__body').appendChild(f);
+    }
+    if (a.ctx) ctx = { ...a.ctx, turns: ctx.turns + 1 };
+    else ctx.turns++;
+    $('#btnSend').disabled = false;
+    $('#chatLog').scrollTop = $('#chatLog').scrollHeight;
+  }, 1400);
 }
 
 /* 苦情報告書の実物スクショを持っている不具合（デモで押される記録） */
@@ -429,11 +524,10 @@ renderDocs();
 
 $('#qChips').innerHTML = EXAMPLES.map(e =>
   `<button class="chip" type="button" data-q="${esc(e)}">${esc(e)}</button>`).join('');
-$('#qChips').addEventListener('click', e => {
+document.addEventListener('click', e => {
   const b = e.target.closest('[data-q]');
-  if (!b) return;
-  $('#q').value = b.dataset.q;
-  $('#q').focus();
+  if (!b || $('#btnSend').disabled) return;
+  ask(b.dataset.q);
 });
 
 DATA.PRODUCTS.forEach(p => {
@@ -463,21 +557,19 @@ $('#qForm').addEventListener('submit', e => {
   e.preventDefault();
   const q = $('#q').value.trim();
   if (!q) {
-    toast('事象を入力してください', '「発生している事象」が未入力です。文章のままで構いません。', 'error');
+    toast('質問を入力してください', '発生している事象や聞きたいことを入力してください。', 'error');
     $('#q').focus();
     return;
   }
-  $('#qIdle').hidden = true;
-  $('#qResult').hidden = true;
-  $('#qLoading').hidden = false;
-  $('#qLoadMeta').textContent =
-    `対象：不具合記録 ${DATA.TROUBLE_TOTAL.toLocaleString()}件／工程FMEA ${DATA.PFMEA_TOTAL.toLocaleString()}行／設計変更通知 ${DATA.ECNS.length}件`;
-  runSteps('#qStepper', () => {
-    $('#qLoading').hidden = true;
-    renderResult(q);
-    $('#qResult').hidden = false;
-  }, 340);
+  ask(q);
 });
+
+$('#btnChatClear').addEventListener('click', () => {
+  chatGreeting();
+  toast('会話をやり直しました', '前のやりとりの文脈は破棄しました。');
+});
+
+chatGreeting();
 
 document.addEventListener('click', e => {
   const tr = e.target.closest('[data-tr]');
