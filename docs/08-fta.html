@@ -1800,7 +1800,7 @@ function groupByM1E(tree) {
 }
 
 /* ---- 木の描画（左から右へ：現象 → 6分類 → 原因） ---- */
-const TOPW = 220, GATEW = 210, CAUW = 330, RH = 62, RGAP = 10, COLGAP = 52;
+const TOPW = 220, GATEW = 215, CAUW = 340, RH = 66, RGAP = 10, COLGAP = 52;
 
 /* 故障の木を描く。
    頂上事象 → 中間事象（論理ゲート） → 基本事象 の3階層。
@@ -1849,11 +1849,11 @@ function treeSvg() {
     <g class="node" tabindex="0" role="button" data-gate="${esc(r.g.id)}"
        aria-label="${esc(r.g.label)}の中間事象を見る">
       <rect class="bx bx--inter" x="${x1}" y="${r.cy - 34}" width="${GATEW}" height="68"/>
-      <text x="${x1 + 10}" y="${r.cy - 16}" style="font-size:13px;fill:var(--color-primary)">中間事象　${esc(r.g.op)}</text>
+      <text x="${x1 + 10}" y="${r.cy - 16}" style="font-size:14px;fill:var(--color-primary)">中間事象　${esc(r.g.op)}</text>
       ${wrapText(r.g.label, 15).slice(0, 2).map((t, i) => `<text x="${x1 + 10}"
         y="${r.cy + 4 + i * 18}">${esc(t)}</text>`).join('')}
       <text x="${x1 + GATEW - 8}" y="${r.cy + 26}" text-anchor="end"
-        style="font-size:13px;fill:var(--color-text-secondary)">${r.causes.length} 件</text>
+        style="font-size:14px;fill:var(--color-text-secondary)">${r.causes.length} 件</text>
     </g>`).join('');
 
   // 基本事象。5M1Eの分類と、実績の有無をここに出す。
@@ -1868,11 +1868,11 @@ function treeSvg() {
       <rect class="bx bx--basic" x="${x2}" y="${cy - RH / 2}" width="${CAUW}" height="${RH}"/>
       ${hit ? `<rect class="bx-flag" x="${x2 + 1.5}" y="${cy - RH / 2 + 1.5}" width="4" height="${RH - 3}"/>` : ''}
       <text x="${x2 + 12}" y="${cy - RH / 2 + 17}"
-        style="font-size:13px;fill:${marked ? 'var(--color-warning)' : 'var(--color-text-secondary)'}">${esc(m ? m.label : c.m)}${marked ? '　◆' : ''}</text>
+        style="font-size:14px;fill:${marked ? 'var(--color-warning)' : 'var(--color-text-secondary)'}">${esc(m ? m.label : c.m)}${marked ? '　◆' : ''}</text>
       ${wrapText(c.label, 21).slice(0, 2).map((t, k) => `<text x="${x2 + 12}"
-        y="${cy - RH / 2 + 36 + k * 17}">${esc(t)}</text>`).join('')}
+        y="${cy - RH / 2 + 38 + k * 18}">${esc(t)}</text>`).join('')}
       <text x="${x2 + CAUW - 10}" y="${cy - RH / 2 + 17}" text-anchor="end"
-        style="font-size:13px;fill:var(--color-text-secondary)">${hit ? '関連記録あり' : '実績なし'}</text>
+        style="font-size:14px;fill:var(--color-text-secondary)">${hit ? '関連記録あり' : '実績なし'}</text>
     </g>`;
   }).join('')).join('');
 
