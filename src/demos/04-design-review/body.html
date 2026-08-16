@@ -55,226 +55,77 @@
     </div>
   </div>
 
-  <!-- ステップ2 -->
-  <div class="section" id="sec2" hidden>
-    <h2 class="section__title">2. 今回の帳票を取り込み、確認候補を提示する</h2>
-    <p class="section__lead">上で起こしたチェックリストに沿って、図面や変更発議書の記載を見ます。記載はあるものの情報が不足している項目と、対象帳票内で記載を確認できない項目を分けて表示します。</p>
-    <div class="grid split-grid" style="grid-template-columns:380px 1fr;align-items:start">
-      <div class="card">
-        <div class="field">
-          <span class="field__label">今回の帳票</span>
-          <div class="filepick">
-            <label class="btn btn--secondary" for="docFile">ファイルを選ぶ</label>
-            <input type="file" id="docFile" accept=".xlsx,.xls,.csv,.pdf,.dwg,.docx" multiple hidden>
-            <span class="filepick__name" id="docFileName">選ばれていません</span>
-          </div>
-          <p class="field__hint">図面、変更発議書、評価計画書など。複数まとめて構いません。</p>
-          <button class="btn btn--quiet btn--small" type="button" id="btnDocSample" style="margin-top:var(--space-3)">手元にない場合はこちら（見本を使う）</button>
-        </div>
-        <div id="docReadout" hidden></div>
-        <button class="btn btn--primary" type="button" id="btnDocRun" style="width:100%;margin-top:var(--space-4)" disabled>指摘を出す</button>
-      </div>
-
-      <div>
-        <div class="empty" id="docIdle">
-          <h2 class="empty__title">今回の帳票を取り込んでください</h2>
-          <div class="empty__body">
-            <p>チェックリストの各項目について、次を判断します。</p>
-            <ul>
-              <li>帳票のどこに、何と書いてあるか</li>
-              <li>その記載がチェック項目を満たしているか</li>
-              <li>情報が不足している場合に、DRで確認すべき事項</li>
-            </ul>
-            <p style="margin-top:var(--space-3)">記載が見つからない項目は「なし」ではなく「見つけられなかった」として残します。文書が未登録なだけかもしれないためです。</p>
-          </div>
-        </div>
-        <div class="card" id="docLoading" hidden aria-live="polite">
-          <h2 style="font-size:var(--font-subsection-title);margin-bottom:var(--space-2)">帳票を読んでいます</h2>
-          <p style="font-size:var(--font-caption);color:var(--color-text-secondary);margin-bottom:var(--space-4)" id="docLoadMeta"></p>
-          <ol class="stepper" id="docStepper">
-            <li class="step" data-state="todo"><span class="step__mark">1</span><span class="step__text">帳票から記載事項を抜き出しています</span></li>
-            <li class="step" data-state="todo"><span class="step__mark">2</span><span class="step__text">チェックリストの項目と突き合わせています</span></li>
-            <li class="step" data-state="todo"><span class="step__mark">3</span><span class="step__text">記載が足りない箇所を判定しています</span></li>
-            <li class="step" data-state="todo"><span class="step__mark">4</span><span class="step__text">DRで確認すべきことをまとめています</span></li>
-          </ol>
-        </div>
-        <div id="docResult" hidden></div>
-      </div>
-    </div>
-  </div>
 </section>
 
-<!-- ========== 審査ゲート ========== -->
-<section class="view" data-view="gates" hidden>
-  <p class="breadcrumb">審査ゲート</p>
+<!-- ========== DRチェック（中核） ========== -->
+<section class="view" data-view="check" hidden>
+  <p class="breadcrumb">DRチェック</p>
   <div class="page-head">
     <div>
-      <h1 class="page-title">審査ゲート</h1>
-      <p class="page-lead">ACT-230の設計審査の進行状況です。未完了の指摘が残っているゲートは、次のゲートに進む前に確認が必要です。</p>
-    </div>
-    <div class="page-head__actions">
-      <button class="btn btn--primary" data-goto="prep">DR3の審査準備を始める</button>
+      <h1 class="page-title">DRチェック</h1>
+      <p class="page-lead">今回の図面や変更発議書をアップロードし、突き合わせる情報を選んでください。抽出したレビュー観点、標準の確認項目、過去不具合、前回までのDR指摘と照合し、確認すべき指摘をまとめて提示します。標準項目は結果から除外しません。</p>
     </div>
   </div>
 
-  <div class="section">
-    <div class="grid grid--kpi" id="kpiGrid"></div>
-  </div>
-
-  <div class="section">
-    <h2 class="section__title">ゲートの状態</h2>
-    <p class="section__lead">各ゲートの実施日、確認項目数、未完了の指摘件数です。</p>
-    <div class="table-wrap">
-      <table>
-        <caption class="visually-hidden">審査ゲートの一覧</caption>
-        <thead><tr>
-          <th scope="col">ゲート</th><th scope="col">実施日</th><th scope="col">主査</th>
-          <th scope="col">確認項目</th><th scope="col">未完了の指摘</th><th scope="col">操作</th>
-        </tr></thead>
-        <tbody id="gateBody"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="section">
-    <h2 class="section__title">完了扱いになっている指摘の再確認</h2>
-    <p class="section__lead" id="missMeta"></p>
-    <div id="missCards"></div>
-  </div>
-
-  <div class="section">
-    <h2 class="section__title">前のゲートから持ち越している指摘</h2>
-    <p class="section__lead">完了していない指摘です。DR3を開催する前に、対応状況を確認する必要があります。</p>
-    <div class="table-wrap">
-      <table>
-        <caption class="visually-hidden">持ち越している指摘の一覧</caption>
-        <thead><tr>
-          <th scope="col">指摘番号</th><th scope="col">区分</th><th scope="col">指摘内容</th>
-          <th scope="col">担当</th><th scope="col">期限</th><th scope="col">根拠</th>
-        </tr></thead>
-        <tbody id="carryBody"></tbody>
-      </table>
-    </div>
-  </div>
-</section>
-
-<!-- ========== 審査準備（中核） ========== -->
-<section class="view" data-view="prep" hidden>
-  <p class="breadcrumb"><a href="#" data-goto="gates">審査ゲート</a> ／ 審査準備</p>
-  <div class="page-head">
-    <div>
-      <h1 class="page-title">審査準備</h1>
-      <p class="page-lead">標準の確認項目に、今回の変更点・過去不具合・前回DRの指摘を突き合わせて、このDRで特に確認すべき項目を絞り込みます。項目を除外するかどうかは主査が判断します。</p>
-    </div>
-  </div>
-
-  <div class="grid split-grid" style="grid-template-columns:360px 1fr;align-items:start">
-    <form class="card" id="prepForm" novalidate style="position:sticky;top:calc(var(--header-height) + var(--space-5))">
+  <div class="grid split-grid" style="grid-template-columns:380px 1fr;align-items:start">
+    <form class="card" id="chkForm" novalidate style="position:sticky;top:calc(var(--header-height) + var(--space-5))">
       <div class="field">
-        <label class="field__label" for="gateSelect">対象ゲート<span class="field__req">必須</span></label>
-        <select class="select" id="gateSelect">
-          <option value="">審査ゲートを選択してください</option>
-        </select>
-        <p class="field__error" id="gateError" hidden>対象ゲートが選択されていません。ゲートを選んでから準備を開始してください。</p>
-        <p class="field__hint">標準の確認項目は、ゲートごとに社内の設計審査規程で定められています。</p>
+        <span class="field__label">今回の帳票<span class="field__req">必須</span></span>
+        <div class="filepick">
+          <label class="btn btn--secondary" for="chkFile">ファイルを選ぶ</label>
+          <input type="file" id="chkFile" accept=".xlsx,.xls,.csv,.pdf,.dwg,.docx" multiple hidden>
+          <span class="filepick__name" id="chkFileName">選ばれていません</span>
+        </div>
+        <p class="field__hint">図面、変更発議書、評価計画書など。複数まとめて構いません。このデモでは、サンプルの読み取り結果を表示します。</p>
+        <button class="btn btn--quiet btn--small" type="button" id="btnChkSample" style="margin-top:var(--space-3)">手元にない場合はこちら（見本を使う）</button>
+        <p class="field__error" id="chkError" hidden>帳票が取り込まれていません。ファイルを選ぶか、見本を使ってください。</p>
       </div>
+      <div id="chkReadout" hidden></div>
+
       <div class="field">
         <span class="field__label">突き合わせる情報</span>
+        <label class="check-row"><input type="checkbox" id="mxList" checked> 抽出したレビュー観点</label>
+        <label class="check-row"><input type="checkbox" id="mxStd" checked> DR3の標準確認項目</label>
         <label class="check-row"><input type="checkbox" id="mxChange" checked> 今回の変更点（DRBFM）</label>
         <label class="check-row"><input type="checkbox" id="mxTrouble" checked> 過去不具合の記録</label>
         <label class="check-row"><input type="checkbox" id="mxPrev" checked> 前回までのDR指摘</label>
-        <label class="check-row"><input type="checkbox" id="mxDone" checked> 完了済みとされた指摘（完了後の設計変更を確認）</label>
-        <p class="field__hint">選択を外した情報は照合対象から除外されます。完了扱いを外すと、完了後に設計変更が入った指摘を拾わなくなります。</p>
+        <label class="check-row"><input type="checkbox" id="mxDone" checked> 完了扱いの指摘（完了後の設計変更を確認）</label>
+        <label class="check-row"><input type="checkbox" id="mxCarry" checked> 他機種への横展開</label>
+        <p class="field__hint">選択を外した情報は照合対象から除外されます。結果の件数が変わります。</p>
       </div>
-      <button class="btn btn--primary" type="submit" style="width:100%">確認すべき項目を絞り込む</button>
+      <button class="btn btn--primary" type="submit" style="width:100%">指摘を出す</button>
     </form>
 
     <div>
-      <div class="empty" id="prepIdle">
-        <h2 class="empty__title">対象ゲートを選択してください</h2>
+      <div class="empty" id="chkIdle">
+        <h2 class="empty__title">今回の帳票を取り込んでください</h2>
         <div class="empty__body">
-          <p>標準の確認項目に対して、次を突き合わせます。</p>
+          <p>選んだ情報と照合し、次を1つの一覧にまとめて出します。</p>
           <ul>
-            <li>今回の変更点で新たにリスクが生じる項目</li>
-            <li>過去に不具合が発生していて、同じ観点が今回も必要な項目</li>
+            <li>抽出したレビュー観点に対して、記載が足りない項目</li>
+            <li>標準の確認項目のうち、今回とくに確認すべきもの</li>
+            <li>完了扱いだが、完了と判断した後に設計変更が入っている指摘</li>
             <li>前回までのDRで指摘され、まだ完了していない項目</li>
-            <li>完了扱いになっているが、完了と判断した後に設計変更が入っている指摘</li>
+            <li>他機種のDRで出ていて、今回も同じ観点が要りそうなもの</li>
           </ul>
-          <p style="margin-top:var(--space-3)">突き合わせの結果が付かなかった項目も、標準項目として残します。AIが確認項目を削ることはしません。</p>
+          <p style="margin-top:var(--space-3)">記載を確認できなかった項目は「なし」ではなく「確認できず」として残します。文書が未登録なだけかもしれないためです。</p>
         </div>
       </div>
 
-      <div class="card" id="prepLoading" hidden aria-live="polite">
-        <h2 style="font-size:var(--font-subsection-title);margin-bottom:var(--space-2)">確認すべき項目を絞り込んでいます</h2>
-        <p style="font-size:var(--font-caption);color:var(--color-text-secondary);margin-bottom:var(--space-4)" id="prepLoadMeta"></p>
-        <ol class="stepper" id="prepStepper">
-          <li class="step" data-state="todo"><span class="step__mark">1</span><span class="step__text">ゲートの標準確認項目を読み込んでいます</span></li>
-          <li class="step" data-state="todo"><span class="step__mark">2</span><span class="step__text">今回の変更点と突き合わせています</span></li>
-          <li class="step" data-state="todo"><span class="step__mark">3</span><span class="step__text">過去不具合の記録と突き合わせています</span></li>
-          <li class="step" data-state="todo"><span class="step__mark">4</span><span class="step__text">前回までのDR指摘の未完了を確認しています</span></li>
-          <li class="step" data-state="todo"><span class="step__mark">5</span><span class="step__text">完了済みとされた指摘に、完了後の設計変更がないかを確認しています</span></li>
+      <div class="card" id="chkLoading" hidden aria-live="polite">
+        <h2 style="font-size:var(--font-subsection-title);margin-bottom:var(--space-2)">帳票を照合しています</h2>
+        <p style="font-size:var(--font-caption);color:var(--color-text-secondary);margin-bottom:var(--space-4)" id="chkLoadMeta"></p>
+        <ol class="stepper" id="chkStepper">
+          <li class="step" data-state="todo"><span class="step__mark">1</span><span class="step__text">帳票から記載事項を抽出しています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">2</span><span class="step__text">抽出したレビュー観点と突き合わせています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">3</span><span class="step__text">標準の確認項目に変更点・過去不具合を照合しています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">4</span><span class="step__text">完了扱いの指摘に、完了後の設計変更がないかを確認しています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">5</span><span class="step__text">他機種のDR指摘から横展開の候補を探しています</span></li>
           <li class="step" data-state="todo"><span class="step__mark">6</span><span class="step__text">確認区分をまとめています</span></li>
         </ol>
       </div>
 
-      <div id="prepResult" hidden></div>
+      <div id="chkResult" hidden></div>
     </div>
   </div>
-</section>
-
-<!-- ========== 指摘事項 ========== -->
-<section class="view" data-view="findings" hidden>
-  <p class="breadcrumb"><a href="#" data-goto="gates">審査ゲート</a> ／ 指摘事項</p>
-  <div class="page-head">
-    <div>
-      <h1 class="page-title">指摘事項</h1>
-      <p class="page-lead">審査で出た指摘の一覧です。担当・期限・状態を管理し、完了まで追跡します。</p>
-    </div>
-    <div class="page-head__actions">
-      <button class="btn btn--quiet" id="btnFindCsv">一覧をExcelで出力する</button>
-    </div>
-  </div>
-  <div class="card" style="margin-bottom:var(--space-5)">
-    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--space-4)">
-      <div class="field" style="margin:0">
-        <label class="field__label" for="fGate">ゲート</label>
-        <select class="select" id="fGate"><option value="">すべて</option></select>
-      </div>
-    </div>
-  </div>
-  <div class="table-meta" id="findMeta"></div>
-  <div class="table-wrap">
-    <table>
-      <caption class="visually-hidden">指摘事項の一覧</caption>
-      <thead><tr>
-        <th scope="col">指摘番号</th><th scope="col">ゲート</th><th scope="col">区分</th>
-        <th scope="col">指摘内容</th><th scope="col">担当</th><th scope="col">期限</th>
-        <th scope="col">操作</th>
-      </tr></thead>
-      <tbody id="findBody"></tbody>
-    </table>
-  </div>
-  <div class="empty" id="findEmpty" hidden>
-    <h2 class="empty__title">該当する指摘が見つかりませんでした</h2>
-    <div class="empty__body">
-      <p>追加で試せること</p>
-      <ul>
-        <li>絞り込み条件を「すべて」に戻す</li>
-        <li>別のゲートで絞り込む</li>
-      </ul>
-    </div>
-  </div>
-</section>
-
-<!-- ========== 過去指摘の横展開 ========== -->
-<section class="view" data-view="carry" hidden>
-  <p class="breadcrumb"><a href="#" data-goto="gates">審査ゲート</a> ／ 過去指摘の横展開</p>
-  <div class="page-head">
-    <div>
-      <h1 class="page-title">過去指摘の横展開</h1>
-      <p class="page-lead">過去のDRで出た指摘のうち、今回の機種でも同じ観点が必要になりそうなものを提示します。「前も同じことを言われた」を防ぐための機能です。</p>
-    </div>
-  </div>
-  <div class="table-meta" id="carryMeta"></div>
-  <div id="carryCards"></div>
 </section>

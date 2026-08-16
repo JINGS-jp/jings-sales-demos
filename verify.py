@@ -330,116 +330,68 @@ async def check_03(pg, errors):
 
 async def check_04(pg, errors):
     await pg.goto((DIST / "04-design-review.html").as_uri())
-    # 手順1：過去のDR議事録から確認すべき観点を起こす
+    # 画面は2つだけ
+    navs = await pg.eval_on_selector_all(".nav-item", "e => e.map(x => x.innerText.trim())")
+    assert navs == ["レビュー観点の抽出", "DRチェック"], f"画面構成が違う: {navs}"
+
+    # 手順1：過去のDR議事録からレビュー観点を抽出
     await pg.click("#btnPastSample")
     await pg.click("#btnPastRun")
     await pg.wait_for_selector("#pastResult:not([hidden])", timeout=25000)
     n = await pg.eval_on_selector_all("#pastResult [data-adopt]", "e => e.length")
     assert n >= 5, f"議事録から観点が起きていない: {n}"
     past = await pg.inner_text("#pastResult")
-    assert "回" in past and "項目にしなかった発言" in past, "回数と保留分が出ていない"
-    # 手順2：今回の帳票から指摘を出す
-    await pg.click("#btnDocSample")
-    await pg.click("#btnDocRun")
-    await pg.wait_for_selector("#docResult:not([hidden])", timeout=25000)
-    m = await pg.eval_on_selector_all("#docResult [data-raise]", "e => e.length")
-    assert m >= 5, f"帳票から指摘が出ていない: {m}"
-    doc = await pg.inner_text("#docResult")
-    assert "帳票の記載" in doc and "DRで求めること" in doc, "指摘の中身が不足"
-    assert "確認できず" in doc, "記載を見つけられなかった項目が区別されていない"
-    # ここからゲートの確認
-    await pg.click('[data-view="gates"]')
-    kpi = await pg.inner_text("#kpiGrid")
-    assert "DR3" in kpi and "未完了の指摘" in kpi, "ゲートのKPIが出ていない"
-    gates = await pg.inner_text("#gateBody")
-    assert "DR1" in gates and "DR4" in gates, "ゲート一覧が出ていない"
-    assert await pg.inner_text("#carryBody"), "持ち越し指摘が出ていない"
-    # 完了扱いの指摘の見落とし検出
-    assert "完了扱いだが再確認が必要" in kpi, "見落とし検出のKPIが出ていない"
-    mc = await pg.locator("#missCards .kcard").count()
-    assert mc >= 1, f"完了扱いの指摘の見落としを検出できていない: {mc}件"
-    mtxt = await pg.inner_text("#missCards")
-    assert "DR2-07" in mtxt and "ECN-2026-009" in mtxt, "見落としの根拠（指摘番号と設計変更番号）が出ていない"
-    assert "変更前の条件" in mtxt, "なぜ再確認が必要かの説明がない"
-    await pg.click('#missCards [data-missev="0"]')
-    mp = await pg.inner_text("#panelBody")
-    for k in ["完了にした指摘", "指摘の根拠になった不具合", "設計変更", "判定"]:
-        assert k in mp, f"たどった経路の「{k}」が出ていない"
-    assert "2026-01-31" in mp and "2026-07-15" in mp, "日付の前後関係が示されていない"
+    assert "回" in past and "単発の指摘" in past, "回数と単発分の扱いが出ていない"
+
+    # 手順2：DRチェック。帳票を取り込む前は実行できない
+    await pg.click('[data-view="check"]')
+    await pg.click("#chkForm button[type=submit]")
+    assert await pg.is_visible("#chkError"), "帳票未取り込みのエラーが出ない"
+    await pg.click("#btnChkSample")
+    await pg.wait_for_selector("#chkReadout:not([hidden])", timeout=6000)
+    assert "サンプル" in await pg.inner_text("#chkReadout"), "デモである旨の断りがない"
+
+    await pg.click("#chkForm button[type=submit]")
+    await pg.wait_for_selector("#chkResult:not([hidden])", timeout=25000)
+    r = await pg.inner_text("#chkResult")
+    # 出どころの違う指摘が1つの一覧にまとまる
+    for src in ["レビュー観点", "標準確認項目", "完了扱いの再確認", "前回までの指摘", "横展開の候補"]:
+        assert src in r, f"{src} が結果に含まれていない"
+    assert "重点確認" in r and "標準項目" in r, "確認区分が出ていない"
+    assert "確認できず" in r, "記載を確認できなかった項目が区別されていない"
+    assert "除外するかどうかは主査が判断" in r, "標準項目を削らない旨がない"
+    all_n = await pg.eval_on_selector_all("#chkResult [data-take]", "e => e.length")
+    assert all_n >= 20, f"指摘がまとまって出ていない: {all_n}"
+
+    # 突き合わせる情報を外すと結果が変わる
+    await pg.uncheck("#mxStd")
+    await pg.uncheck("#mxCarry")
+    await pg.click("#chkForm button[type=submit]")
+    await pg.wait_for_selector("#chkResult:not([hidden])", timeout=25000)
+    less = await pg.eval_on_selector_all("#chkResult [data-take]", "e => e.length")
+    assert less < all_n, f"選択を外しても結果が変わらない: {all_n} → {less}"
+    await pg.check("#mxStd")
+    await pg.check("#mxCarry")
+    await pg.click("#chkForm button[type=submit]")
+    await pg.wait_for_selector("#chkResult:not([hidden])", timeout=25000)
+
+    # 完了扱いの見落としは、たどった経路を開ける
+    await pg.click('#chkResult [data-missev="0"]')
+    assert await pg.is_visible("#panel"), "たどった経路のパネルが開かない"
+    pm = await pg.inner_text("#panelBody")
+    assert "完了期限" in pm and "設計変更の発行日" in pm, "日付の前後関係が示されていない"
     await pg.click("#panelClose")
-    # 審査準備：未選択エラー
-    await pg.click('[data-view="prep"]')
-    await pg.select_option("#gateSelect", "")
-    await pg.click("#prepForm button[type=submit]")
-    assert await pg.is_visible("#gateError"), "ゲート未選択のエラーが出ない"
-    # DR3で絞り込み
-    await pg.select_option("#gateSelect", "DR3")
-    await pg.click("#prepForm button[type=submit]")
-    await pg.wait_for_selector("#prepResult:not([hidden])", timeout=12000)
-    r = await pg.inner_text("#prepResult")
-    assert "重点確認" in r and "標準項目" in r, "優先度の区分が出ていない"
-    assert await pg.locator("#prepResult .callout--error").count() >= 1, "審査準備の結果に見落としの指摘が出ていない"
-    assert "削除していません" in r, "標準項目を削らない旨の明記がない"
-    for k in ["変更点", "過去不具合", "前回指摘"]:
-        assert k in r, f"突き合わせ元「{k}」が出ていない"
-    # 標準項目もすべて残っていること（AIが項目を削らない）
-    rows = await pg.eval_on_selector_all("#prepResult tbody tr", "e=>e.length")
-    assert rows == 12, f"標準の確認項目が削られている: {rows}件"
-    # 根拠パネル
-    await pg.click("#prepResult [data-ev]")
-    p1 = await pg.inner_text("#panelBody")
-    assert "根拠" in p1 or "対応" in p1, "根拠パネルの中身が不足"
-    await pg.click("#panelClose")
-    # 起票 → 指摘一覧に増える
-    before = await pg.inner_text("#kpiGrid")
-    await pg.click("#prepResult [data-raise]")
-    await pg.click('[data-view="findings"]')
-    fm = await pg.inner_text("#findMeta")
-    assert "DR3-" in await pg.inner_text("#findBody"), "起票した指摘が一覧に出ない"
-    # 完了にすると状態が変わる
-    await pg.click("#findBody [data-close]")
-    assert await pg.is_visible("#toastArea .toast"), "完了操作の通知が出ない"
-    # 絞り込みと空状態
-    await pg.select_option("#fGate", "DR1")
-    assert await pg.is_visible("#findEmpty"), "該当なしの空状態が出ない"
-    await pg.select_option("#fGate", "")
+
+    # 起票できる
+    await pg.click('#chkResult [data-take="0"]')
+    assert "起票しました" in await pg.inner_text('#chkResult [data-take="0"]'), "起票が反映されない"
+
     async with pg.expect_download() as dl:
-        await pg.click("#btnFindCsv")
+        await pg.click("#btnChkOut")
     d = await dl.value
     head = xlsx_head(await d.path())
-    assert "指摘番号" in head, f"CSV列が不正: {head[:80]}"
-    # 完了扱いの突き合わせを外すと結果が変わる（飾りのチェックボックスでないこと）
-    await pg.click('[data-view="prep"]')
-    await pg.uncheck("#mxDone")
-    await pg.click("#prepForm button[type=submit]")
-    await pg.wait_for_selector("#prepResult:not([hidden])", timeout=12000)
-    assert await pg.locator("#prepResult .callout--error").count() == 0, \
-        "完了扱いを外しても見落としの指摘が残っている（飾りになっている）"
-    await pg.click('[data-view="gates"]')
-    off = await pg.locator("#missCards .kcard").count()
-    assert off == 0, f"完了扱いを外しても検出結果が消えない: {off}件"
-    await pg.click('[data-view="prep"]')
-    await pg.check("#mxDone")
-    await pg.click("#prepForm button[type=submit]")
-    await pg.wait_for_selector("#prepResult:not([hidden])", timeout=12000)
-    # 見落としから起票すると、DR3の指摘として立つ
-    await pg.click('[data-view="gates"]')
-    rb = await pg.query_selector('#missCards [data-missraise="0"]')
-    if rb:
-        await rb.click()
-        after = await pg.inner_text("#missCards")
-        assert "同じ観点に当たります" in after, "起票してもカードの表示が変わらない"
-    # 過去指摘の横展開
-    await pg.click('[data-view="carry"]')
-    c = await pg.inner_text('section[data-view="carry"]')
-    assert "横展開" in c, "横展開の画面が出ていない"
-    card = await pg.query_selector("#carryCards [data-carryadd]")
-    if card:
-        await pg.click("#carryCards [data-carryev]")
-        await pg.click("#panelClose")
-        await pg.click("#carryCards [data-carryadd]")
-        assert await pg.query_selector('.kcard[data-state="approved"]'), "追加してもカードの状態が変わらない"
-    return "デモ4：ゲート管理・完了扱いの指摘の見落とし検出・標準項目を削らない絞り込み・突き合わせ根拠・起票と完了の追跡・横展開"
+    assert "確認区分" in head and "DRで確認すること" in head, f"Excelの見出しが不足: {head}"
+    return "デモ4：過去DRから観点抽出・帳票と5系統の突き合わせ・確認区分・完了扱いの見落とし・標準項目を削らない・Excel出力"
 
 
 async def check_05(pg, errors):
