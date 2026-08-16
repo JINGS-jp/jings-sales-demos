@@ -1148,7 +1148,7 @@ const DRAWINGS = [
 
 /* 設計変更通知（ECN） -------------------------------------
    stage: 暫定 → 最終。暫定のまま止まっている変更が変化点管理の穴になる。
-   piggy: 共連れ変更（この変更に伴って一緒に変えるべき変更）。
+   piggy: 関連変更（この変更に伴って見直すべき変更）。
    notify: 配布先。変更を知らせるべき部署。 */
 const ECNS = [
   { no: 'ECN-2026-009', date: '2026-07-15', stage: '暫定',
@@ -1195,16 +1195,16 @@ const ECNS = [
 const CHANGE_REFLECT = {
   'ECN-2026-009': [
     { target: '図面 ACT-230-200', kind: '図面', status: 'done', note: 'Rev.Cで歯面幅8.5に変更済み' },
-    { target: '工程FMEA 工程12', kind: '工程FMEA', status: 'open', note: '歯面幅変更後の故障モード・検出手段が未更新' },
-    { target: 'QC工程表 工程12', kind: 'QC工程表', status: 'open', note: 'バックラッシの管理幅が旧値のまま' },
+    { target: '工程FMEA 工程12', kind: '工程FMEA', status: 'todo', note: '歯面幅変更後の故障モード・検出手段が未更新' },
+    { target: 'QC工程表 工程12', kind: 'QC工程表', status: 'todo', note: 'バックラッシの管理幅が旧値のまま' },
     { target: '作業要領書 WI-220-12', kind: '作業標準', status: 'unknown', note: '文書が未登録のため反映状態を確認できません' },
-    { target: '原材料仕様書（ギヤ材質）', kind: '原材料仕様書', status: 'open', note: '材質変更が仕様書へ未反映' },
-    { target: 'DR3 の確認項目（C-06）', kind: '設計審査', status: 'open', note: '歯面強度の再計算結果がDR3で未確認' }
+    { target: '原材料仕様書（ギヤ材質）', kind: '原材料仕様書', status: 'todo', note: '材質変更が仕様書へ未反映' },
+    { target: 'DR3 の確認項目（C-06）', kind: '設計審査', status: 'pending', note: '歯面強度の再計算結果がDR3で未確認' }
   ],
   'ECN-2026-011': [
-    { target: '条件表 MC-220-16', kind: '条件表', status: 'open', note: 'グリス銘柄が旧品のまま' },
-    { target: '工程FMEA 工程16', kind: '工程FMEA', status: 'open', note: '異種グリス誤使用の故障モードが未更新' },
-    { target: '原材料仕様書（グリス）', kind: '原材料仕様書', status: 'open', note: '新銘柄の仕様書が未発行' },
+    { target: '条件表 MC-220-16', kind: '条件表', status: 'todo', note: 'グリス銘柄が旧品のまま' },
+    { target: '工程FMEA 工程16', kind: '工程FMEA', status: 'todo', note: '異種グリス誤使用の故障モードが未更新' },
+    { target: '原材料仕様書（グリス）', kind: '原材料仕様書', status: 'todo', note: '新銘柄の仕様書が未発行' },
     { target: '作業要領書 WI-220-16', kind: '作業標準', status: 'unknown', note: '文書が未登録のため反映状態を確認できません' }
   ],
   'ECN-2025-014': [
@@ -1216,19 +1216,19 @@ const CHANGE_REFLECT = {
   'ECN-2025-007': [
     { target: '図面 ACT-220-100', kind: '図面', status: 'done', note: 'Rev.Eで配線ガイド形状を追加済み' },
     { target: '工程FMEA 工程15', kind: '工程FMEA', status: 'done', note: 'かみ込みの予防手段を更新済み' },
-    { target: '工程FMEA 工程17', kind: '工程FMEA', status: 'open', note: '締結時のかみ込みリスクが工程17側に未反映' },
+    { target: '工程FMEA 工程17', kind: '工程FMEA', status: 'todo', note: '締結時のかみ込みリスクが工程17側に未反映' },
     { target: '作業要領書 WI-220-15', kind: '作業標準', status: 'unknown', note: '文書が未登録のため反映状態を確認できません' }
   ],
   'ECN-2024-018': [
     { target: '図面 ACT-220-300', kind: '図面', status: 'done', note: 'Rev.Dでガスケット材質を変更済み' },
     { target: '工程FMEA 工程17', kind: '工程FMEA', status: 'done', note: '面圧不足の故障モードを追加済み' },
     { target: '工程FMEA 工程19', kind: '工程FMEA', status: 'done', note: 'リーク量の検出手段を更新済み' },
-    { target: 'ACT-230への織り込み', kind: '他機種展開', status: 'open', note: 'ACT-230は別材質を採用。同じ検討が済んでいるか未確認' }
+    { target: 'ACT-230への織り込み', kind: '他機種展開', status: 'pending', note: 'ACT-230は別材質を採用。同じ検討が済んでいるか未確認' }
   ],
   'ECN-2023-031': [
     { target: '図面 ACT-220-500', kind: '図面', status: 'done', note: 'Rev.Bでロック表示付きへ変更済み' },
     { target: '工程FMEA 工程15', kind: '工程FMEA', status: 'done', note: '半嵌合の検出手段を更新済み' },
-    { target: 'ACT-230への織り込み', kind: '他機種展開', status: 'open', note: 'ACT-230は3極化。ロック表示の視認性が未確認' }
+    { target: 'ACT-230への織り込み', kind: '他機種展開', status: 'pending', note: 'ACT-230は3極化。ロック表示の視認性が未確認' }
   ]
 };
 

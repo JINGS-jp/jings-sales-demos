@@ -555,7 +555,7 @@ async def check_07(pg, errors):
     await pg.goto((DIST / "07-change-impact.html").as_uri())
     await pg.click("#impForm button[type=submit]")
     assert await pg.is_visible("#ecnError"), "変更未選択のエラーが出ない"
-    # 暫定・未反映・共連れが揃う ECN-2026-009 で検証
+    # 暫定・未反映・関連変更が揃う ECN-2026-009 で検証
     await pg.select_option("#ecnSelect", "ECN-2026-009")
     await pg.click("#impForm button[type=submit]")
     await pg.wait_for_selector("#impResult:not([hidden])", timeout=12000)
@@ -564,7 +564,7 @@ async def check_07(pg, errors):
     # 未反映と確認できずを区別している
     assert "未反映" in r and "確認できず" in r, "未反映と確認できずが区別されていない"
     assert "反映済みとしては扱っていません" in r, "確認できずの扱いが明記されていない"
-    assert "共連れ変更" in r, "共連れ変更のセクションがない"
+    assert "関連変更" in r, "関連変更のセクションがない"
     assert "配布先" in r, "配布先が出ていない"
     assert "影響する工程に登録済みの故障モード" in r, "影響工程のFMEAが出ていない"
     # 状態バッジの内訳を要素で確認
@@ -583,18 +583,18 @@ async def check_07(pg, errors):
                                    "e => e.complete && e.naturalWidth > 600")
     assert ok, "帳票スクショが読み込めていない"
     await pg.click("#panelClose")
-    # 共連れ変更へジャンプできる
+    # 関連変更へジャンプできる
     await pg.click("#impResult [data-jump]")
     await pg.wait_for_selector("#impResult:not([hidden])", timeout=12000)
     r2 = await pg.inner_text("#impResult")
-    assert "ECN-2026-011" in r2, "共連れ変更へ移動できない"
-    assert "この変更が前提" in r2, "逆方向の共連れ関係が出ていない"
+    assert "ECN-2026-011" in r2, "関連変更へ移動できない"
+    assert "この変更が前提" in r2, "逆方向の関連変更関係が出ていない"
     # CSV出力
     async with pg.expect_download() as dl:
         await pg.click("#btnImpCsv")
     d = await dl.value
     body = xlsx_text(await d.path())
-    assert "共連れ変更" in body and "確認できず" in body, "CSVに共連れ・確認できずがない"
+    assert "関連変更" in body and "確認できず" in body, "CSVに関連変更・確認できずがない"
     # 変更一覧：暫定が先頭
     await pg.click('[data-view="list"]')
     kpi = await pg.inner_text("#kpiGrid")
@@ -615,7 +615,7 @@ async def check_07(pg, errors):
     await pg.click('[data-view="docs"]')
     dc = await pg.inner_text("#docsBody")
     assert "未登録" in dc and "追跡できません" in dc, "未登録文書の影響が明示されていない"
-    return "デモ7：段階（暫定/最終）・未反映と確認できずの区別・共連れ変更の双方向・反映率の分母問題・マトリクス・Excel出力"
+    return "デモ7：段階（暫定/最終）・未反映と確認できずの区別・関連変更の双方向・反映率の分母問題・マトリクス・Excel出力"
 
 
 async def check_08(pg, errors):

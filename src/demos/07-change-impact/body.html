@@ -4,7 +4,7 @@
   <div class="page-head">
     <div>
       <h1 class="page-title">変更影響分析</h1>
-      <p class="page-lead">変更の帳票をアップロードするか、内容を文章で書くと、どの変更のことかを探します。そのうえで、直すべき帳票・工程・他機種を洗い出し、直せているかを並べます。一緒に変えるべき変更（共連れ）も出します。漏れかどうかを最終判断は担当者が行います。</p>
+      <p class="page-lead">変更の帳票をアップロードするか、内容を文章で書くと、どの変更のことかを探します。そのうえで、登録済みの関連情報と各帳票の記載から、確認すべき反映先と関連変更を提示します。未知の影響まで自動で見つけるものではありません。漏れかどうかを決めるのは人です。</p>
     </div>
   </div>
 
@@ -47,7 +47,7 @@
         <label class="check-row"><input type="checkbox" id="trDoc" checked> 図面・条件表・原材料仕様書</label>
         <label class="check-row"><input type="checkbox" id="trFmea" checked> 工程FMEA・QC工程表</label>
         <label class="check-row"><input type="checkbox" id="trOther" checked> 他機種への展開</label>
-        <label class="check-row"><input type="checkbox" id="trPiggy" checked> 共連れ変更の検出</label>
+        <label class="check-row"><input type="checkbox" id="trPiggy" checked> 関連変更の検出</label>
       </div>
       <button class="btn btn--primary" type="submit" style="width:100%">影響範囲を分析する</button>
     </form>
@@ -61,10 +61,10 @@
             <li>反映すべき帳票（図面・条件表・工程FMEA・QC工程表・原材料仕様書）と、その反映状態</li>
             <li>影響する工程と、その工程に登録済みの故障モード</li>
             <li>他機種へ同じ検討が必要かどうか</li>
-            <li>この変更に伴って一緒に変えるべき変更（共連れ）</li>
+            <li>この変更に伴って一緒に変えるべき変更（関連変更）</li>
             <li>変更を知らせるべき配布先</li>
           </ul>
-          <p style="margin-top:var(--space-3)">「未反映」と「確認できず」は区別して表示します。文書が未登録で追えないものを、反映済みとして扱いません。</p>
+          <p style="margin-top:var(--space-3)">「要対応」「確認待ち」「確認できず」を分けて表示します。反映されていないことが確認できたものと、人の確認が要るもの、文書が未登録で追えないものは意味が違うためです。文書が未登録のものを反映済みとして扱うことはしません。</p>
         </div>
       </div>
 
@@ -76,7 +76,7 @@
           <li class="step" data-state="todo"><span class="step__mark">2</span><span class="step__text">変更が及ぶ図面・条件表を特定しています</span></li>
           <li class="step" data-state="todo"><span class="step__mark">3</span><span class="step__text">影響する工程と工程FMEAの行を照合しています</span></li>
           <li class="step" data-state="todo"><span class="step__mark">4</span><span class="step__text">各帳票への反映状態を確認しています</span></li>
-          <li class="step" data-state="todo"><span class="step__mark">5</span><span class="step__text">他機種への展開と共連れ変更を調べています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">5</span><span class="step__text">他機種への展開と関連変更を調べています</span></li>
           <li class="step" data-state="todo"><span class="step__mark">6</span><span class="step__text">配布先と未反映の項目をまとめています</span></li>
         </ol>
       </div>
@@ -92,7 +92,7 @@
   <div class="page-head">
     <div>
       <h1 class="page-title">変更一覧</h1>
-      <p class="page-lead">いま入っている設計変更通知です。段階が「暫定」のまま直せていないものが、いちばん危ないところです。</p>
+      <p class="page-lead">いま入っている設計変更通知です。暫定状態のまま滞留している変更を優先的に確認できます。</p>
     </div>
     <div class="page-head__actions">
       <button class="btn btn--quiet" id="btnListCsv">一覧をExcelで出力する</button>
@@ -108,7 +108,7 @@
       <thead><tr>
         <th scope="col">通知番号</th><th scope="col">発行日</th><th scope="col">段階</th>
         <th scope="col">内容</th><th scope="col">発行理由</th>
-        <th scope="col">反映状況</th><th scope="col">共連れ</th><th scope="col">操作</th>
+        <th scope="col">反映状況</th><th scope="col">関連変更</th><th scope="col">操作</th>
       </tr></thead>
       <tbody id="listBody"></tbody>
     </table>

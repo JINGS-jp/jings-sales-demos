@@ -2,7 +2,7 @@
    設計変更を起点に、反映すべき帳票・工程・他機種を洗い出して反映状態を追跡する。
    要点は3つ。
    ・「未反映」と「確認できず」を区別する（文書が未登録で追えないものを反映済みにしない）
-   ・共連れ変更（この変更に伴って一緒に変えるべき変更）を提示する
+   ・関連変更（この変更に伴って見直すべき変更）を提示する
    ・段階（暫定／最終）を持たせる。暫定のまま止まっている変更が管理の穴になる */
 
 const TR_BY_ID = {};
@@ -17,13 +17,15 @@ const procLabel = no => PROC_BY_NO[no] ? `工程${no} ${PROC_BY_NO[no].name}` : 
 
 const ST = {
   done: '<span class="status status--done">反映済み</span>',
-  open: '<span class="status status--risk">未反映</span>',
+  todo: '<span class="status status--risk">要対応</span>',
+  pending: '<span class="status status--warn">確認待ち</span>',
   unknown: '<span class="status status--todo">確認できず</span>'
 };
-const ST_TEXT = { done: '反映済み', open: '未反映', unknown: '確認できず' };
+const ST_TEXT = { done: '反映済み', todo: '要対応', pending: '確認待ち', unknown: '確認できず' };
 
 const reflectOf = no => DATA.CHANGE_REFLECT[no] || [];
-const openCount = no => reflectOf(no).filter(r => r.status === 'open').length;
+const openCount = no => reflectOf(no).filter(r => r.status === 'todo').length;
+const pendCount = no => reflectOf(no).filter(r => r.status === 'pending').length;
 const unknownCount = no => reflectOf(no).filter(r => r.status === 'unknown').length;
 
 /* 追跡する反映先の絞り込み */
@@ -42,13 +44,14 @@ let curNo = '', curRows = [];
 function renderImpact() {
   const e = ECN_BY_NO[curNo];
   const usePiggy = $('#trPiggy').checked;
-  const open = curRows.filter(r => r.status === 'open');
+  const open = curRows.filter(r => r.status === 'todo');
+  const pend = curRows.filter(r => r.status === 'pending');
   const unk = curRows.filter(r => r.status === 'unknown');
   const done = curRows.filter(r => r.status === 'done');
   const tr = e.src ? TR_BY_ID[e.src] : null;
   const fmeaRows = DATA.PFMEA.filter(r => e.procs.includes(r.proc));
   const piggy = usePiggy ? (e.piggy || []).map(n => ECN_BY_NO[n]).filter(Boolean) : [];
-  // この変更を共連れ元として挙げている変更（逆方向も見る）
+  // この変更を関連変更元として挙げている変更（逆方向も見る）
   const piggyFrom = usePiggy ? DATA.ECNS.filter(x => (x.piggy || []).includes(curNo)) : [];
 
   const summary = `
@@ -63,13 +66,14 @@ function renderImpact() {
       <p class="cell-sub" style="margin-bottom:var(--space-4)">発行理由：${esc(e.reason)}</p>
       <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:var(--space-4);margin-bottom:var(--space-4)">
         <div><p class="kpi__label">反映先</p><p class="kpi__value" style="font-size:var(--font-section-title)">${curRows.length}<span class="kpi__unit"> 件</span></p></div>
-        <div><p class="kpi__label">未反映</p><p class="kpi__value" style="font-size:var(--font-section-title)">${open.length}<span class="kpi__unit"> 件</span></p></div>
+        <div><p class="kpi__label">要対応</p><p class="kpi__value" style="font-size:var(--font-section-title)">${open.length}<span class="kpi__unit"> 件</span></p></div>
+        <div><p class="kpi__label">確認待ち</p><p class="kpi__value" style="font-size:var(--font-section-title)">${pend.length}<span class="kpi__unit"> 件</span></p><p class="kpi__note">人の確認が必要</p></div>
         <div><p class="kpi__label">確認できず</p><p class="kpi__value" style="font-size:var(--font-section-title)">${unk.length}<span class="kpi__unit"> 件</span></p><p class="kpi__note">文書が未登録</p></div>
         <div><p class="kpi__label">反映済み</p><p class="kpi__value" style="font-size:var(--font-section-title)">${done.length}<span class="kpi__unit"> 件</span></p></div>
       </div>
       <p style="line-height:var(--line-height-body)">
         ${esc(e.no)}の反映先を ${curRows.length} 件洗い出しました。
-        ${open.length ? `<strong>未反映が ${open.length} 件</strong>あります。` : '未反映はありません。'}
+        ${open.length ? `<strong>要対応が ${open.length} 件</strong>あります。` : '要対応はありません。'}${pend.length ? `確認待ちが ${pend.length} 件あります。` : ''}
         ${unk.length ? `${unk.length} 件は文書が未登録のため反映状態を確認できていません。反映済みとしては扱っていません。` : ''}
         ${e.stage === '暫定' ? '<strong>この変更は段階が「暫定」です。</strong>最終化されるまで、反映先の変更が確定していない可能性があります。' : ''}
       </p>
@@ -77,7 +81,7 @@ function renderImpact() {
 
     <div class="section">
       <h2 class="section__title">反映すべき帳票と反映状態</h2>
-      <p class="section__lead">「未反映」と「確認できず」を分けて表示しています。確認できずは、文書が取り込まれていないため追跡できない状態です。</p>
+      <p class="section__lead">「要対応」「確認待ち」「確認できず」を分けて表示しています。要対応は反映されていないことが確認できたもの、確認待ちは人の確認が要るもの、確認できずは文書が未登録で追えないものです。確認できずは、文書が取り込まれていないため追跡できない状態です。</p>
       <div class="table-wrap">
         <table>
           <caption class="visually-hidden">反映すべき帳票と反映状態</caption>
@@ -91,10 +95,10 @@ function renderImpact() {
               <td class="col-text"><strong>${esc(r.target)}</strong></td>
               <td class="nowrap">${esc(r.kind)}</td>
               <td class="col-text cell-sub">${esc(r.note)}</td>
-              <td class="nowrap">${r.status === 'open'
-                ? `<button class="btn btn--quiet btn--small" data-task="${i}">反映作業として起票する</button>`
+              <td class="nowrap">${r.status === 'todo'
+                ? `<button class="btn btn--quiet btn--small" data-task="${i}">反映タスク作成のイメージを見る</button>`
                 : r.status === 'unknown'
-                  ? `<button class="btn btn--quiet btn--small" data-need="${i}">文書の登録を依頼する</button>`
+                  ? `<button class="btn btn--quiet btn--small" data-need="${i}">文書登録依頼のイメージを見る</button>`
                   : '<span class="cell-empty">—</span>'}</td>
             </tr>`).join('')}
           </tbody>
@@ -134,14 +138,14 @@ function renderImpact() {
 
     ${(piggy.length || piggyFrom.length) ? `
     <div class="section">
-      <h2 class="section__title">共連れ変更</h2>
+      <h2 class="section__title">関連変更</h2>
       <p class="section__lead">この変更に伴って一緒に変えるべき変更、またはこの変更を前提としている変更です。片方だけ進めると整合が取れなくなります。</p>
       <div class="table-wrap">
         <table>
-          <caption class="visually-hidden">共連れ変更</caption>
+          <caption class="visually-hidden">関連変更</caption>
           <thead><tr>
             <th scope="col">関係</th><th scope="col">通知番号</th><th scope="col">段階</th>
-            <th scope="col">内容</th><th scope="col">未反映</th><th scope="col">操作</th>
+            <th scope="col">内容</th><th scope="col">要対応</th><th scope="col">操作</th>
           </tr></thead>
           <tbody>
             ${piggy.map(x => `
@@ -184,7 +188,7 @@ function renderImpact() {
     <div class="callout callout--warn">
       <div>
         <p class="callout__title">この結果を使うときの注意</p>
-        <p>反映状態は取り込んだ帳票の記載から判定しています。作業要領書と検査記録が未登録のため、その反映状態は「確認できず」としており、反映済みとして数えていません。反映率を数字にする場合は、この確認できずの件数を分母から除くか別掲するかを先に決めてください。共連れ変更は登録済みの関連付けに基づくもので、網羅を保証するものではありません。</p>
+        <p>反映状態は取り込んだ帳票の記載から判定しています。作業要領書と検査記録が未登録のため、その反映状態は「確認できず」としており、反映済みとして数えていません。反映率を数字にする場合は、この確認できずの件数を分母から除くか別掲するかを先に決めてください。関連変更は登録済みの関連付けに基づくもので、網羅を保証するものではありません。</p>
       </div>
     </div>`;
 
@@ -198,7 +202,7 @@ function renderImpact() {
 function exportImpact() {
   const e = ECN_BY_NO[curNo];
   downloadXlsx(`変更影響_${curNo}_${today()}.xlsx`, [
-    ['通知番号', '発行日', '段階', '内容', '発行理由', '対象品番', '配布先', '共連れ変更'],
+    ['通知番号', '発行日', '段階', '内容', '発行理由', '対象品番', '配布先', '関連変更'],
     [e.no, e.date, e.stage, e.title, e.reason, e.prod, e.notify.join('・'), (e.piggy || []).join('・')],
     [],
     ['反映状態', '反映先', '種別', '状況'],
@@ -214,11 +218,11 @@ function renderList() {
   const kpis = [
     { label: '設計変更通知', value: DATA.ECNS.length, unit: ' 件',
       note: `段階が暫定 ${prov.length} 件` },
-    { label: '未反映の項目', value: allR.filter(r => r.status === 'open').length, unit: ' 件', warn: true,
+    { label: '要対応の項目', value: allR.filter(r => r.status === 'todo').length, unit: ' 件', warn: true,
       note: '反映作業が必要' },
     { label: '確認できない項目', value: allR.filter(r => r.status === 'unknown').length, unit: ' 件',
       note: '文書が未登録で追跡できない' },
-    { label: '共連れの関連付け', value: DATA.ECNS.filter(e => (e.piggy || []).length).length, unit: ' 件',
+    { label: '関連変更の関連付け', value: DATA.ECNS.filter(e => (e.piggy || []).length).length, unit: ' 件',
       note: '一緒に変えるべき変更がある' }
   ];
   $('#kpiGrid').innerHTML = kpis.map(k => `
@@ -228,13 +232,13 @@ function renderList() {
       <p class="kpi__note">${esc(k.note)}</p>
     </div>`).join('');
 
-  // 暫定を先、次に未反映の多い順
+  // 暫定を先、次に要対応の多い順
   const rows = DATA.ECNS.slice().sort((a, b) => {
     const sa = a.stage === '暫定' ? 0 : 1, sb = b.stage === '暫定' ? 0 : 1;
     return sa - sb || openCount(b.no) - openCount(a.no);
   });
   $('#listMeta').innerHTML =
-    `全 ${DATA.ECNS.length} 件　／　段階が暫定のものを先頭に、未反映の多い順で表示`;
+    `全 ${DATA.ECNS.length} 件　／　段階が暫定のものを先頭に、要対応の多い順で表示`;
   $('#listBody').innerHTML = rows.map(e => `
     <tr>
       <td class="mono nowrap">${esc(e.no)}</td>
@@ -266,7 +270,8 @@ function renderMatrix() {
       ${kinds.map(k => {
         const hit = rs.filter(r => r.kind === k);
         if (!hit.length) return '<td class="cell-empty nowrap">—</td>';
-        const worst = hit.some(h => h.status === 'open') ? 'open'
+        const worst = hit.some(h => h.status === 'todo') ? 'todo'
+          : hit.some(h => h.status === 'pending') ? 'pending'
           : hit.some(h => h.status === 'unknown') ? 'unknown' : 'done';
         return `<td class="nowrap">${ST[worst]}${hit.length > 1 ? `<div class="cell-sub">${hit.length}件</div>` : ''}</td>`;
       }).join('')}
@@ -277,7 +282,7 @@ function renderMatrix() {
   const done = all.filter(r => r.status === 'done').length;
   const unk = all.filter(r => r.status === 'unknown').length;
   $('#matMeta').innerHTML =
-    `反映先 全 ${all.length} 件　／　反映済み ${done} 件・未反映 ${all.filter(r => r.status === 'open').length} 件・確認できず ${unk} 件`;
+    `反映先 全 ${all.length} 件　／　反映済み ${done} 件・要対応 ${all.filter(r => r.status === 'open').length} 件・確認できず ${unk} 件`;
   $('#matNote').textContent =
     `確認できずを分母に含めると反映率は ${Math.round(done / all.length * 100)}%、除くと ${Math.round(done / (all.length - unk) * 100)}% になります。`
     + `同じ実態で数字が変わるため、反映率を管理指標にする場合は、確認できずの扱いを先に決めておく必要があります。`
@@ -287,7 +292,7 @@ function renderMatrix() {
 /* ---- 参照文書 ---- */
 function renderDocs() {
   const rows = [
-    ['設計変更通知（ECN）', '変更管理帳票', `${DATA.ECNS.length} 件。段階・配布先・共連れの関連付け`, 'done', '解析完了'],
+    ['設計変更通知（ECN）', '変更管理帳票', `${DATA.ECNS.length} 件。段階・配布先・関連変更の関連付け`, 'done', '解析完了'],
     ['製品図面', '図面', `${DATA.DRAWINGS.length} 件。版と適用済みECNの対応`, 'done', '解析完了'],
     ['工程FMEA', '様式1', `${DATA.PFMEA_TOTAL.toLocaleString()} 行。工程単位の反映状態`, 'done', '解析完了'],
     ['QC工程表・条件表', '管理帳票', '工程ごとの管理項目と規格値', 'done', '解析完了'],
@@ -409,7 +414,6 @@ function askEcn(cands, lead) {
     cands.slice(0, 3).map((c, i) => ({
       label: `${c.e.no}　${c.e.title}`,
       desc: `${c.e.date}　${c.e.stage}　文面の一致：${c.score >= 0.25 ? '高' : c.score >= 0.12 ? '中' : '低'}`,
-      rec: i === 0,
       onPick: () => pickEcn(c.e, c.score, '候補から人が選択')
     })));
 }
@@ -470,7 +474,7 @@ $('#btnListCsv').addEventListener('click', () => {
   const rows = renderList();
   downloadXlsx(`設計変更一覧_${today()}.xlsx`, [
     ['通知番号', '発行日', '段階', '内容', '発行理由', '対象品番', '状態',
-     '未反映', '確認できず', '共連れ変更', '配布先'],
+     '要対応', '確認待ち', '確認できず', '関連変更', '配布先'],
     ...rows.map(e => [e.no, e.date, e.stage, e.title, e.reason, e.prod, e.status,
       openCount(e.no), unknownCount(e.no), (e.piggy || []).join('・'), e.notify.join('・')])
   ]);
@@ -486,7 +490,8 @@ $('#btnMatCsv').addEventListener('click', () => {
       return [e.no, e.stage, ...kinds.map(k => {
         const hit = rs.filter(r => r.kind === k);
         if (!hit.length) return '';
-        const worst = hit.some(h => h.status === 'open') ? 'open'
+        const worst = hit.some(h => h.status === 'todo') ? 'todo'
+          : hit.some(h => h.status === 'pending') ? 'pending'
           : hit.some(h => h.status === 'unknown') ? 'unknown' : 'done';
         return ST_TEXT[worst];
       })];
