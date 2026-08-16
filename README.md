@@ -4,17 +4,13 @@
 
 ## 使い方（営業メンバー向け）
 
-Gitの知識は要りません。**3ステップ**です。
+**このURLを開くだけです。** ログインもダウンロードも要りません。
 
-1. [**Releases から最新版をダウンロード**](https://github.com/JINGS-jp/jings-sales-demos/releases/latest) → `jings_demo.zip` をクリック
-2. ダウンロードしたZIPをダブルクリックして展開
-3. 中の **index.html** をダブルクリック
+### https://jings-jp.github.io/jings-sales-demos/
 
-ブラウザが開けば準備完了です。ネットに繋がっていなくても動きます。
+スマホでもタブレットでも開きます。ブックマークしておいてください。
 
-> 会社のGitHubアカウントでログインしていれば、JINGS-jp のメンバー全員がダウンロードできます。
-
-**よく使うなら**、展開したフォルダをデスクトップかDropboxに置いて、`index.html` のエイリアスを作っておくと一発で開けます。
+**商談先のネット環境が不安なとき**は、事前に [Releases から ZIP をダウンロード](https://github.com/JINGS-jp/jings-sales-demos/releases/latest)して展開しておけば、オフラインでも同じものが動きます。
 
 ## 収録しているデモ
 
@@ -63,4 +59,6 @@ cd docs && zip -qr /tmp/jings_demo.zip . && gh release upload latest /tmp/jings_
 
 ## 取り扱い
 
-社内限りです。リポジトリは非公開にしてあります。
+デモのデータはすべて架空です。実在する顧客の情報は含まれていないため、どの見込み客にもそのまま見せられます。
+
+一方で、URLは公開されているため誰でも閲覧できます。顧客名・実データ・金額・社内の運用事情は、このリポジトリに置かないでください。

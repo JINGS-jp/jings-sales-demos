@@ -238,7 +238,7 @@ def build_index(css: str, metas: list) -> Path:
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>JINGS 営業デモ集</title>
+<title>製造業向けAI活用デモ｜JINGS</title>
 <style>
 {css}
 .lp{{max-width:1080px;margin:0 auto;padding:var(--space-8) var(--space-5) var(--space-9)}}
@@ -363,7 +363,7 @@ def build_index(css: str, metas: list) -> Path:
     </ul>
   </details>
 
-  <p class="lp__foot">株式会社JINGS 社内限り／データはすべて架空です</p>
+  <p class="lp__foot">株式会社JINGS　／　データはすべて架空です。実在する顧客の情報は含まれていません。</p>
 </main>
 </body>
 </html>
