@@ -61,7 +61,7 @@ function sheetShot(key, caption, note) {
       </figcaption>
     </figure>
     <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)">
-      ${esc(note || '本実装では、該当セルへ直接ジャンプできるようにします。')}
+      ${esc(note || '実際に入れるときは、押すと帳票の該当セルへ飛ぶようにします。')}
     </p>`;
 }
 
@@ -182,7 +182,7 @@ function wireDrop(opt) {
             ${opt.rows.map(r => `<dt>${esc(r.k)}</dt><dd>${r.v}</dd>`).join('')}
           </dl>
           <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)">
-            デモ環境のため、読み取り結果はサンプルを表示しています。本実装では投げ込んだファイルの記載内容を解析します。
+            ここではサンプルを表示しています。実際に入れるときは、投げ込んだファイルの中身をそのまま読みます。
           </p>
         </div>
       </div>`;
@@ -217,7 +217,7 @@ function openModal(title, lead, options) {
         </button>`).join('')}
     </div>
     <p style="margin-top:var(--space-5);font-size:var(--font-caption);color:var(--color-text-secondary)">
-      この判断は理由とともに記録され、以後のAI判定に反映されます。
+      選んだ理由も一緒に記録されます。次から同じ判断を繰り返さずに済みます。
     </p>`;
   document.body.appendChild(bd);
   document.body.appendChild(m);

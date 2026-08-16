@@ -4,19 +4,30 @@
   <div class="page-head">
     <div>
       <h1 class="page-title">故障の木</h1>
-      <p class="page-lead">現象を選ぶと、原因を人・設備・材料・方法・測定・環境の6分類（5M1E）に分けて展開します。候補が挙がらなかった分類も表示するので、掘り下げの偏りが分かります。原因の特定は担当者が行います。</p>
+      <p class="page-lead">起きていることを文章で書くと、頂上に置く現象を読み取って、原因を人・設備・材料・方法・測定・環境の6分類に分けて広げます。候補が出なかった分類も枠として残すので、どこを掘れていないかが見えます。原因を決めるのは人です。</p>
     </div>
   </div>
 
   <div class="grid split-grid" style="grid-template-columns:360px 1fr;align-items:start">
     <form class="card" id="ftForm" novalidate style="position:sticky;top:calc(var(--header-height) + var(--space-5))">
       <div class="field">
+        <label class="field__label" for="sitText">いま起きていること</label>
+        <textarea class="textarea" id="sitText" rows="4" placeholder=""></textarea>
+        <p class="field__hint">分かっている範囲で構いません。どこで、何が、どんなときに起きたかを、普段の言葉で書いてください。</p>
+        <div style="display:flex;gap:var(--space-2);flex-wrap:wrap;margin-top:var(--space-3)">
+          <button class="btn btn--secondary btn--small" type="button" id="btnSitRead">この文章から読み取る</button>
+          <button class="btn btn--quiet btn--small" type="button" id="btnSitSample">書き方の例を入れる</button>
+        </div>
+        <div id="sitReadout" hidden style="margin-top:var(--space-3)"></div>
+      </div>
+
+      <div class="field">
         <label class="field__label" for="topSelect">現象<span class="field__req">必須</span></label>
         <select class="select" id="topSelect">
-          <option value="">起きている（起きてはいけない）現象を選択してください</option>
+          <option value="">文章から読み取るか、ここから選んでください</option>
         </select>
         <p class="field__error" id="topError" hidden>現象が選択されていません。現象を選んでから展開してください。</p>
-        <p class="field__hint">現象（結果）から始めます。工程から始めると原因の分類ができません。</p>
+        <p class="field__hint">上の文章から読み取った結果が入ります。違っていれば選び直してください。原因ではなく現象から始めるのが決まりです。</p>
       </div>
       <div class="field">
         <span class="field__label">紐づける実績</span>

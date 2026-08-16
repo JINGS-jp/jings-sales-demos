@@ -258,6 +258,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
 .fta .bx--basic{fill:var(--color-background);stroke:var(--color-border)}
 .fta .bx--basic-hit{fill:var(--color-warning-bg);stroke:var(--color-warning)}
 .fta .bx--cat{fill:var(--color-primary-subtle);stroke:var(--color-primary)}
+.fta .bx--cat-mark{fill:var(--color-warning-bg);stroke:var(--color-warning);stroke-width:3}
 .fta .bx--cat-empty{fill:var(--color-background-muted);stroke:var(--color-border);stroke-dasharray:5 3}
 .fta .gt{font-size:14px;font-weight:700}
 .fta .node{cursor:pointer}
@@ -321,25 +322,25 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
 
 /* 簡易図面（SVG） */
 .dwg{width:100%;background:#fff;border:1px solid var(--color-border-light);border-radius:var(--radius-small)}
-.dwg text{font-family:var(--font-mono);font-size:11px;fill:#1a1a1a}
+.dwg text{font-family:var(--font-mono);fill:#1a1a1a}
 .dwg .frame{stroke:#1a1a1a;stroke-width:1.6;fill:none}
 .dwg .tb{stroke:#1a1a1a;stroke-width:.9;fill:none}
-.dwg .tb-lbl{font-size:8.5px;fill:#666}
-.dwg .tb-val{font-size:11px;fill:#1a1a1a;font-weight:700}
+.dwg .tb-lbl{fill:#666}
+.dwg .tb-val{fill:#1a1a1a;font-weight:700}
 .dwg .outline{stroke:#1a1a1a;stroke-width:1.9;fill:#fff;stroke-linejoin:round}
 .dwg .inner{stroke:#1a1a1a;stroke-width:1.9;fill:none}
 .dwg .hid{stroke:#1a1a1a;stroke-width:.9;fill:none;stroke-dasharray:6 3}
 .dwg .ctr{stroke:#1a1a1a;stroke-width:.7;fill:none;stroke-dasharray:14 3 2 3}
 .dwg .dim{stroke:#1a1a1a;stroke-width:.7;fill:none}
-.dwg .dimtxt{font-size:11px;fill:#1a1a1a}
-.dwg .note{font-size:10px;fill:#1a1a1a}
-.dwg .vw{font-size:12px;fill:#1a1a1a;font-weight:700}
+.dwg .dimtxt{fill:#1a1a1a}
+.dwg .note{fill:#1a1a1a}
+.dwg .vw{fill:#1a1a1a;font-weight:700}
 .dwg .hatch{fill:url(#hatch);stroke:#1a1a1a;stroke-width:1.9}
 /* AIが指摘した箇所 */
 .dwg .hit{stroke:var(--color-error);stroke-width:2.2;fill:none}
 .dwg .hitfill{fill:var(--color-error);fill-opacity:.10;stroke:none}
 .dwg .balloon{fill:var(--color-error);stroke:#fff;stroke-width:1.5}
-.dwg .balloon-t{font-size:11px;fill:#fff;font-weight:700}
+.dwg .balloon-t{fill:#fff;font-weight:700}
 .dwg .lead{stroke:var(--color-error);stroke-width:1.2;fill:none}
 
 [hidden]{display:none !important}
@@ -427,7 +428,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
   <div class="page-head">
     <div>
       <h1 class="page-title">DRBFM生成</h1>
-      <p class="page-lead">変更発議書を起点に、変更点ごとの心配点・故障モード・影響・対策の初版を生成します。過去に実績のない変更でも、機能からの演繹と材料物性からの推論で候補を出します。リスク評価は自動確定せず、設計担当者が判断します。</p>
+      <p class="page-lead">変更発議書から始めて、変更点ごとの心配点・故障モード・影響・対策の初版を作ります。過去に例のない変更でも、その部品が何をするものかと材料の性質から候補を立てます。リスクの評価は勝手に確定しません。決めるのは設計です。</p>
     </div>
   </div>
 
@@ -440,7 +441,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
           <label class="btn btn--quiet btn--small" for="triggerFile">ファイルを選ぶ</label>
           <span class="filepick__name" id="triggerFileName">選択されていません</span>
         </div>
-        <p class="field__hint">投げ込むと内容をAIが読み取ります。デモ環境では読み取り結果をサンプルで表示します（本実装では実ファイルを解析します）。</p>
+        <p class="field__hint">投げ込めば中身を読みます。ここではサンプルを表示しているので、実物のファイルは要りません。</p>
         <button type="button" class="btn btn--quiet btn--small" id="btnSample" style="margin-top:var(--space-2)">サンプルの発議書で試す</button>
         <div id="readout" hidden style="margin-top:var(--space-4)"></div>
       </div>
@@ -497,7 +498,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
   <div class="page-head">
     <div>
       <h1 class="page-title">変更点一覧</h1>
-      <p class="page-lead">ACT-230でACT-220から変更した点です。変更点ごとに、生成済みの心配点の件数を表示しています。</p>
+      <p class="page-lead">ACT-220からACT-230で変えた点です。変更点ごとに、いくつ心配点が出ているかを並べています。</p>
     </div>
   </div>
   <div class="table-meta" id="chMeta"></div>
@@ -519,7 +520,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
   <div class="page-head">
     <div>
       <h1 class="page-title">登録済みDRBFM</h1>
-      <p class="page-lead">確認状態が「担当者確認済み」の行と、AI提案のまま残っている行を表示しています。</p>
+      <p class="page-lead">人が見終わった行と、AIが出したまま手つかずの行を分けています。</p>
     </div>
     <div class="page-head__actions">
       <button class="btn btn--quiet" id="btnExCsv">一覧をCSVで出力する</button>
@@ -544,7 +545,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
   <div class="page-head">
     <div>
       <h1 class="page-title">参照文書</h1>
-      <p class="page-lead">心配点の生成に使っている情報源です。系統ごとに、どの情報から生成しているかを表示しています。</p>
+      <p class="page-lead">心配点をどこから引っぱってきたかです。系統ごとに、もとにした情報を並べています。</p>
     </div>
   </div>
   <div class="section">
@@ -1382,7 +1383,7 @@ function sheetShot(key, caption, note) {
       </figcaption>
     </figure>
     <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)">
-      ${esc(note || '本実装では、該当セルへ直接ジャンプできるようにします。')}
+      ${esc(note || '実際に入れるときは、押すと帳票の該当セルへ飛ぶようにします。')}
     </p>`;
 }
 
@@ -1503,7 +1504,7 @@ function wireDrop(opt) {
             ${opt.rows.map(r => `<dt>${esc(r.k)}</dt><dd>${r.v}</dd>`).join('')}
           </dl>
           <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)">
-            デモ環境のため、読み取り結果はサンプルを表示しています。本実装では投げ込んだファイルの記載内容を解析します。
+            ここではサンプルを表示しています。実際に入れるときは、投げ込んだファイルの中身をそのまま読みます。
           </p>
         </div>
       </div>`;
@@ -1538,7 +1539,7 @@ function openModal(title, lead, options) {
         </button>`).join('')}
     </div>
     <p style="margin-top:var(--space-5);font-size:var(--font-caption);color:var(--color-text-secondary)">
-      この判断は理由とともに記録され、以後のAI判定に反映されます。
+      選んだ理由も一緒に記録されます。次から同じ判断を繰り返さずに済みます。
     </p>`;
   document.body.appendChild(bd);
   document.body.appendChild(m);
@@ -1628,7 +1629,7 @@ function showReadout(fileName) {
           <dt>変更理由</dt><dd>小型軽量化と応答速度の向上、および耐熱性の確保</dd>
         </dl>
         <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)">
-          デモ環境のため、読み取り結果はサンプルを表示しています。本実装では投げ込んだファイルの記載内容を解析します。
+          ここではサンプルを表示しています。実際に入れるときは、投げ込んだファイルの中身をそのまま読みます。
         </p>
       </div>
     </div>`;
@@ -1781,7 +1782,7 @@ function renderResult() {
     <div class="callout callout--warn">
       <div>
         <p class="callout__title">この結果を使うときの注意</p>
-        <p>S・O・Dは候補値であり、確定は設計担当者が行います。過去実績のない領域は機能演繹と物理推論による候補のため、成立するかどうかは試験または解析での確認が必要です。類似部材の判定結果は記録され、以後の判定に反映されます。</p>
+        <p>S・O・Dは候補の数字です。決めるのは設計です。過去の実績がない範囲は、機能と物理から立てた推測です。だから成立するかどうかは試験または解析での確認が必要です。類似部材の判定結果は記録され、以後の判定に反映されます。</p>
       </div>
     </div>`;
 

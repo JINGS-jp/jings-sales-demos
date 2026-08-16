@@ -339,6 +339,121 @@ DATA.ECNS.slice().sort((a, b) => (a.stage === '暫定' ? 0 : 1) - (b.stage === '
     $('#ecnSelect').appendChild(o);
   });
 
+/* ===== 変更の帳票／文章から、どの変更かを探す ==============
+   番号を知らなくても始められるようにする。
+   帳票を投げ込むか、内容を文章で書くと、登録済みの変更から候補を出す。
+   1件に絞れないときは決め打ちせず、候補を並べて人に選んでもらう。 */
+
+function icNorm(s) { return (s || '').toLowerCase().replace(/[\s　・、。（）()「」\.,\/]/g, ''); }
+function icGrams(s) {
+  const n = icNorm(s), g = [];
+  for (let i = 0; i < n.length - 1; i++) g.push(n.slice(i, i + 2));
+  return g;
+}
+function icDice(a, b) {
+  const A = icGrams(a), B = icGrams(b);
+  if (!A.length || !B.length) return 0;
+  const bag = {};
+  B.forEach(g => bag[g] = (bag[g] || 0) + 1);
+  let hit = 0;
+  A.forEach(g => { if (bag[g] > 0) { bag[g]--; hit++; } });
+  return 2 * hit / (A.length + B.length);
+}
+
+const ECN_TEXT_SAMPLE = 'ACT-230の減速ギヤについて、歯面幅を8.5に広げて材質もPPSに変える件。'
+  + '試作の耐久試験で歯面が異常摩耗したので、その対策として出したもの。まだ暫定のまま。';
+
+/* 帳票を読んだときに出す、読み取り結果の見本 */
+const ECN_FILE_ROWS = [
+  { k: '文書の種類', v: '変更発議書' },
+  { k: '発行日', v: '2026-07-15' },
+  { k: '対象機種', v: 'ACT-230' },
+  { k: '読み取った内容', v: '減速ギヤの歯面幅拡大および材質変更' },
+  { k: '発議理由', v: '試作耐久試験で歯面に異常摩耗' }
+];
+
+/* 文章と登録済みの変更を突き合わせて、近い順に返す */
+function findEcn(text) {
+  return DATA.ECNS.map(e => {
+    const hay = [e.title, e.reason, e.prod || '', e.no].join(' ');
+    return { e, score: Math.max(icDice(text, hay), icDice(text, e.title)) };
+  }).sort((a, b) => b.score - a.score);
+}
+
+function pickEcn(e, score, how) {
+  $('#ecnSelect').value = e.no;
+  $('#ecnError').hidden = true;
+  $('#ecnSelect').removeAttribute('aria-invalid');
+  $('#ecnCands').hidden = false;
+  $('#ecnCands').innerHTML = `
+    <div class="callout callout--info" style="margin-top:var(--space-3)">
+      <div>
+        <p class="callout__title">この変更として扱います</p>
+        <dl class="meta-list" style="margin-top:var(--space-2)">
+          <dt>変更通知</dt><dd class="mono">${esc(e.no)}</dd>
+          <dt>内容</dt><dd>${esc(e.title)}</dd>
+          <dt>段階</dt><dd>${esc(e.stage)}${e.stage === '暫定' ? '（暫定のまま止まっています）' : ''}</dd>
+          <dt>決め方</dt><dd>${esc(how)}${score != null ? `　近さ ${Math.round(score * 100)}%` : ''}</dd>
+        </dl>
+        <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)">
+          違っていれば、下の「対象の設計変更」で選び直してください。
+        </p>
+      </div>
+    </div>`;
+  toast('変更を特定しました', `${e.no}　${e.title}`);
+}
+
+/* 候補を並べて人に選んでもらう */
+function askEcn(cands, lead) {
+  openModal('どの変更のことですか', lead,
+    cands.slice(0, 3).map((c, i) => ({
+      label: `${c.e.no}　${c.e.title}`,
+      desc: `${c.e.date}　${c.e.stage}　近さ ${Math.round(c.score * 100)}%`,
+      rec: i === 0,
+      onPick: () => pickEcn(c.e, c.score, '候補から人が選択')
+    })));
+}
+
+function readEcnText(text) {
+  const cands = findEcn(text);
+  const [a, b] = cands;
+  // 1位が弱い、または1位と2位が僅差のときは決め打ちしない
+  if (a.score < 0.12) {
+    askEcn(cands, '書かれた内容に近い変更を、登録済みのものから決められませんでした。'
+      + '取り違えると、この先の反映状況がすべて別の変更のものになります。近いものを選んでください。');
+    return;
+  }
+  if (b && a.score - b.score < 0.05) {
+    askEcn(cands, '近い変更が複数あり、1件に絞れませんでした。どちらのことか選んでください。');
+    return;
+  }
+  pickEcn(a.e, a.score, '文章から判定');
+}
+
+wireDrop({
+  file: '#ecnFile', sample: '#btnEcnSample', readout: '#ecnReadout',
+  sampleName: '変更発議書_ACT-230_20260715.xlsx', rows: ECN_FILE_ROWS,
+  toast: '記載内容から、どの変更かを探します。',
+  onRead: () => {
+    // 帳票からは記載内容がそのまま取れるので、文章より確実に決まる
+    readEcnText('ACT-230 減速ギヤ 歯面幅拡大 材質変更 試作耐久試験 歯面 異常摩耗');
+  }
+});
+
+$('#btnEcnTextSample').addEventListener('click', () => {
+  $('#ecnText').value = ECN_TEXT_SAMPLE;
+  $('#ecnText').focus();
+});
+$('#btnEcnRead').addEventListener('click', () => {
+  const t = $('#ecnText').value.trim();
+  if (!t) {
+    toast('文章が空です', '変更の内容を書いてから探してください。', 'error');
+    $('#ecnText').focus();
+    return;
+  }
+  readEcnText(t);
+});
+
 $('#impForm').addEventListener('submit', ev => {
   ev.preventDefault();
   const no = $('#ecnSelect').value;

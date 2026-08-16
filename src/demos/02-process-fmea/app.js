@@ -271,7 +271,7 @@ function renderResult() {
   const modeSec = `
     <div class="section">
       <h2 class="section__title">③ 要求事項からの逸脱として故障モードを生成</h2>
-      <p class="section__lead">要求事項を満たせない具体的な状態を故障モードとしています。原因・影響とは区別しています。影響とS・O・Dは既存の工程FMEA行から引き当てた候補で、確定は担当者が行います。</p>
+      <p class="section__lead">要求を満たせていない状態そのものを故障モードにしています。原因や影響とは分けています。影響とS・O・Dは既存のFMEAの行から持ってきた候補です。決めるのは人です。</p>
       <div class="table-meta">新規候補 ${newRows.length} 件　／　既に登録済み ${coveredRows.length} 件　／　${esc(DATA.SOD_CRITERIA.doc)} に照らした候補値</div>
       <div class="table-wrap">
         <table>
@@ -304,7 +304,7 @@ function renderResult() {
   const gapSec = (wide && curGaps.length) ? `
     <div class="section">
       <h2 class="section__title">さらに、類似工程の実績から確認すべき候補</h2>
-      <p class="section__lead">他の工程では登録されている逸脱の型のうち、本工程の要求事項でも成立し得るのに登録がないものです。工程をまたいだ観点の抜けを拾うための候補で、採否は担当者が判断してください。</p>
+      <p class="section__lead">他の工程には登録があって、この工程でも起こりうるのに書かれていない型です。工程をまたいだ抜けを拾うための候補なので、使うかどうかは見て決めてください。</p>
       <div class="table-wrap">
         <table>
           <caption class="visually-hidden">類似工程からの抜け漏れ候補</caption>
@@ -358,7 +358,7 @@ function renderResult() {
     <div class="callout callout--warn">
       <div>
         <p class="callout__title">この結果を使うときの注意</p>
-        <p>S・O・Dは ${esc(DATA.SOD_CRITERIA.doc)} に照らした候補値で、既存の工程FMEA行から引き当てています。引き当て元がない行は「未評価」としており、AIが点数を作ることはしません。要求事項のうち資料に明記のない項目はAI推定として区別しています。最終的な採否と評価の確定は担当者が行ってください。</p>
+        <p>S・O・Dは ${esc(DATA.SOD_CRITERIA.doc)} に当てた候補で、既存のFMEAの行から持ってきています。持ってくる先がない行は「未評価」のまま置きます。AIが点数をでっち上げることはしません。資料に書かれていない要求は、AIの推測として分けてあります。使うかどうか、点数をいくつにするかは人が決めてください。</p>
       </div>
     </div>`;
 
@@ -552,7 +552,7 @@ function evGap(i) {
       <p style="margin-top:var(--space-3)"><strong>現行の予防 ／ 検出</strong><br>${esc(r.prev)} ／ ${esc(r.det)}</p>
       <p style="margin-top:var(--space-3)"><strong>評価</strong><br><span class="mono">S${r.s}　O${r.o}　D${r.d}　RPN ${r.s * r.o * r.d}</span></p>
     </div>
-    <p style="margin-top:var(--space-4);font-size:var(--font-caption);color:var(--color-text-secondary)">確認すべきと判断した理由：本工程の要求事項「${esc(g.relReq.req)}」に対しても「${esc(g.dev)}」の逸脱が成立し得るのに、本工程の工程FMEAには同じ型の行がありません。実際に成立するかどうかは担当者が判断してください。</p>`);
+    <p style="margin-top:var(--space-4);font-size:var(--font-caption);color:var(--color-text-secondary)">拾った理由：この工程の要求「${esc(g.relReq.req)}」に対しても「${esc(g.dev)}」は起こりうるのに、この工程のFMEAに同じ型の行がありません。本当に起こりうるかは見て判断してください。</p>`);
 }
 
 /* ---- 工程フロー画面 ---- */

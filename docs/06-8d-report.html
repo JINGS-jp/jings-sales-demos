@@ -257,6 +257,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
 .fta .bx--basic{fill:var(--color-background);stroke:var(--color-border)}
 .fta .bx--basic-hit{fill:var(--color-warning-bg);stroke:var(--color-warning)}
 .fta .bx--cat{fill:var(--color-primary-subtle);stroke:var(--color-primary)}
+.fta .bx--cat-mark{fill:var(--color-warning-bg);stroke:var(--color-warning);stroke-width:3}
 .fta .bx--cat-empty{fill:var(--color-background-muted);stroke:var(--color-border);stroke-dasharray:5 3}
 .fta .gt{font-size:14px;font-weight:700}
 .fta .node{cursor:pointer}
@@ -320,25 +321,25 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
 
 /* 簡易図面（SVG） */
 .dwg{width:100%;background:#fff;border:1px solid var(--color-border-light);border-radius:var(--radius-small)}
-.dwg text{font-family:var(--font-mono);font-size:11px;fill:#1a1a1a}
+.dwg text{font-family:var(--font-mono);fill:#1a1a1a}
 .dwg .frame{stroke:#1a1a1a;stroke-width:1.6;fill:none}
 .dwg .tb{stroke:#1a1a1a;stroke-width:.9;fill:none}
-.dwg .tb-lbl{font-size:8.5px;fill:#666}
-.dwg .tb-val{font-size:11px;fill:#1a1a1a;font-weight:700}
+.dwg .tb-lbl{fill:#666}
+.dwg .tb-val{fill:#1a1a1a;font-weight:700}
 .dwg .outline{stroke:#1a1a1a;stroke-width:1.9;fill:#fff;stroke-linejoin:round}
 .dwg .inner{stroke:#1a1a1a;stroke-width:1.9;fill:none}
 .dwg .hid{stroke:#1a1a1a;stroke-width:.9;fill:none;stroke-dasharray:6 3}
 .dwg .ctr{stroke:#1a1a1a;stroke-width:.7;fill:none;stroke-dasharray:14 3 2 3}
 .dwg .dim{stroke:#1a1a1a;stroke-width:.7;fill:none}
-.dwg .dimtxt{font-size:11px;fill:#1a1a1a}
-.dwg .note{font-size:10px;fill:#1a1a1a}
-.dwg .vw{font-size:12px;fill:#1a1a1a;font-weight:700}
+.dwg .dimtxt{fill:#1a1a1a}
+.dwg .note{fill:#1a1a1a}
+.dwg .vw{fill:#1a1a1a;font-weight:700}
 .dwg .hatch{fill:url(#hatch);stroke:#1a1a1a;stroke-width:1.9}
 /* AIが指摘した箇所 */
 .dwg .hit{stroke:var(--color-error);stroke-width:2.2;fill:none}
 .dwg .hitfill{fill:var(--color-error);fill-opacity:.10;stroke:none}
 .dwg .balloon{fill:var(--color-error);stroke:#fff;stroke-width:1.5}
-.dwg .balloon-t{font-size:11px;fill:#fff;font-weight:700}
+.dwg .balloon-t{fill:#fff;font-weight:700}
 .dwg .lead{stroke:var(--color-error);stroke-width:1.2;fill:none}
 
 [hidden]{display:none !important}
@@ -423,7 +424,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
   <div class="page-head">
     <div>
       <h1 class="page-title">報告書作成</h1>
-      <p class="page-lead">不具合記録から8D報告書の初稿を作ります。記録に書かれていない項目は埋めずに空欄とし、何が不足しているかを示します。文章は画面上で直接編集できます。</p>
+      <p class="page-lead">不具合記録から8D報告書の初稿を作ります。記録に書かれていないことは埋めません。空欄のまま残して、何が足りないかを出します。文章はこの画面で直せます。</p>
     </div>
   </div>
 
@@ -506,7 +507,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
   <div class="page-head">
     <div>
       <h1 class="page-title">作成済み報告書</h1>
-      <p class="page-lead">この画面で作成した報告書の履歴です。デモ環境のため、ブラウザを閉じると履歴は消えます。</p>
+      <p class="page-lead">この画面でつくった報告書の一覧です。ブラウザを閉じると消えます。</p>
     </div>
   </div>
   <div class="table-meta" id="listMeta"></div>
@@ -534,7 +535,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
   <div class="page-head">
     <div>
       <h1 class="page-title">8D様式</h1>
-      <p class="page-lead">社内で使用している8D報告書の様式です。AIが各項目に何を割り当てるかを示しています。</p>
+      <p class="page-lead">社内で使っている8D報告書の様式です。どの欄に何を入れるつもりかを並べています。</p>
     </div>
   </div>
   <div class="table-wrap">
@@ -1367,7 +1368,7 @@ function sheetShot(key, caption, note) {
       </figcaption>
     </figure>
     <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)">
-      ${esc(note || '本実装では、該当セルへ直接ジャンプできるようにします。')}
+      ${esc(note || '実際に入れるときは、押すと帳票の該当セルへ飛ぶようにします。')}
     </p>`;
 }
 
@@ -1488,7 +1489,7 @@ function wireDrop(opt) {
             ${opt.rows.map(r => `<dt>${esc(r.k)}</dt><dd>${r.v}</dd>`).join('')}
           </dl>
           <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)">
-            デモ環境のため、読み取り結果はサンプルを表示しています。本実装では投げ込んだファイルの記載内容を解析します。
+            ここではサンプルを表示しています。実際に入れるときは、投げ込んだファイルの中身をそのまま読みます。
           </p>
         </div>
       </div>`;
@@ -1523,7 +1524,7 @@ function openModal(title, lead, options) {
         </button>`).join('')}
     </div>
     <p style="margin-top:var(--space-5);font-size:var(--font-caption);color:var(--color-text-secondary)">
-      この判断は理由とともに記録され、以後のAI判定に反映されます。
+      選んだ理由も一緒に記録されます。次から同じ判断を繰り返さずに済みます。
     </p>`;
   document.body.appendChild(bd);
   document.body.appendChild(m);
@@ -1791,7 +1792,7 @@ function exportDoc() {
 /* ---- 作成済み報告書 ---- */
 function renderList() {
   $('#listMeta').textContent = history.length
-    ? `${history.length} 件の報告書を作成しました（デモ環境のため、ブラウザを閉じると消えます）` : '';
+    ? `${history.length} 件つくりました。ブラウザを閉じると消えます。` : '';
   $('#listWrap').hidden = history.length === 0;
   $('#listEmpty').hidden = history.length > 0;
   $('#listBody').innerHTML = history.map(h => {

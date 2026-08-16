@@ -168,7 +168,7 @@ function buildAnswer(qRaw) {
   const trTable = trs.length ? `
     <div class="section">
       <h2 class="section__title">類似する不具合記録</h2>
-      <p class="section__lead">関連度は入力された文章と記録内容の一致度です。順位は参考であり、採否は担当者が判断してください。</p>
+      <p class="section__lead">関連度は文章の重なり具合です。順番はあくまで目安なので、使えるかどうかは中身を見て決めてください。</p>
       <div class="table-wrap">
         <table>
           <caption class="visually-hidden">類似する不具合記録</caption>
@@ -197,7 +197,7 @@ function buildAnswer(qRaw) {
   const fmTable = fms.length ? `
     <div class="section">
       <h2 class="section__title">工程FMEAに登録済みの故障モード</h2>
-      <p class="section__lead">同じ工程の工程FMEAに、今回の事象に対応する故障モードが登録されているかを確認できます。登録済みであれば、予防・検出の手段が機能しなかった理由の調査に進めます。</p>
+      <p class="section__lead">今回の事象が、同じ工程のFMEAに載っているかどうかです。載っていれば、次に見るのは「なぜ予防と検出をすり抜けたか」になります。</p>
       <div class="table-wrap">
         <table>
           <caption class="visually-hidden">関連する工程FMEAの行</caption>
@@ -226,7 +226,7 @@ function buildAnswer(qRaw) {
   const ecTable = ecs.length ? `
     <div class="section">
       <h2 class="section__title">関連する設計変更通知</h2>
-      <p class="section__lead">同種の事象に対して、過去に設計変更で対応した記録です。今回も設計側の対応が必要かどうかの判断材料になります。</p>
+      <p class="section__lead">似た事象に、過去は設計変更で手を打っています。今回も設計まで戻すかどうかの材料にしてください。</p>
       <div class="table-wrap">
         <table>
           <caption class="visually-hidden">関連する設計変更通知</caption>
@@ -288,7 +288,7 @@ function buildAnswer(qRaw) {
 
     <div class="section">
       <h2 class="section__title">今回確認すべき項目</h2>
-      <p class="section__lead">過去の対策内容と工程FMEAの記載から導いた確認項目です。AIによる提案であり、実施の判断は担当者が行います。</p>
+      <p class="section__lead">過去の対策とFMEAの記載から拾った項目です。やるかどうかは見て決めてください。</p>
       <div class="card">
         <ol style="margin:0;padding-left:1.3em;line-height:var(--line-height-body)">
           ${checks.map(c => `<li style="margin-bottom:var(--space-2)">${esc(c)}</li>`).join('')}
@@ -299,7 +299,7 @@ function buildAnswer(qRaw) {
     <div class="callout callout--warn">
       <div>
         <p class="callout__title">この回答を使うときの注意</p>
-        <p>関連度は文章の一致度による並び替えであり、原因の断定ではありません。作業要領書・検査記録が未登録のため、作業条件まで遡った確認はシステム外で行う必要があります。最終的な原因の特定と対策の決定は担当者が行ってください。</p>
+        <p>並び順は文章が似ている順で、原因を当てたわけではありません。作業要領書と検査記録がまだ入っていないので、そのときの作業条件まで遡るには現場で確認が要ります。原因を決めるのも対策を決めるのも人です。</p>
       </div>
     </div>`;
 
@@ -354,7 +354,7 @@ function chatGreeting() {
       </ul>
     </div>
     <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)">
-      答えには必ず出典の記録を付けます。原因の断定はしません。続けて質問すると、前のやりとりを踏まえて絞り込みます。
+      答えには必ず出典を付けます。原因の断定はしません。続けて聞けば、前のやりとりを踏まえて絞り込みます。
     </p>`);
 }
 
@@ -433,11 +433,11 @@ function openTroublePanel(id) {
     ${COMPLAINT_SHOT[t.id]
       ? sheetShot(COMPLAINT_SHOT[t.id],
           '苦情報告書 ' + t.id + '（品質苦情処理規定 QR-2201）',
-          'AIが引用した記載は、この帳票の該当欄から取得しています。')
+          '上で引用した文は、この帳票のこの欄から取っています。')
       : `<p style="margin-top:var(--space-5);font-size:var(--font-caption);color:var(--color-text-secondary)">
-           この記録の帳票原本は、デモ環境には取り込んでいません（代表 ${Object.keys(COMPLAINT_SHOT).length} 件のみ）。
+           この記録の帳票そのものは、まだ取り込んでいません（代表の ${Object.keys(COMPLAINT_SHOT).length} 件だけ入れてあります）。
          </p>`}
-    <p style="margin-top:var(--space-5);font-size:var(--font-caption);color:var(--color-text-secondary)">出典：不具合記録データベース（架空データ）。原本の記載をそのまま表示しています。</p>`);
+    <p style="margin-top:var(--space-5);font-size:var(--font-caption);color:var(--color-text-secondary)">出典：不具合記録（架空データ）。帳票の記載をそのまま出しています。</p>`);
 }
 
 function openFmeaPanel(key) {
@@ -467,7 +467,7 @@ function openFmeaPanel(key) {
       <p style="margin-top:var(--space-2)"><button class="btn btn--quiet btn--small" data-tr="${esc(src.id)}">この不具合記録を確認する</button></p>` : `
       <p style="margin-top:var(--space-5);font-size:var(--font-caption);color:var(--color-text-secondary)">この行に紐づく不具合記録はありません。過去の設計知見または類似機種からの流用で登録された行です。</p>`}
     ${sheetShot('pfmea', '工程FMEA ACT-220 Ver.09（様式1）',
-       'この行は帳票の該当行から取得しています。本実装では該当セルへ直接ジャンプします。')}
+       'この行は帳票の同じ行から取っています。実際に入れるときは、押すとそのセルへ飛びます。')}
     <p style="margin-top:var(--space-5);font-size:var(--font-caption);color:var(--color-text-secondary)">出典：工程FMEA ACT-220（架空データ）。</p>`);
 }
 

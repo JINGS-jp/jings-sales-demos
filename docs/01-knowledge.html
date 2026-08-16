@@ -257,6 +257,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
 .fta .bx--basic{fill:var(--color-background);stroke:var(--color-border)}
 .fta .bx--basic-hit{fill:var(--color-warning-bg);stroke:var(--color-warning)}
 .fta .bx--cat{fill:var(--color-primary-subtle);stroke:var(--color-primary)}
+.fta .bx--cat-mark{fill:var(--color-warning-bg);stroke:var(--color-warning);stroke-width:3}
 .fta .bx--cat-empty{fill:var(--color-background-muted);stroke:var(--color-border);stroke-dasharray:5 3}
 .fta .gt{font-size:14px;font-weight:700}
 .fta .node{cursor:pointer}
@@ -320,25 +321,25 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
 
 /* 簡易図面（SVG） */
 .dwg{width:100%;background:#fff;border:1px solid var(--color-border-light);border-radius:var(--radius-small)}
-.dwg text{font-family:var(--font-mono);font-size:11px;fill:#1a1a1a}
+.dwg text{font-family:var(--font-mono);fill:#1a1a1a}
 .dwg .frame{stroke:#1a1a1a;stroke-width:1.6;fill:none}
 .dwg .tb{stroke:#1a1a1a;stroke-width:.9;fill:none}
-.dwg .tb-lbl{font-size:8.5px;fill:#666}
-.dwg .tb-val{font-size:11px;fill:#1a1a1a;font-weight:700}
+.dwg .tb-lbl{fill:#666}
+.dwg .tb-val{fill:#1a1a1a;font-weight:700}
 .dwg .outline{stroke:#1a1a1a;stroke-width:1.9;fill:#fff;stroke-linejoin:round}
 .dwg .inner{stroke:#1a1a1a;stroke-width:1.9;fill:none}
 .dwg .hid{stroke:#1a1a1a;stroke-width:.9;fill:none;stroke-dasharray:6 3}
 .dwg .ctr{stroke:#1a1a1a;stroke-width:.7;fill:none;stroke-dasharray:14 3 2 3}
 .dwg .dim{stroke:#1a1a1a;stroke-width:.7;fill:none}
-.dwg .dimtxt{font-size:11px;fill:#1a1a1a}
-.dwg .note{font-size:10px;fill:#1a1a1a}
-.dwg .vw{font-size:12px;fill:#1a1a1a;font-weight:700}
+.dwg .dimtxt{fill:#1a1a1a}
+.dwg .note{fill:#1a1a1a}
+.dwg .vw{fill:#1a1a1a;font-weight:700}
 .dwg .hatch{fill:url(#hatch);stroke:#1a1a1a;stroke-width:1.9}
 /* AIが指摘した箇所 */
 .dwg .hit{stroke:var(--color-error);stroke-width:2.2;fill:none}
 .dwg .hitfill{fill:var(--color-error);fill-opacity:.10;stroke:none}
 .dwg .balloon{fill:var(--color-error);stroke:#fff;stroke-width:1.5}
-.dwg .balloon-t{font-size:11px;fill:#fff;font-weight:700}
+.dwg .balloon-t{fill:#fff;font-weight:700}
 .dwg .lead{stroke:var(--color-error);stroke-width:1.2;fill:none}
 
 [hidden]{display:none !important}
@@ -426,7 +427,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
   <div class="page-head">
     <div>
       <h1 class="page-title">ダッシュボード</h1>
-      <p class="page-lead">登録済みの不具合記録・工程FMEA・設計変更の状態と、対応が必要な項目を表示しています。</p>
+      <p class="page-lead">いま入っている不具合記録・工程FMEA・設計変更の状況です。手を打つべきものを上に出しています。</p>
     </div>
     <div class="page-head__actions">
       <button class="btn btn--primary" data-goto="search">ナレッジを検索する</button>
@@ -469,7 +470,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
   <div class="page-head">
     <div>
       <h1 class="page-title">ナレッジ検索</h1>
-      <p class="page-lead">発生した事象を普段の言葉で聞いてください。過去の不具合記録・工程FMEA・設計変更通知を横断して答えます。続けて質問すると、前のやりとりを踏まえて絞り込みます。結論の採否は担当者が判断します。</p>
+      <p class="page-lead">起きたことを普段の言葉で聞いてください。過去の不具合記録・工程FMEA・設計変更通知をまたいで答えます。続けて聞けば、前のやりとりを踏まえて絞り込みます。答えを使うかどうかは人が決めてください。</p>
     </div>
     <div class="page-head__actions">
       <button class="btn btn--quiet" id="btnChatClear">会話をやり直す</button>
@@ -571,7 +572,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
   <div class="page-head">
     <div>
       <h1 class="page-title">登録文書</h1>
-      <p class="page-lead">検索対象として取り込んでいる文書です。取り込み後に追加された文書は、次回の解析で反映されます。</p>
+      <p class="page-lead">検索の対象に入れている文書です。あとから足した分は、次に読み込むときに反映されます。</p>
     </div>
   </div>
   <div class="table-wrap">
@@ -1404,7 +1405,7 @@ function sheetShot(key, caption, note) {
       </figcaption>
     </figure>
     <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)">
-      ${esc(note || '本実装では、該当セルへ直接ジャンプできるようにします。')}
+      ${esc(note || '実際に入れるときは、押すと帳票の該当セルへ飛ぶようにします。')}
     </p>`;
 }
 
@@ -1525,7 +1526,7 @@ function wireDrop(opt) {
             ${opt.rows.map(r => `<dt>${esc(r.k)}</dt><dd>${r.v}</dd>`).join('')}
           </dl>
           <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)">
-            デモ環境のため、読み取り結果はサンプルを表示しています。本実装では投げ込んだファイルの記載内容を解析します。
+            ここではサンプルを表示しています。実際に入れるときは、投げ込んだファイルの中身をそのまま読みます。
           </p>
         </div>
       </div>`;
@@ -1560,7 +1561,7 @@ function openModal(title, lead, options) {
         </button>`).join('')}
     </div>
     <p style="margin-top:var(--space-5);font-size:var(--font-caption);color:var(--color-text-secondary)">
-      この判断は理由とともに記録され、以後のAI判定に反映されます。
+      選んだ理由も一緒に記録されます。次から同じ判断を繰り返さずに済みます。
     </p>`;
   document.body.appendChild(bd);
   document.body.appendChild(m);
@@ -1786,7 +1787,7 @@ function buildAnswer(qRaw) {
   const trTable = trs.length ? `
     <div class="section">
       <h2 class="section__title">類似する不具合記録</h2>
-      <p class="section__lead">関連度は入力された文章と記録内容の一致度です。順位は参考であり、採否は担当者が判断してください。</p>
+      <p class="section__lead">関連度は文章の重なり具合です。順番はあくまで目安なので、使えるかどうかは中身を見て決めてください。</p>
       <div class="table-wrap">
         <table>
           <caption class="visually-hidden">類似する不具合記録</caption>
@@ -1815,7 +1816,7 @@ function buildAnswer(qRaw) {
   const fmTable = fms.length ? `
     <div class="section">
       <h2 class="section__title">工程FMEAに登録済みの故障モード</h2>
-      <p class="section__lead">同じ工程の工程FMEAに、今回の事象に対応する故障モードが登録されているかを確認できます。登録済みであれば、予防・検出の手段が機能しなかった理由の調査に進めます。</p>
+      <p class="section__lead">今回の事象が、同じ工程のFMEAに載っているかどうかです。載っていれば、次に見るのは「なぜ予防と検出をすり抜けたか」になります。</p>
       <div class="table-wrap">
         <table>
           <caption class="visually-hidden">関連する工程FMEAの行</caption>
@@ -1844,7 +1845,7 @@ function buildAnswer(qRaw) {
   const ecTable = ecs.length ? `
     <div class="section">
       <h2 class="section__title">関連する設計変更通知</h2>
-      <p class="section__lead">同種の事象に対して、過去に設計変更で対応した記録です。今回も設計側の対応が必要かどうかの判断材料になります。</p>
+      <p class="section__lead">似た事象に、過去は設計変更で手を打っています。今回も設計まで戻すかどうかの材料にしてください。</p>
       <div class="table-wrap">
         <table>
           <caption class="visually-hidden">関連する設計変更通知</caption>
@@ -1906,7 +1907,7 @@ function buildAnswer(qRaw) {
 
     <div class="section">
       <h2 class="section__title">今回確認すべき項目</h2>
-      <p class="section__lead">過去の対策内容と工程FMEAの記載から導いた確認項目です。AIによる提案であり、実施の判断は担当者が行います。</p>
+      <p class="section__lead">過去の対策とFMEAの記載から拾った項目です。やるかどうかは見て決めてください。</p>
       <div class="card">
         <ol style="margin:0;padding-left:1.3em;line-height:var(--line-height-body)">
           ${checks.map(c => `<li style="margin-bottom:var(--space-2)">${esc(c)}</li>`).join('')}
@@ -1917,7 +1918,7 @@ function buildAnswer(qRaw) {
     <div class="callout callout--warn">
       <div>
         <p class="callout__title">この回答を使うときの注意</p>
-        <p>関連度は文章の一致度による並び替えであり、原因の断定ではありません。作業要領書・検査記録が未登録のため、作業条件まで遡った確認はシステム外で行う必要があります。最終的な原因の特定と対策の決定は担当者が行ってください。</p>
+        <p>並び順は文章が似ている順で、原因を当てたわけではありません。作業要領書と検査記録がまだ入っていないので、そのときの作業条件まで遡るには現場で確認が要ります。原因を決めるのも対策を決めるのも人です。</p>
       </div>
     </div>`;
 
@@ -1972,7 +1973,7 @@ function chatGreeting() {
       </ul>
     </div>
     <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)">
-      答えには必ず出典の記録を付けます。原因の断定はしません。続けて質問すると、前のやりとりを踏まえて絞り込みます。
+      答えには必ず出典を付けます。原因の断定はしません。続けて聞けば、前のやりとりを踏まえて絞り込みます。
     </p>`);
 }
 
@@ -2051,11 +2052,11 @@ function openTroublePanel(id) {
     ${COMPLAINT_SHOT[t.id]
       ? sheetShot(COMPLAINT_SHOT[t.id],
           '苦情報告書 ' + t.id + '（品質苦情処理規定 QR-2201）',
-          'AIが引用した記載は、この帳票の該当欄から取得しています。')
+          '上で引用した文は、この帳票のこの欄から取っています。')
       : `<p style="margin-top:var(--space-5);font-size:var(--font-caption);color:var(--color-text-secondary)">
-           この記録の帳票原本は、デモ環境には取り込んでいません（代表 ${Object.keys(COMPLAINT_SHOT).length} 件のみ）。
+           この記録の帳票そのものは、まだ取り込んでいません（代表の ${Object.keys(COMPLAINT_SHOT).length} 件だけ入れてあります）。
          </p>`}
-    <p style="margin-top:var(--space-5);font-size:var(--font-caption);color:var(--color-text-secondary)">出典：不具合記録データベース（架空データ）。原本の記載をそのまま表示しています。</p>`);
+    <p style="margin-top:var(--space-5);font-size:var(--font-caption);color:var(--color-text-secondary)">出典：不具合記録（架空データ）。帳票の記載をそのまま出しています。</p>`);
 }
 
 function openFmeaPanel(key) {
@@ -2085,7 +2086,7 @@ function openFmeaPanel(key) {
       <p style="margin-top:var(--space-2)"><button class="btn btn--quiet btn--small" data-tr="${esc(src.id)}">この不具合記録を確認する</button></p>` : `
       <p style="margin-top:var(--space-5);font-size:var(--font-caption);color:var(--color-text-secondary)">この行に紐づく不具合記録はありません。過去の設計知見または類似機種からの流用で登録された行です。</p>`}
     ${sheetShot('pfmea', '工程FMEA ACT-220 Ver.09（様式1）',
-       'この行は帳票の該当行から取得しています。本実装では該当セルへ直接ジャンプします。')}
+       'この行は帳票の同じ行から取っています。実際に入れるときは、押すとそのセルへ飛びます。')}
     <p style="margin-top:var(--space-5);font-size:var(--font-caption);color:var(--color-text-secondary)">出典：工程FMEA ACT-220（架空データ）。</p>`);
 }
 

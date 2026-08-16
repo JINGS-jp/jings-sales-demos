@@ -257,6 +257,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
 .fta .bx--basic{fill:var(--color-background);stroke:var(--color-border)}
 .fta .bx--basic-hit{fill:var(--color-warning-bg);stroke:var(--color-warning)}
 .fta .bx--cat{fill:var(--color-primary-subtle);stroke:var(--color-primary)}
+.fta .bx--cat-mark{fill:var(--color-warning-bg);stroke:var(--color-warning);stroke-width:3}
 .fta .bx--cat-empty{fill:var(--color-background-muted);stroke:var(--color-border);stroke-dasharray:5 3}
 .fta .gt{font-size:14px;font-weight:700}
 .fta .node{cursor:pointer}
@@ -320,25 +321,25 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
 
 /* 簡易図面（SVG） */
 .dwg{width:100%;background:#fff;border:1px solid var(--color-border-light);border-radius:var(--radius-small)}
-.dwg text{font-family:var(--font-mono);font-size:11px;fill:#1a1a1a}
+.dwg text{font-family:var(--font-mono);fill:#1a1a1a}
 .dwg .frame{stroke:#1a1a1a;stroke-width:1.6;fill:none}
 .dwg .tb{stroke:#1a1a1a;stroke-width:.9;fill:none}
-.dwg .tb-lbl{font-size:8.5px;fill:#666}
-.dwg .tb-val{font-size:11px;fill:#1a1a1a;font-weight:700}
+.dwg .tb-lbl{fill:#666}
+.dwg .tb-val{fill:#1a1a1a;font-weight:700}
 .dwg .outline{stroke:#1a1a1a;stroke-width:1.9;fill:#fff;stroke-linejoin:round}
 .dwg .inner{stroke:#1a1a1a;stroke-width:1.9;fill:none}
 .dwg .hid{stroke:#1a1a1a;stroke-width:.9;fill:none;stroke-dasharray:6 3}
 .dwg .ctr{stroke:#1a1a1a;stroke-width:.7;fill:none;stroke-dasharray:14 3 2 3}
 .dwg .dim{stroke:#1a1a1a;stroke-width:.7;fill:none}
-.dwg .dimtxt{font-size:11px;fill:#1a1a1a}
-.dwg .note{font-size:10px;fill:#1a1a1a}
-.dwg .vw{font-size:12px;fill:#1a1a1a;font-weight:700}
+.dwg .dimtxt{fill:#1a1a1a}
+.dwg .note{fill:#1a1a1a}
+.dwg .vw{fill:#1a1a1a;font-weight:700}
 .dwg .hatch{fill:url(#hatch);stroke:#1a1a1a;stroke-width:1.9}
 /* AIが指摘した箇所 */
 .dwg .hit{stroke:var(--color-error);stroke-width:2.2;fill:none}
 .dwg .hitfill{fill:var(--color-error);fill-opacity:.10;stroke:none}
 .dwg .balloon{fill:var(--color-error);stroke:#fff;stroke-width:1.5}
-.dwg .balloon-t{font-size:11px;fill:#fff;font-weight:700}
+.dwg .balloon-t{fill:#fff;font-weight:700}
 .dwg .lead{stroke:var(--color-error);stroke-width:1.2;fill:none}
 
 [hidden]{display:none !important}
@@ -426,7 +427,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
   <div class="page-head">
     <div>
       <h1 class="page-title">検図</h1>
-      <p class="page-lead">出図前の図面を、社内の検図ルールと過去不具合の対策内容に照らして確認します。指摘は候補であり、直すかどうかは設計担当者が判断します。</p>
+      <p class="page-lead">出図する前の図面を、社内の検図ルールと過去不具合の対策に照らして見ます。出てくるのは候補なので、直すかどうかは設計が決めてください。</p>
     </div>
   </div>
 
@@ -500,7 +501,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
   <div class="page-head">
     <div>
       <h1 class="page-title">類似図面検索</h1>
-      <p class="page-lead">探している部位や寸法の言葉で、過去の図面を検索します。前機種でどう指示していたかを確認できます。</p>
+      <p class="page-lead">部位や寸法の言葉で過去の図面を探せます。前の機種でどう指示していたかを見るのに使ってください。</p>
     </div>
   </div>
   <div class="card" style="margin-bottom:var(--space-5);max-width:var(--reading-max-width)">
@@ -546,7 +547,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
   <div class="page-head">
     <div>
       <h1 class="page-title">検図ルール</h1>
-      <p class="page-lead">社内の図面チェック規程です。AIはこのルールに対する不足を候補として提示します。ルールにない観点は指摘しません。</p>
+      <p class="page-lead">社内の図面チェック規程です。AIが出すのは、このルールに対して足りない点だけです。ルールにないことは言いません。</p>
     </div>
   </div>
   <div class="table-wrap">
@@ -562,7 +563,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
   <div class="callout callout--warn" style="margin-top:var(--space-5)">
     <div>
       <p class="callout__title">図面の読み取りについて</p>
-      <p>本デモでは、図面から読み取った寸法・注記・部品表の情報をあらかじめ登録した状態で動作します。本実装では、CADデータまたはPDF図面から寸法・公差・注記を抽出して同じ確認を行います。手書きの補足や写真での指示は読み取り対象外です。</p>
+      <p>ここでは、図面から読み取った寸法・注記・部品表をあらかじめ入れた状態で動かしています。実際に入れるときは、CADデータまたはPDF図面から寸法・公差・注記を抽出して同じ確認を行います。手書きの補足や写真での指示は読み取り対象外です。</p>
     </div>
   </div>
 </section>
@@ -1379,7 +1380,7 @@ function sheetShot(key, caption, note) {
       </figcaption>
     </figure>
     <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)">
-      ${esc(note || '本実装では、該当セルへ直接ジャンプできるようにします。')}
+      ${esc(note || '実際に入れるときは、押すと帳票の該当セルへ飛ぶようにします。')}
     </p>`;
 }
 
@@ -1500,7 +1501,7 @@ function wireDrop(opt) {
             ${opt.rows.map(r => `<dt>${esc(r.k)}</dt><dd>${r.v}</dd>`).join('')}
           </dl>
           <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)">
-            デモ環境のため、読み取り結果はサンプルを表示しています。本実装では投げ込んだファイルの記載内容を解析します。
+            ここではサンプルを表示しています。実際に入れるときは、投げ込んだファイルの中身をそのまま読みます。
           </p>
         </div>
       </div>`;
@@ -1535,7 +1536,7 @@ function openModal(title, lead, options) {
         </button>`).join('')}
     </div>
     <p style="margin-top:var(--space-5);font-size:var(--font-caption);color:var(--color-text-secondary)">
-      この判断は理由とともに記録され、以後のAI判定に反映されます。
+      選んだ理由も一緒に記録されます。次から同じ判断を繰り返さずに済みます。
     </p>`;
   document.body.appendChild(bd);
   document.body.appendChild(m);
@@ -1792,7 +1793,7 @@ function titleBlock(d, kind) {
   const x = 550, y = 468, w = 320, h = 116;
   const cell = (dx, dy, cw, ch, lbl, val, mono) => `
     <rect class="tb" x="${x + dx}" y="${y + dy}" width="${cw}" height="${ch}"/>
-    <text class="tb-lbl" x="${x + dx + 5}" y="${y + dy + 11}">${esc(lbl)}</text>
+    <text class="tb-lbl" font-size="8.5" x="${x + dx + 5}" y="${y + dy + 11}">${esc(lbl)}</text>
     <text class="tb-val" x="${x + dx + 5}" y="${y + dy + ch - 6}" ${mono ? '' : 'style="font-family:sans-serif"'}>${esc(val)}</text>`;
   const MAT = { gear: 'POM（GF25）', pcb: 'FR-4 t1.6', harness: 'PVC / AVSS 0.5sq', housing: 'ADC12', case: 'PPS（GF40）' };
   return `
@@ -1818,7 +1819,8 @@ function drawSvg(no, hits) {
   const cx = 250, cy = 215;
 
   // 確認候補の位置と、番号を置く場所。
-  // [印のx, 印のy, 印の半径, 番号のx, 番号のy]。番号は部位のすぐ外に置いて、線が図を横切らないようにする。
+  // 並びは 印のx／印のy／印の半径／番号のx／番号のy。
+  // 番号は部位のすぐ外に置いて、引き出し線が図を横切らないようにする。
   const SPOT = {
     case: [[cx - 96, cy - 60, 14, cx - 150, cy - 96], [cx, cy - 60, 14, cx, cy - 104],
            [cx + 96, cy - 60, 14, cx + 150, cy - 96], [cx, cy, 46, cx + 152, cy + 34],
@@ -1874,7 +1876,7 @@ function drawSvg(no, hits) {
   }[kind];
 
   return `
-    <svg class="dwg" viewBox="0 0 900 620" role="img"
+    <svg class="dwg" viewBox="0 0 900 620" font-size="11" role="img"
          aria-label="${esc(no)} ${esc(d.name)} の図面。AIが確認候補とした箇所に番号を付けています">
       <defs>
         <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
@@ -1889,8 +1891,8 @@ function drawSvg(no, hits) {
       <rect class="frame" x="18" y="18" width="864" height="584"/>
       <rect class="tb" x="26" y="26" width="848" height="568"/>
 
-      <text class="vw" x="196" y="72">正面図</text>
-      <text class="vw" x="576" y="72">A−A 断面</text>
+      <text class="vw" font-size="12" x="196" y="72">正面図</text>
+      <text class="vw" font-size="12" x="576" y="72">A−A 断面</text>
 
       ${bodyFront(kind, hits)}
       ${bodySection(kind)}
@@ -1901,11 +1903,11 @@ function drawSvg(no, hits) {
       <text class="dimtxt" x="${cx + 6}" y="378">A</text>
       <line class="ctr" x1="${cx}" y1="366" x2="${cx}" y2="384"/>
 
-      <text class="note" x="60" y="440">注記</text>
-      <text class="note" x="60" y="456">1. 指示なき角部は C0.3</text>
-      <text class="note" x="60" y="470">2. 指示なき寸法公差は JIS B 0405-m による</text>
-      <text class="note" x="60" y="484">3. バリ・カエリなきこと</text>
-      <text class="note" x="60" y="498">4. 表面粗さ 指示なき箇所 Ra6.3</text>
+      <text class="note" font-size="10" x="60" y="440">注記</text>
+      <text class="note" font-size="10" x="60" y="456">1. 指示なき角部は C0.3</text>
+      <text class="note" font-size="10" x="60" y="470">2. 指示なき寸法公差は JIS B 0405-m による</text>
+      <text class="note" font-size="10" x="60" y="484">3. バリ・カエリなきこと</text>
+      <text class="note" font-size="10" x="60" y="498">4. 表面粗さ 指示なき箇所 Ra6.3</text>
 
       ${titleBlock(d, kind)}
       ${marks}
@@ -1974,7 +1976,7 @@ function renderCheck() {
 
     <div class="section">
       <h2 class="section__title">確認候補</h2>
-      <p class="section__lead">どの検図ルールに対する不足かを明示しています。修正するかどうかは設計担当者が判断してください。</p>
+      <p class="section__lead">どの検図ルールに対して足りないのかを書いています。直すかどうかは設計が決めてください。</p>
       <div class="table-wrap">
         <table>
           <caption class="visually-hidden">検図の確認候補</caption>
@@ -2056,7 +2058,7 @@ function openEv(i) {
       </p>`}
     ${curNo === 'ACT-230-300' ? sheetShot('drawing',
        '図面属性表 ACT-230-300（図面から読み取った寸法・公差・注記・部品表）',
-       'AIが照合しているのは、図面から読み取ったこの内容です。本実装ではCADデータまたはPDF図面から同じ項目を抽出し、該当箇所を強調します。') : ''}
+       '照合に使っているのは、図面から読み取ったこの中身です。実際に入れるときは、CADデータかPDF図面から同じ項目を抜いて、該当箇所に印を付けます。') : ''}
     ${prev ? `
       <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">前機種の対応図面</h3>
       <p><span class="mono">${esc(prev.no)}</span>　${esc(prev.name)}（${esc(prev.rev)}版・${esc(prev.date)}）</p>

@@ -210,7 +210,7 @@ function exportDoc() {
 /* ---- 作成済み報告書 ---- */
 function renderList() {
   $('#listMeta').textContent = history.length
-    ? `${history.length} 件の報告書を作成しました（デモ環境のため、ブラウザを閉じると消えます）` : '';
+    ? `${history.length} 件つくりました。ブラウザを閉じると消えます。` : '';
   $('#listWrap').hidden = history.length === 0;
   $('#listEmpty').hidden = history.length > 0;
   $('#listBody').innerHTML = history.map(h => {

@@ -4,19 +4,43 @@
   <div class="page-head">
     <div>
       <h1 class="page-title">変更影響分析</h1>
-      <p class="page-lead">設計変更を選ぶと、反映すべき帳票・工程・他機種を洗い出し、反映できているかを表示します。あわせて、この変更に伴って一緒に変えるべき変更（共連れ）を提示します。反映漏れの判断は担当者が行います。</p>
+      <p class="page-lead">変更の帳票を投げ込むか、内容を文章で書くと、どの変更のことかを探します。そのうえで、直すべき帳票・工程・他機種を洗い出し、直せているかを並べます。一緒に変えるべき変更（共連れ）も出します。漏れかどうかを決めるのは人です。</p>
     </div>
   </div>
 
   <div class="grid split-grid" style="grid-template-columns:380px 1fr;align-items:start">
     <form class="card" id="impForm" novalidate style="position:sticky;top:calc(var(--header-height) + var(--space-5))">
       <div class="field">
+        <span class="field__label">変更の帳票</span>
+        <div class="filepick">
+          <label class="btn btn--secondary" for="ecnFile">ファイルを選ぶ</label>
+          <input type="file" id="ecnFile" accept=".xlsx,.xls,.csv,.pdf,.docx" hidden>
+          <span class="filepick__name" id="ecnFileName">選ばれていません</span>
+        </div>
+        <p class="field__hint">変更発議書・変更通知書・議事録など。持っている形式のままで構いません。</p>
+        <button class="btn btn--quiet btn--small" type="button" id="btnEcnSample" style="margin-top:var(--space-3)">手元にない場合はこちら（見本を使う）</button>
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="ecnText">文章で書く</label>
+        <textarea class="textarea" id="ecnText" rows="3" placeholder=""></textarea>
+        <p class="field__hint">帳票がなくても、変更の内容を書けば探せます。</p>
+        <div style="display:flex;gap:var(--space-2);flex-wrap:wrap;margin-top:var(--space-3)">
+          <button class="btn btn--secondary btn--small" type="button" id="btnEcnRead">この文章から探す</button>
+          <button class="btn btn--quiet btn--small" type="button" id="btnEcnTextSample">書き方の例を入れる</button>
+        </div>
+      </div>
+
+      <div id="ecnReadout" hidden></div>
+      <div id="ecnCands" hidden></div>
+
+      <div class="field">
         <label class="field__label" for="ecnSelect">対象の設計変更<span class="field__req">必須</span></label>
         <select class="select" id="ecnSelect">
-          <option value="">変更通知番号で選択してください</option>
+          <option value="">上で読み取るか、番号で選んでください</option>
         </select>
         <p class="field__error" id="ecnError" hidden>対象の設計変更が選択されていません。変更を選んでから分析を開始してください。</p>
-        <p class="field__hint">段階が「暫定」の変更を先頭に表示しています。暫定のまま止まっている変更が管理の穴になります。</p>
+        <p class="field__hint">読み取った結果がここに入ります。違っていれば選び直してください。暫定のまま止まっている変更を先頭に並べています。</p>
       </div>
       <div class="field">
         <span class="field__label">追跡する反映先</span>
@@ -30,9 +54,9 @@
 
     <div>
       <div class="empty" id="impIdle">
-        <h2 class="empty__title">対象の設計変更を選択してください</h2>
+        <h2 class="empty__title">変更の帳票を投げ込むか、内容を書いてください</h2>
         <div class="empty__body">
-          <p>選択した変更について、次を洗い出します。</p>
+          <p>どの変更かが決まると、次を洗い出します。</p>
           <ul>
             <li>反映すべき帳票（図面・条件表・工程FMEA・QC工程表・原材料仕様書）と、その反映状態</li>
             <li>影響する工程と、その工程に登録済みの故障モード</li>
@@ -68,7 +92,7 @@
   <div class="page-head">
     <div>
       <h1 class="page-title">変更一覧</h1>
-      <p class="page-lead">登録済みの設計変更通知です。段階が「暫定」で未反映が残っているものが、変化点管理の要注意対象になります。</p>
+      <p class="page-lead">いま入っている設計変更通知です。段階が「暫定」のまま直せていないものが、いちばん危ないところです。</p>
     </div>
     <div class="page-head__actions">
       <button class="btn btn--quiet" id="btnListCsv">一覧をCSVで出力する</button>
@@ -97,7 +121,7 @@
   <div class="page-head">
     <div>
       <h1 class="page-title">反映状況マトリクス</h1>
-      <p class="page-lead">変更×反映先の種類で、反映状態を一覧にしています。列に「確認できず」が多い種類は、文書が未登録で追跡できていない領域です。</p>
+      <p class="page-lead">変更と反映先を掛け合わせた表です。「確認できず」が縦に並んでいる列は、文書が入っていなくて追えていないところです。</p>
     </div>
     <div class="page-head__actions">
       <button class="btn btn--quiet" id="btnMatCsv">マトリクスをCSVで出力する</button>
@@ -125,7 +149,7 @@
   <div class="page-head">
     <div>
       <h1 class="page-title">参照文書</h1>
-      <p class="page-lead">変更の追跡に使っている文書です。未登録の文書がある間は、その反映状態を「確認できず」として扱います。</p>
+      <p class="page-lead">変更を追うのに使っている文書です。入っていない文書がある間は、そこは「確認できず」のままにします。</p>
     </div>
   </div>
   <div class="table-wrap">

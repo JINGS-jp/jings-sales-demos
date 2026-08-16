@@ -199,7 +199,7 @@ function titleBlock(d, kind) {
   const x = 550, y = 468, w = 320, h = 116;
   const cell = (dx, dy, cw, ch, lbl, val, mono) => `
     <rect class="tb" x="${x + dx}" y="${y + dy}" width="${cw}" height="${ch}"/>
-    <text class="tb-lbl" x="${x + dx + 5}" y="${y + dy + 11}">${esc(lbl)}</text>
+    <text class="tb-lbl" font-size="8.5" x="${x + dx + 5}" y="${y + dy + 11}">${esc(lbl)}</text>
     <text class="tb-val" x="${x + dx + 5}" y="${y + dy + ch - 6}" ${mono ? '' : 'style="font-family:sans-serif"'}>${esc(val)}</text>`;
   const MAT = { gear: 'POM（GF25）', pcb: 'FR-4 t1.6', harness: 'PVC / AVSS 0.5sq', housing: 'ADC12', case: 'PPS（GF40）' };
   return `
@@ -225,7 +225,8 @@ function drawSvg(no, hits) {
   const cx = 250, cy = 215;
 
   // 確認候補の位置と、番号を置く場所。
-  // [印のx, 印のy, 印の半径, 番号のx, 番号のy]。番号は部位のすぐ外に置いて、線が図を横切らないようにする。
+  // 並びは 印のx／印のy／印の半径／番号のx／番号のy。
+  // 番号は部位のすぐ外に置いて、引き出し線が図を横切らないようにする。
   const SPOT = {
     case: [[cx - 96, cy - 60, 14, cx - 150, cy - 96], [cx, cy - 60, 14, cx, cy - 104],
            [cx + 96, cy - 60, 14, cx + 150, cy - 96], [cx, cy, 46, cx + 152, cy + 34],
@@ -281,7 +282,7 @@ function drawSvg(no, hits) {
   }[kind];
 
   return `
-    <svg class="dwg" viewBox="0 0 900 620" role="img"
+    <svg class="dwg" viewBox="0 0 900 620" font-size="11" role="img"
          aria-label="${esc(no)} ${esc(d.name)} の図面。AIが確認候補とした箇所に番号を付けています">
       <defs>
         <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
@@ -296,8 +297,8 @@ function drawSvg(no, hits) {
       <rect class="frame" x="18" y="18" width="864" height="584"/>
       <rect class="tb" x="26" y="26" width="848" height="568"/>
 
-      <text class="vw" x="196" y="72">正面図</text>
-      <text class="vw" x="576" y="72">A−A 断面</text>
+      <text class="vw" font-size="12" x="196" y="72">正面図</text>
+      <text class="vw" font-size="12" x="576" y="72">A−A 断面</text>
 
       ${bodyFront(kind, hits)}
       ${bodySection(kind)}
@@ -308,11 +309,11 @@ function drawSvg(no, hits) {
       <text class="dimtxt" x="${cx + 6}" y="378">A</text>
       <line class="ctr" x1="${cx}" y1="366" x2="${cx}" y2="384"/>
 
-      <text class="note" x="60" y="440">注記</text>
-      <text class="note" x="60" y="456">1. 指示なき角部は C0.3</text>
-      <text class="note" x="60" y="470">2. 指示なき寸法公差は JIS B 0405-m による</text>
-      <text class="note" x="60" y="484">3. バリ・カエリなきこと</text>
-      <text class="note" x="60" y="498">4. 表面粗さ 指示なき箇所 Ra6.3</text>
+      <text class="note" font-size="10" x="60" y="440">注記</text>
+      <text class="note" font-size="10" x="60" y="456">1. 指示なき角部は C0.3</text>
+      <text class="note" font-size="10" x="60" y="470">2. 指示なき寸法公差は JIS B 0405-m による</text>
+      <text class="note" font-size="10" x="60" y="484">3. バリ・カエリなきこと</text>
+      <text class="note" font-size="10" x="60" y="498">4. 表面粗さ 指示なき箇所 Ra6.3</text>
 
       ${titleBlock(d, kind)}
       ${marks}
@@ -381,7 +382,7 @@ function renderCheck() {
 
     <div class="section">
       <h2 class="section__title">確認候補</h2>
-      <p class="section__lead">どの検図ルールに対する不足かを明示しています。修正するかどうかは設計担当者が判断してください。</p>
+      <p class="section__lead">どの検図ルールに対して足りないのかを書いています。直すかどうかは設計が決めてください。</p>
       <div class="table-wrap">
         <table>
           <caption class="visually-hidden">検図の確認候補</caption>
@@ -463,7 +464,7 @@ function openEv(i) {
       </p>`}
     ${curNo === 'ACT-230-300' ? sheetShot('drawing',
        '図面属性表 ACT-230-300（図面から読み取った寸法・公差・注記・部品表）',
-       'AIが照合しているのは、図面から読み取ったこの内容です。本実装ではCADデータまたはPDF図面から同じ項目を抽出し、該当箇所を強調します。') : ''}
+       '照合に使っているのは、図面から読み取ったこの中身です。実際に入れるときは、CADデータかPDF図面から同じ項目を抜いて、該当箇所に印を付けます。') : ''}
     ${prev ? `
       <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">前機種の対応図面</h3>
       <p><span class="mono">${esc(prev.no)}</span>　${esc(prev.name)}（${esc(prev.rev)}版・${esc(prev.date)}）</p>

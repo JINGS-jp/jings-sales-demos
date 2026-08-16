@@ -250,6 +250,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
 .fta .bx--basic{fill:var(--color-background);stroke:var(--color-border)}
 .fta .bx--basic-hit{fill:var(--color-warning-bg);stroke:var(--color-warning)}
 .fta .bx--cat{fill:var(--color-primary-subtle);stroke:var(--color-primary)}
+.fta .bx--cat-mark{fill:var(--color-warning-bg);stroke:var(--color-warning);stroke-width:3}
 .fta .bx--cat-empty{fill:var(--color-background-muted);stroke:var(--color-border);stroke-dasharray:5 3}
 .fta .gt{font-size:14px;font-weight:700}
 .fta .node{cursor:pointer}
@@ -313,25 +314,25 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
 
 /* 簡易図面（SVG） */
 .dwg{width:100%;background:#fff;border:1px solid var(--color-border-light);border-radius:var(--radius-small)}
-.dwg text{font-family:var(--font-mono);font-size:11px;fill:#1a1a1a}
+.dwg text{font-family:var(--font-mono);fill:#1a1a1a}
 .dwg .frame{stroke:#1a1a1a;stroke-width:1.6;fill:none}
 .dwg .tb{stroke:#1a1a1a;stroke-width:.9;fill:none}
-.dwg .tb-lbl{font-size:8.5px;fill:#666}
-.dwg .tb-val{font-size:11px;fill:#1a1a1a;font-weight:700}
+.dwg .tb-lbl{fill:#666}
+.dwg .tb-val{fill:#1a1a1a;font-weight:700}
 .dwg .outline{stroke:#1a1a1a;stroke-width:1.9;fill:#fff;stroke-linejoin:round}
 .dwg .inner{stroke:#1a1a1a;stroke-width:1.9;fill:none}
 .dwg .hid{stroke:#1a1a1a;stroke-width:.9;fill:none;stroke-dasharray:6 3}
 .dwg .ctr{stroke:#1a1a1a;stroke-width:.7;fill:none;stroke-dasharray:14 3 2 3}
 .dwg .dim{stroke:#1a1a1a;stroke-width:.7;fill:none}
-.dwg .dimtxt{font-size:11px;fill:#1a1a1a}
-.dwg .note{font-size:10px;fill:#1a1a1a}
-.dwg .vw{font-size:12px;fill:#1a1a1a;font-weight:700}
+.dwg .dimtxt{fill:#1a1a1a}
+.dwg .note{fill:#1a1a1a}
+.dwg .vw{fill:#1a1a1a;font-weight:700}
 .dwg .hatch{fill:url(#hatch);stroke:#1a1a1a;stroke-width:1.9}
 /* AIが指摘した箇所 */
 .dwg .hit{stroke:var(--color-error);stroke-width:2.2;fill:none}
 .dwg .hitfill{fill:var(--color-error);fill-opacity:.10;stroke:none}
 .dwg .balloon{fill:var(--color-error);stroke:#fff;stroke-width:1.5}
-.dwg .balloon-t{font-size:11px;fill:#fff;font-weight:700}
+.dwg .balloon-t{fill:#fff;font-weight:700}
 .dwg .lead{stroke:var(--color-error);stroke-width:1.2;fill:none}
 
 [hidden]{display:none !important}

@@ -64,12 +64,13 @@ function treeSvg(groups) {
 
   const catBoxes = rows.map(r => {
     const empty = r.g.causes.length === 0;
+    const marked = curConds.includes(r.g.m.key);   // 文章に手がかりがあった分類
     return `<g class="node" tabindex="0" role="button" data-cat="${esc(r.g.m.key)}"
         aria-label="${esc(r.g.m.label)}の分類を見る">
-      <rect class="bx ${empty ? 'bx--cat-empty' : 'bx--cat'}"
+      <rect class="bx ${empty ? 'bx--cat-empty' : 'bx--cat'}${marked ? ' bx--cat-mark' : ''}"
         x="${x1}" y="${r.cy - 26}" width="${CATW}" height="52"/>
       <text x="${x1 + CATW / 2}" y="${r.cy - 6}" text-anchor="middle"
-        style="font-weight:700">${esc(r.g.m.label)}</text>
+        style="font-weight:700">${esc(r.g.m.label)}${marked ? '　◆' : ''}</text>
       <text x="${x1 + CATW / 2}" y="${r.cy + 14}" text-anchor="middle"
         style="font-size:14px;fill:${empty ? 'var(--color-text-secondary)' : 'var(--color-primary)'}">${
         empty ? '候補なし' : r.g.causes.length + '件'}</text>
@@ -98,6 +99,7 @@ function treeSvg(groups) {
   <div class="fta-legend">
     <span><i style="background:var(--color-error-bg);border-color:var(--color-error)"></i>現象</span>
     <span><i style="background:var(--color-primary-subtle);border-color:var(--color-primary)"></i>分類（候補あり）</span>
+    <span><i style="background:var(--color-warning-bg);border-color:var(--color-warning)"></i>◆ 文章に手がかりがあった分類</span>
     <span><i style="background:var(--color-background-muted);border-color:var(--color-border)"></i>分類（候補なし）</span>
     <span><i style="background:var(--color-warning-bg);border-color:var(--color-warning)"></i>原因（過去実績あり）</span>
     <span><i style="background:var(--color-background);border-color:var(--color-border)"></i>原因（実績なし・推定）</span>
@@ -160,7 +162,16 @@ function renderTree() {
     ${empty.length ? `
     <div class="section">
       <h2 class="section__title">候補が挙がっていない分類</h2>
-      <p class="section__lead">この分類に原因がないと判断してよいかを確認してください。過去の記録に登場しないだけで、実際には原因になり得る場合があります。</p>
+      <p class="section__lead">この分類に原因がないと言い切ってよいかを確かめてください。過去の記録に出てこないだけで、実際は原因になっていることがあります。</p>
+      ${empty.filter(g => curConds.includes(g.m.key)).length ? `
+        <div class="callout callout--error" style="margin-bottom:var(--space-4)">
+          <div>
+            <p class="callout__title">ここが今回いちばん危ないところです</p>
+            <p>${esc(empty.filter(g => curConds.includes(g.m.key)).map(g => g.m.label).join('・'))}
+            は、書かれた文章に手がかりが出ているのに、過去の記録には原因が1件もありません。
+            記録に残っていないだけで、今回まさにそこが効いている可能性があります。先に潰してください。</p>
+          </div>
+        </div>` : ''}
       <div class="table-wrap">
         <table>
           <caption class="visually-hidden">候補が挙がっていない分類</caption>
@@ -170,7 +181,9 @@ function renderTree() {
           </tr></thead>
           <tbody>${empty.map(g => `
             <tr>
-              <td class="nowrap"><strong>${esc(g.m.label)}</strong><div class="cell-sub">${esc(g.m.en)}</div></td>
+              <td class="nowrap"><strong>${esc(g.m.label)}</strong>${curConds.includes(g.m.key)
+                ? '<div style="margin-top:var(--space-1)"><span class="status status--risk">文章に手がかりあり</span></div>' : ''}
+                <div class="cell-sub">${esc(g.m.en)}</div></td>
               <td class="col-text cell-sub">${esc(g.m.desc)}</td>
               <td class="col-text">${esc(emptyHint(g.m.key))}</td>
               <td class="nowrap"><button class="btn btn--quiet btn--small" data-addcat="${esc(g.m.key)}">この分類を検討対象に加える</button></td>
@@ -215,7 +228,7 @@ function renderTree() {
     <div class="callout callout--warn">
       <div>
         <p class="callout__title">この結果を使うときの注意</p>
-        <p>原因の候補は過去の記録から集めたもので、網羅を保証するものではありません。候補が挙がらなかった分類は「原因がない」ではなく「記録に登場しない」という意味です。発生度は過去実績がある原因は記録から、ない原因は推定です。真の原因の特定は、現物と現場での確認を経て担当者が行ってください。</p>
+        <p>原因の候補は過去の記録から集めたものです。これで全部とは言えません。候補が出なかった分類は「原因がない」ではなく「記録に出てこない」だけです。発生度は、実際に起きた記録があるものは記録から、ないものは推定です。本当の原因は、現物と現場を見てから決めてください。</p>
       </div>
     </div>`;
 
@@ -284,7 +297,7 @@ function openCause(i) {
       <div class="callout callout--warn" style="margin-top:var(--space-4)">
         <div>
           <p class="callout__title">紐づく過去不具合はありません</p>
-          <p>この原因には発生実績がないため、発生度は推定です。構造上ほぼ起きないのか、まだ起きていないだけなのかは担当者が判断してください。</p>
+          <p>この原因は実際に起きた記録がないので、発生度は推定です。構造上まず起きないのか、たまたままだ起きていないだけなのかは、見て判断してください。</p>
         </div>
       </div>`}
     ${fmeaRows.length ? `
@@ -471,6 +484,135 @@ DATA.FTA_TREES.forEach(t => {
   o.value = t.id;
   o.textContent = `${t.top}（${t.prod}）`;
   $('#topSelect').appendChild(o);
+});
+
+/* ===== 文章から現象を読み取る ==============================
+   起きていることを普段の言葉で書いてもらい、頂上に置く現象を決める。
+   一致が弱いときは勝手に決めず、候補を出して人に選んでもらう。
+   あわせて、文章の中の手がかり語から「どの分類を重点的に見るか」を拾う。 */
+
+function ftNorm(s) { return (s || '').toLowerCase().replace(/[\s　・、。（）()「」\.,]/g, ''); }
+function ftGrams(s) {
+  const n = ftNorm(s), g = [];
+  for (let i = 0; i < n.length - 1; i++) g.push(n.slice(i, i + 2));
+  return g;
+}
+function ftDice(a, b) {
+  const A = ftGrams(a), B = ftGrams(b);
+  if (!A.length || !B.length) return 0;
+  const bag = {};
+  B.forEach(g => bag[g] = (bag[g] || 0) + 1);
+  let hit = 0;
+  A.forEach(g => { if (bag[g] > 0) { bag[g]--; hit++; } });
+  return 2 * hit / (A.length + B.length);
+}
+
+/* 文章に出てきたら、その分類を重点的に見る手がかりになる語 */
+const COND_HINTS = [
+  { m: 'envi', words: ['低温', '高温', '寒', '暑', '湿度', '結露', '冬', '夏', '屋外', '粉じん', 'ほこり', '温度', '朝一'] },
+  { m: 'matl', words: ['ロット', '材質', '樹脂', '材料', '部品', '仕入', 'グリス', 'ゴム', '硬度', '粘度', '受入', 'メーカ'] },
+  { m: 'man', words: ['新人', '応援', '交代', '経験', '慣れ', '夜勤', '残業', '人手', '作業者', '手作業', '教育'] },
+  { m: 'mach', words: ['治具', '設備', '装置', '機械', '摩耗', '交換', 'メンテ', '工具', '段取', '金型', '刃', '経年'] },
+  { m: 'meth', words: ['手順', '標準', '条件', '指示', '要領', '設定', '変更', 'トルク', '速度', '順序', '締付'] },
+  { m: 'meas', words: ['検査', '測定', 'ゲージ', '校正', '判定', '基準', '抜取', '全数', '公差', '見逃'] }
+];
+
+let curConds = [];   // 文章から拾った手がかり（分類キーの配列）
+
+const SIT_SAMPLE = 'ACT-220の最終組立で、ケースの合わせ面から異音が出ているという連絡が入った。'
+  + '朝一番の立ち上げ直後に多いように見える。先週、締付の治具を交換している。'
+  + '今のところ検査では止められておらず、後工程で見つかっている。';
+
+/* 文章を読み取って、頂上事象と手がかりを返す */
+function readSituation(text) {
+  const scored = DATA.FTA_TREES.map(t => ({
+    t, score: Math.max(ftDice(text, t.top), ftDice(text, t.top + t.prod))
+  })).sort((a, b) => b.score - a.score);
+
+  const conds = COND_HINTS
+    .map(h => ({ m: h.m, hit: h.words.filter(w => text.includes(w)) }))
+    .filter(c => c.hit.length);
+
+  return { scored, conds };
+}
+
+function showReadout(best, scored, conds, decided) {
+  const M = {}; DATA.M1E.forEach(m => M[m.key] = m);
+  $('#sitReadout').hidden = false;
+  $('#sitReadout').innerHTML = `
+    <div class="callout callout--info">
+      <div>
+        <p class="callout__title">文章から読み取りました</p>
+        <dl class="meta-list" style="margin-top:var(--space-2)">
+          <dt>頂上に置く現象</dt><dd>${esc(best.t.top)}</dd>
+          <dt>対象</dt><dd>${esc(best.t.prod)}</dd>
+          <dt>近さ</dt><dd>${Math.round(best.score * 100)}%${decided ? '（人が選択）' : ''}</dd>
+        </dl>
+        ${conds.length ? `
+          <p style="margin-top:var(--space-3);font-size:var(--font-caption)">
+            文章の中に、次の分類の手がかりがありました。木の中で印を付けます。</p>
+          <p style="margin-top:var(--space-1)">
+            ${conds.map(c => `<span class="status status--warn" style="margin-right:var(--space-2)">${esc(M[c.m].label)}：${esc(c.hit.join('・'))}</span>`).join('')}
+          </p>`
+        : `<p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)">
+             分類を絞り込める手がかりは、文章の中にありませんでした。6分類を平らに見ます。</p>`}
+        <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)">
+          読み取りが違っていれば、下の「現象」で選び直してください。
+        </p>
+      </div>
+    </div>`;
+}
+
+function applyRead(text) {
+  const { scored, conds } = readSituation(text);
+  const best = scored[0];
+
+  const go = (pick, decided) => {
+    curConds = conds.map(c => c.m);
+    $('#topSelect').value = pick.t.id;
+    $('#topError').hidden = true;
+    showReadout(pick, scored, conds, decided);
+    toast('現象を読み取りました', pick.t.top);
+  };
+
+  // 近さが足りないときは決め打ちしない。候補を出して人に選んでもらう。
+  if (best.score < 0.14) {
+    openModal('どの現象として扱いますか',
+      '書かれた内容に近い現象を、登録済みのものから決められませんでした。'
+      + 'AIが勝手に決めると、木の頂上が実際とずれます。近いものを選んでください。',
+      scored.slice(0, 3).map((x, i) => ({
+        label: x.t.top,
+        desc: `${x.t.prod}　文章との近さ ${Math.round(x.score * 100)}%`,
+        rec: i === 0,
+        onPick: () => go(x, true)
+      })));
+    return;
+  }
+  go(best, false);
+}
+
+$('#btnSitSample').addEventListener('click', () => {
+  $('#sitText').value = SIT_SAMPLE;
+  $('#sitText').focus();
+});
+$('#btnSitRead').addEventListener('click', () => {
+  const t = $('#sitText').value.trim();
+  if (!t) {
+    toast('文章が空です', '起きていることを書いてから読み取ってください。', 'error');
+    $('#sitText').focus();
+    return;
+  }
+  applyRead(t);
+});
+
+$('#topSelect').addEventListener('change', () => {
+  // 文章と別の現象を選んだら、文章から拾った手がかりは持ち越さない
+  const cur = $('#topSelect').value;
+  const read = $('#sitReadout');
+  if (!read.hidden && cur && !read.textContent.includes((TREE_BY_ID[cur] || {}).top || '\u0000')) {
+    curConds = [];
+    read.hidden = true;
+  }
 });
 
 $('#ftForm').addEventListener('submit', e => {

@@ -257,6 +257,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
 .fta .bx--basic{fill:var(--color-background);stroke:var(--color-border)}
 .fta .bx--basic-hit{fill:var(--color-warning-bg);stroke:var(--color-warning)}
 .fta .bx--cat{fill:var(--color-primary-subtle);stroke:var(--color-primary)}
+.fta .bx--cat-mark{fill:var(--color-warning-bg);stroke:var(--color-warning);stroke-width:3}
 .fta .bx--cat-empty{fill:var(--color-background-muted);stroke:var(--color-border);stroke-dasharray:5 3}
 .fta .gt{font-size:14px;font-weight:700}
 .fta .node{cursor:pointer}
@@ -320,25 +321,25 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
 
 /* 簡易図面（SVG） */
 .dwg{width:100%;background:#fff;border:1px solid var(--color-border-light);border-radius:var(--radius-small)}
-.dwg text{font-family:var(--font-mono);font-size:11px;fill:#1a1a1a}
+.dwg text{font-family:var(--font-mono);fill:#1a1a1a}
 .dwg .frame{stroke:#1a1a1a;stroke-width:1.6;fill:none}
 .dwg .tb{stroke:#1a1a1a;stroke-width:.9;fill:none}
-.dwg .tb-lbl{font-size:8.5px;fill:#666}
-.dwg .tb-val{font-size:11px;fill:#1a1a1a;font-weight:700}
+.dwg .tb-lbl{fill:#666}
+.dwg .tb-val{fill:#1a1a1a;font-weight:700}
 .dwg .outline{stroke:#1a1a1a;stroke-width:1.9;fill:#fff;stroke-linejoin:round}
 .dwg .inner{stroke:#1a1a1a;stroke-width:1.9;fill:none}
 .dwg .hid{stroke:#1a1a1a;stroke-width:.9;fill:none;stroke-dasharray:6 3}
 .dwg .ctr{stroke:#1a1a1a;stroke-width:.7;fill:none;stroke-dasharray:14 3 2 3}
 .dwg .dim{stroke:#1a1a1a;stroke-width:.7;fill:none}
-.dwg .dimtxt{font-size:11px;fill:#1a1a1a}
-.dwg .note{font-size:10px;fill:#1a1a1a}
-.dwg .vw{font-size:12px;fill:#1a1a1a;font-weight:700}
+.dwg .dimtxt{fill:#1a1a1a}
+.dwg .note{fill:#1a1a1a}
+.dwg .vw{fill:#1a1a1a;font-weight:700}
 .dwg .hatch{fill:url(#hatch);stroke:#1a1a1a;stroke-width:1.9}
 /* AIが指摘した箇所 */
 .dwg .hit{stroke:var(--color-error);stroke-width:2.2;fill:none}
 .dwg .hitfill{fill:var(--color-error);fill-opacity:.10;stroke:none}
 .dwg .balloon{fill:var(--color-error);stroke:#fff;stroke-width:1.5}
-.dwg .balloon-t{font-size:11px;fill:#fff;font-weight:700}
+.dwg .balloon-t{fill:#fff;font-weight:700}
 .dwg .lead{stroke:var(--color-error);stroke-width:1.2;fill:none}
 
 [hidden]{display:none !important}
@@ -426,7 +427,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
   <div class="page-head">
     <div>
       <h1 class="page-title">FMEAドラフト生成</h1>
-      <p class="page-lead">工程を選択すると、工程フローから機能を整理し、図面・条件表・作業標準から要求事項を抽出します。要求事項を満たせない状態を逸脱として整理し、製造FMEAの故障モード候補を生成します。S・O・Dは自動確定せず、担当者が判断します。</p>
+      <p class="page-lead">工程を選ぶと、その工程が何をする工程かを工程フローから拾い、図面・条件表・作業標準から「守るべきこと」を抜き出します。それを満たせない状態を並べて、故障モードの候補にします。S・O・Dは勝手に確定しません。決めるのは人です。</p>
     </div>
   </div>
 
@@ -490,7 +491,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
           <ul>
             <li>工程 → 機能 → 要求事項 → 逸脱 → 故障モードの順に、画面上で追跡できます</li>
             <li>要求事項は出典の文書名と該当箇所を表示します</li>
-            <li>S・O・Dは社内評価基準に照らした候補値で、確定は担当者が行います</li>
+            <li>S・O・Dは社内基準に当てた候補の数字です。決めるのは人です</li>
           </ul>
         </div>
       </div>
@@ -520,7 +521,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
   <div class="page-head">
     <div>
       <h1 class="page-title">工程フロー</h1>
-      <p class="page-lead">ACT-220 第一工場 組立ラインの工程フローです。工程ごとの機能と、抽出済みの要求事項の件数を表示しています。</p>
+      <p class="page-lead">ACT-220 第一工場 組立ラインの工程フローです。工程ごとに、何をする工程かと、抜き出せた要求の数を出しています。</p>
     </div>
   </div>
   <div class="table-meta" id="flowMeta"></div>
@@ -542,7 +543,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
   <div class="page-head">
     <div>
       <h1 class="page-title">既存の工程FMEA</h1>
-      <p class="page-lead">登録済みの工程FMEAです。ドラフト生成時は、この内容と重複しない候補を提示します。</p>
+      <p class="page-lead">いま入っている工程FMEAです。下書きを作るときは、ここと重ならない候補だけを出します。</p>
     </div>
     <div class="page-head__actions">
       <button class="btn btn--quiet" id="btnExCsv">一覧をCSVで出力する</button>
@@ -574,7 +575,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
   <div class="page-head">
     <div>
       <h1 class="page-title">参照文書</h1>
-      <p class="page-lead">要求事項の抽出元として取り込んでいる文書です。文書ごとに、抽出できた要求事項の件数を表示しています。</p>
+      <p class="page-lead">要求を抜き出すもとにしている文書です。文書ごとに、いくつ抜き出せたかを出しています。</p>
     </div>
   </div>
   <div class="table-wrap">
@@ -1406,7 +1407,7 @@ function sheetShot(key, caption, note) {
       </figcaption>
     </figure>
     <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)">
-      ${esc(note || '本実装では、該当セルへ直接ジャンプできるようにします。')}
+      ${esc(note || '実際に入れるときは、押すと帳票の該当セルへ飛ぶようにします。')}
     </p>`;
 }
 
@@ -1527,7 +1528,7 @@ function wireDrop(opt) {
             ${opt.rows.map(r => `<dt>${esc(r.k)}</dt><dd>${r.v}</dd>`).join('')}
           </dl>
           <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)">
-            デモ環境のため、読み取り結果はサンプルを表示しています。本実装では投げ込んだファイルの記載内容を解析します。
+            ここではサンプルを表示しています。実際に入れるときは、投げ込んだファイルの中身をそのまま読みます。
           </p>
         </div>
       </div>`;
@@ -1562,7 +1563,7 @@ function openModal(title, lead, options) {
         </button>`).join('')}
     </div>
     <p style="margin-top:var(--space-5);font-size:var(--font-caption);color:var(--color-text-secondary)">
-      この判断は理由とともに記録され、以後のAI判定に反映されます。
+      選んだ理由も一緒に記録されます。次から同じ判断を繰り返さずに済みます。
     </p>`;
   document.body.appendChild(bd);
   document.body.appendChild(m);
@@ -1891,7 +1892,7 @@ function renderResult() {
   const modeSec = `
     <div class="section">
       <h2 class="section__title">③ 要求事項からの逸脱として故障モードを生成</h2>
-      <p class="section__lead">要求事項を満たせない具体的な状態を故障モードとしています。原因・影響とは区別しています。影響とS・O・Dは既存の工程FMEA行から引き当てた候補で、確定は担当者が行います。</p>
+      <p class="section__lead">要求を満たせていない状態そのものを故障モードにしています。原因や影響とは分けています。影響とS・O・Dは既存のFMEAの行から持ってきた候補です。決めるのは人です。</p>
       <div class="table-meta">新規候補 ${newRows.length} 件　／　既に登録済み ${coveredRows.length} 件　／　${esc(DATA.SOD_CRITERIA.doc)} に照らした候補値</div>
       <div class="table-wrap">
         <table>
@@ -1924,7 +1925,7 @@ function renderResult() {
   const gapSec = (wide && curGaps.length) ? `
     <div class="section">
       <h2 class="section__title">さらに、類似工程の実績から確認すべき候補</h2>
-      <p class="section__lead">他の工程では登録されている逸脱の型のうち、本工程の要求事項でも成立し得るのに登録がないものです。工程をまたいだ観点の抜けを拾うための候補で、採否は担当者が判断してください。</p>
+      <p class="section__lead">他の工程には登録があって、この工程でも起こりうるのに書かれていない型です。工程をまたいだ抜けを拾うための候補なので、使うかどうかは見て決めてください。</p>
       <div class="table-wrap">
         <table>
           <caption class="visually-hidden">類似工程からの抜け漏れ候補</caption>
@@ -1978,7 +1979,7 @@ function renderResult() {
     <div class="callout callout--warn">
       <div>
         <p class="callout__title">この結果を使うときの注意</p>
-        <p>S・O・Dは ${esc(DATA.SOD_CRITERIA.doc)} に照らした候補値で、既存の工程FMEA行から引き当てています。引き当て元がない行は「未評価」としており、AIが点数を作ることはしません。要求事項のうち資料に明記のない項目はAI推定として区別しています。最終的な採否と評価の確定は担当者が行ってください。</p>
+        <p>S・O・Dは ${esc(DATA.SOD_CRITERIA.doc)} に当てた候補で、既存のFMEAの行から持ってきています。持ってくる先がない行は「未評価」のまま置きます。AIが点数をでっち上げることはしません。資料に書かれていない要求は、AIの推測として分けてあります。使うかどうか、点数をいくつにするかは人が決めてください。</p>
       </div>
     </div>`;
 
@@ -2172,7 +2173,7 @@ function evGap(i) {
       <p style="margin-top:var(--space-3)"><strong>現行の予防 ／ 検出</strong><br>${esc(r.prev)} ／ ${esc(r.det)}</p>
       <p style="margin-top:var(--space-3)"><strong>評価</strong><br><span class="mono">S${r.s}　O${r.o}　D${r.d}　RPN ${r.s * r.o * r.d}</span></p>
     </div>
-    <p style="margin-top:var(--space-4);font-size:var(--font-caption);color:var(--color-text-secondary)">確認すべきと判断した理由：本工程の要求事項「${esc(g.relReq.req)}」に対しても「${esc(g.dev)}」の逸脱が成立し得るのに、本工程の工程FMEAには同じ型の行がありません。実際に成立するかどうかは担当者が判断してください。</p>`);
+    <p style="margin-top:var(--space-4);font-size:var(--font-caption);color:var(--color-text-secondary)">拾った理由：この工程の要求「${esc(g.relReq.req)}」に対しても「${esc(g.dev)}」は起こりうるのに、この工程のFMEAに同じ型の行がありません。本当に起こりうるかは見て判断してください。</p>`);
 }
 
 /* ---- 工程フロー画面 ---- */

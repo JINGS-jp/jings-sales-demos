@@ -4,7 +4,7 @@
   <div class="page-head">
     <div>
       <h1 class="page-title">DRBFM生成</h1>
-      <p class="page-lead">変更発議書を起点に、変更点ごとの心配点・故障モード・影響・対策の初版を生成します。過去に実績のない変更でも、機能からの演繹と材料物性からの推論で候補を出します。リスク評価は自動確定せず、設計担当者が判断します。</p>
+      <p class="page-lead">変更発議書から始めて、変更点ごとの心配点・故障モード・影響・対策の初版を作ります。過去に例のない変更でも、その部品が何をするものかと材料の性質から候補を立てます。リスクの評価は勝手に確定しません。決めるのは設計です。</p>
     </div>
   </div>
 
@@ -17,7 +17,7 @@
           <label class="btn btn--quiet btn--small" for="triggerFile">ファイルを選ぶ</label>
           <span class="filepick__name" id="triggerFileName">選択されていません</span>
         </div>
-        <p class="field__hint">投げ込むと内容をAIが読み取ります。デモ環境では読み取り結果をサンプルで表示します（本実装では実ファイルを解析します）。</p>
+        <p class="field__hint">投げ込めば中身を読みます。ここではサンプルを表示しているので、実物のファイルは要りません。</p>
         <button type="button" class="btn btn--quiet btn--small" id="btnSample" style="margin-top:var(--space-2)">サンプルの発議書で試す</button>
         <div id="readout" hidden style="margin-top:var(--space-4)"></div>
       </div>
@@ -74,7 +74,7 @@
   <div class="page-head">
     <div>
       <h1 class="page-title">変更点一覧</h1>
-      <p class="page-lead">ACT-230でACT-220から変更した点です。変更点ごとに、生成済みの心配点の件数を表示しています。</p>
+      <p class="page-lead">ACT-220からACT-230で変えた点です。変更点ごとに、いくつ心配点が出ているかを並べています。</p>
     </div>
   </div>
   <div class="table-meta" id="chMeta"></div>
@@ -96,7 +96,7 @@
   <div class="page-head">
     <div>
       <h1 class="page-title">登録済みDRBFM</h1>
-      <p class="page-lead">確認状態が「担当者確認済み」の行と、AI提案のまま残っている行を表示しています。</p>
+      <p class="page-lead">人が見終わった行と、AIが出したまま手つかずの行を分けています。</p>
     </div>
     <div class="page-head__actions">
       <button class="btn btn--quiet" id="btnExCsv">一覧をCSVで出力する</button>
@@ -121,7 +121,7 @@
   <div class="page-head">
     <div>
       <h1 class="page-title">参照文書</h1>
-      <p class="page-lead">心配点の生成に使っている情報源です。系統ごとに、どの情報から生成しているかを表示しています。</p>
+      <p class="page-lead">心配点をどこから引っぱってきたかです。系統ごとに、もとにした情報を並べています。</p>
     </div>
   </div>
   <div class="section">
