@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>設計審査（DR）支援AI｜JINGS デモ</title>
+<title>DR｜JINGS デモ</title>
 <!-- scope:design-fmea-approved -->
 <style>
 /* JINGS 営業標準デモ 共通スタイル — design-system.md 準拠 */
@@ -13,19 +13,23 @@
   --font-display:40px;--font-page-title:32px;--font-section-title:24px;--font-subsection-title:20px;
   --font-body-large:18px;--font-body:16px;--font-caption:14px;
   --line-height-heading:1.4;--line-height-body:1.7;--line-height-dense:1.35;
-  --color-primary:#0017c1;--color-primary-hover:#00118f;--color-primary-active:#000060;--color-primary-subtle:#e8f1fe;
-  --color-text-primary:#1a1a1c;--color-text-secondary:#626264;--color-text-tertiary:#757578;--color-text-inverse:#fff;
-  --color-background:#fff;--color-background-subtle:#f7f7f8;--color-background-muted:#f1f1f4;
-  --color-border:#949497;--color-border-light:#d8d8db;
-  --color-success:#197a3b;--color-success-bg:#e6f5ec;
-  --color-warning:#8a5d00;--color-warning-bg:#fff4c2;
-  --color-error:#b40000;--color-error-bg:#fde8e7;
-  --color-info:#0031d8;--color-info-bg:#e8f1fe;
+  /* 色は4系統だけ。文字色は明度27〜44%、面は94〜95%、枠は86〜88%でそろえてある。
+     ここを崩すと画面全体の統一感が一気に落ちるので、新しい色を足さないこと。 */
+  --color-primary:#1666c9;--color-primary-hover:#1256a8;--color-primary-active:#0e4586;
+  --color-primary-subtle:#e8f0fb;--color-primary-line:#c5dbf5;
+  --color-success:#14754a;--color-success-bg:#e6f4ed;--color-success-line:#bce0cd;
+  --color-warning:#a35c00;--color-warning-bg:#fdf0e2;--color-warning-line:#f0d2ac;
+  --color-error:#bb1b1b;--color-error-bg:#fdeeee;--color-error-line:#f0c2c2;
+  --color-info:#1666c9;--color-info-bg:#e8f0fb;
+  --color-accent:#14754a;
+  --color-text-primary:#1f2733;--color-text-secondary:#5c6b7a;--color-text-tertiary:#667485;--color-text-inverse:#fff;
+  --color-background:#fff;--color-background-subtle:#f5f6f8;--color-background-muted:#eef0f3;
+  --color-border:#c3cad2;--color-border-light:#e4e7ec;
   --space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:24px;
   --space-6:32px;--space-7:40px;--space-8:48px;--space-9:64px;
   --radius-small:4px;--radius-medium:8px;--radius-large:12px;--radius-pill:9999px;
-  --shadow-low:0 1px 2px rgba(0,0,0,.08);--shadow-middle:0 4px 12px rgba(0,0,0,.12);--shadow-high:0 8px 24px rgba(0,0,0,.16);
-  --header-height:68px;--sidebar-width:250px;--content-max-width:1440px;--reading-max-width:800px;
+  --shadow-low:0 1px 2px rgba(0,0,0,.05);--shadow-middle:0 4px 12px rgba(0,0,0,.10);--shadow-high:0 12px 32px rgba(0,0,0,.16);
+  --header-height:96px;--sidebar-width:248px;--content-max-width:1440px;--reading-max-width:800px;
 }
 *,*::before,*::after{box-sizing:border-box}
 html,body{margin:0;padding:0}
@@ -36,83 +40,104 @@ a{color:var(--color-primary)}
 :focus-visible{outline:3px solid var(--color-primary);outline-offset:2px}
 .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
-/* ヘッダー / ナビ */
-.app-header{position:fixed;inset:0 0 auto 0;height:var(--header-height);z-index:30;display:flex;align-items:center;gap:var(--space-4);padding:0 var(--space-5);background:var(--color-background);border-bottom:1px solid var(--color-border-light);box-shadow:var(--shadow-low)}
-.app-header__brand{display:flex;align-items:center;gap:var(--space-2);font-size:var(--font-subsection-title);font-weight:700;white-space:nowrap}
-.app-header__brand svg{flex:none}
-.app-header__context{font-size:var(--font-caption);color:var(--color-text-secondary);padding-left:var(--space-4);border-left:1px solid var(--color-border-light)}
-.app-header__spacer{flex:1}
-.app-header__user{display:flex;align-items:center;gap:var(--space-2);font-size:var(--font-caption)}
-.env-badge{padding:2px var(--space-3);border-radius:var(--radius-pill);background:var(--color-warning-bg);color:var(--color-warning);font-size:var(--font-caption);font-weight:700;white-space:nowrap}
-.app-sidebar{position:fixed;top:var(--header-height);bottom:0;left:0;width:var(--sidebar-width);z-index:20;padding:var(--space-4) 0;background:var(--color-background);border-right:1px solid var(--color-border-light);overflow-y:auto}
-.nav-item{display:flex;align-items:center;gap:var(--space-3);width:calc(100% - var(--space-3));min-height:48px;padding:0 var(--space-4);border:0;border-left:4px solid transparent;border-radius:0 var(--radius-pill) var(--radius-pill) 0;background:none;font:inherit;font-size:var(--font-body);color:var(--color-text-primary);text-align:left;cursor:pointer;transition:background .15s ease,color .15s ease}
-.nav-item:hover{background:var(--color-background-muted)}
-.nav-item[aria-current="page"]{background:var(--color-primary-subtle);border-left-color:var(--color-primary);color:var(--color-primary);font-weight:700}
+/* ヘッダー（レコードヘッダー：いま何を見ているかと、その条件） */
+.app-header{position:fixed;top:0;right:0;left:var(--sidebar-width);z-index:30;height:var(--header-height);display:flex;align-items:center;gap:var(--space-5);padding:0 var(--space-6);background:var(--color-background);border-bottom:1px solid var(--color-border-light)}
+.app-header__main{min-width:0}
+.app-header__title{font-size:var(--font-subsection-title);line-height:1.3}
+.app-header__crumb{display:flex;align-items:center;gap:var(--space-2);margin-top:6px;font-size:var(--font-caption);color:var(--color-text-tertiary)}
+.app-header__crumb a{color:var(--color-text-secondary);text-decoration:none}
+.app-header__crumb a:hover{text-decoration:underline}
+.hmeta{display:flex;gap:var(--space-6);margin:0 0 0 auto;flex:none}
+.hmeta div{min-width:0}
+.hmeta dt{display:flex;align-items:center;gap:var(--space-1);font-size:var(--font-caption);color:var(--color-text-tertiary)}
+.hmeta dt svg{width:14px;height:14px;flex:none}
+.hmeta dd{margin:var(--space-1) 0 0;font-size:var(--font-caption);font-weight:700;white-space:nowrap}
+.nav-toggle{display:none;width:40px;height:40px;place-items:center;border:1px solid var(--color-border);border-radius:var(--radius-medium);background:var(--color-background);cursor:pointer}
+
+/* サイドバー */
+.app-sidebar{position:fixed;top:0;bottom:0;left:0;width:var(--sidebar-width);z-index:40;display:flex;flex-direction:column;align-items:stretch;background:var(--color-background);border-right:1px solid var(--color-border-light);overflow-y:auto}
+.sb-brand{flex:none;display:flex;align-items:center;height:var(--header-height);padding:0 var(--space-5);border-bottom:1px solid var(--color-border-light)}
+.logo{display:block;height:26px;width:auto}
+.sb-user{flex:none;display:flex;align-items:center;gap:var(--space-3);padding:var(--space-4) var(--space-5);border-bottom:1px solid var(--color-border-light)}
+.sb-user__ava{flex:none;width:32px;height:32px;border-radius:var(--radius-pill);display:grid;place-items:center;background:var(--color-accent);color:#fff;font-size:var(--font-caption);font-weight:700}
+.sb-user__name{font-size:var(--font-caption);line-height:1.35}
+.sb-user__name em{display:block;font-style:normal;color:var(--color-text-secondary)}
+.sb-nav{flex:none;padding:var(--space-3) var(--space-2)}
+.nav-item{display:flex;align-items:center;gap:var(--space-3);width:100%;min-height:44px;padding:0 var(--space-3);margin-bottom:2px;border:0;border-radius:var(--radius-medium);background:none;font:inherit;font-size:var(--font-caption);color:var(--color-text-primary);text-align:left;cursor:pointer;transition:background .15s ease,color .15s ease}
+.nav-item:hover{background:var(--color-background-subtle)}
+.nav-item[aria-current="page"]{background:var(--color-primary-subtle);color:var(--color-primary);font-weight:700}
 .nav-item svg{flex:none;width:20px;height:20px;color:var(--color-text-tertiary);transition:color .15s ease}
 .nav-item:hover svg,.nav-item[aria-current="page"] svg{color:currentColor}
-.nav-back{margin:var(--space-2) var(--space-4) var(--space-4);display:inline-flex;align-items:center;gap:var(--space-2);font-size:var(--font-caption);color:var(--color-text-secondary);text-decoration:none}
-.nav-back:hover{text-decoration:underline}
+.nav-note{margin:auto var(--space-4) var(--space-3);padding:var(--space-3);border:1px solid var(--color-border-light);border-radius:var(--radius-medium);background:var(--color-background-subtle)}
+.nav-note__label{font-size:var(--font-caption);color:var(--color-text-tertiary);margin-bottom:var(--space-1)}
+.nav-note__role{font-size:var(--font-caption);line-height:var(--line-height-body)}
+.nav-note__time{margin-top:var(--space-2);font-size:var(--font-caption);font-weight:700;color:var(--color-text-secondary)}
+.sb-foot{flex:none;display:flex;flex-direction:column;align-items:flex-start;gap:var(--space-3);padding:0 var(--space-4) var(--space-5)}
+.env-badge{padding:3px var(--space-3);border:1px solid var(--color-warning-line);border-radius:var(--radius-pill);background:var(--color-warning-bg);color:var(--color-warning);font-size:var(--font-caption);font-weight:700;white-space:nowrap}
+.nav-back{display:inline-flex;align-items:center;gap:var(--space-2);font-size:var(--font-caption);color:var(--color-text-secondary);text-decoration:none}
+.nav-back:hover{color:var(--color-primary);text-decoration:underline}
 
 /* レイアウト */
-.app-main{padding:calc(var(--header-height) + var(--space-6)) var(--space-6) var(--space-9);margin-left:var(--sidebar-width);max-width:var(--content-max-width)}
-.breadcrumb{font-size:var(--font-caption);color:var(--color-text-secondary);margin-bottom:var(--space-3)}
+.app-main{padding:calc(var(--header-height) + var(--space-6)) var(--space-6) var(--space-9);margin-left:var(--sidebar-width);max-width:calc(var(--content-max-width) + var(--sidebar-width))}
+.breadcrumb{font-size:var(--font-caption);color:var(--color-text-tertiary);margin-bottom:var(--space-3)}
 .breadcrumb a{color:var(--color-text-secondary)}
-.page-title{font-size:var(--font-page-title)}
-.page-lead{margin-top:var(--space-3);max-width:var(--reading-max-width);font-size:var(--font-body-large);color:var(--color-text-secondary)}
-.page-head{display:flex;align-items:flex-start;gap:var(--space-5);margin-bottom:var(--space-7)}
-.page-head__actions{margin-left:auto;flex:none;display:flex;gap:var(--space-3);padding-top:var(--space-2)}
-.section{margin-bottom:var(--space-8)}
-.section__title{display:flex;align-items:center;gap:var(--space-3);font-size:var(--font-section-title);margin-bottom:var(--space-3)}
-.section__title::before{content:"";flex:none;width:6px;height:1.05em;border-radius:3px;background:var(--color-primary)}
-.section__lead{font-size:var(--font-body);color:var(--color-text-secondary);margin-bottom:var(--space-4);max-width:var(--reading-max-width)}
+.page-title{font-size:var(--font-section-title)}
+.page-lead{margin-top:var(--space-3);max-width:var(--reading-max-width);font-size:var(--font-body);color:var(--color-text-secondary)}
+.page-head{display:flex;align-items:flex-start;gap:var(--space-5);margin-bottom:var(--space-6)}
+.page-head__actions{margin-left:auto;flex:none;display:flex;gap:var(--space-3)}
+.section{margin-bottom:var(--space-7)}
+.section__title{display:flex;align-items:center;gap:var(--space-3);font-size:var(--font-subsection-title);margin-bottom:var(--space-2)}
+.section__lead{font-size:var(--font-caption);color:var(--color-text-secondary);margin-bottom:var(--space-4);max-width:var(--reading-max-width);line-height:var(--line-height-body)}
 
 /* ボタン */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--space-2);min-height:48px;min-width:48px;padding:0 var(--space-5);border-radius:6px;font:inherit;font-size:var(--font-body);font-weight:700;cursor:pointer;transition:background .15s ease,border-color .15s ease,box-shadow .15s ease}
-.btn--primary{color:var(--color-text-inverse);background:var(--color-primary);border:2px solid var(--color-primary);box-shadow:var(--shadow-low)}
-.btn--primary:hover{background:var(--color-primary-hover);border-color:var(--color-primary-hover);box-shadow:var(--shadow-middle)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--space-2);min-height:40px;padding:0 var(--space-4);border-radius:6px;font:inherit;font-size:var(--font-body);font-weight:700;cursor:pointer;white-space:nowrap;transition:background .15s ease,border-color .15s ease,color .15s ease}
+.btn--primary{color:var(--color-text-inverse);background:var(--color-primary);border:1px solid var(--color-primary)}
+.btn--primary:hover{background:var(--color-primary-hover);border-color:var(--color-primary-hover)}
 .btn--primary:active{background:var(--color-primary-active);border-color:var(--color-primary-active)}
-.btn--secondary{color:var(--color-primary);background:var(--color-background);border:2px solid var(--color-primary)}
+.btn--secondary{color:var(--color-primary);background:var(--color-background);border:1px solid var(--color-primary)}
 .btn--secondary:hover{background:var(--color-primary-subtle)}
 .btn--quiet{color:var(--color-text-primary);background:var(--color-background);border:1px solid var(--color-border)}
-.btn--quiet:hover{background:var(--color-background-muted)}
-.btn--small{min-height:40px;padding:0 var(--space-4);font-size:var(--font-caption)}
-.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn--quiet:hover{background:var(--color-background-subtle);border-color:var(--color-text-tertiary)}
+.btn--small{min-height:34px;padding:0 var(--space-3);font-size:var(--font-caption)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
 
 /* フォーム */
 .field{margin-bottom:var(--space-5)}
-.field__label{display:block;margin-bottom:var(--space-2);font-size:var(--font-body);font-weight:700}
-.field__req{margin-left:var(--space-2);padding:2px var(--space-2);border-radius:var(--radius-small);background:var(--color-error-bg);color:var(--color-error);font-size:var(--font-caption);font-weight:700}
+.field__label{display:block;margin-bottom:var(--space-2);font-size:var(--font-caption);font-weight:700}
+.field__req{margin-left:var(--space-2);padding:2px var(--space-2);border:1px solid var(--color-error-line);border-radius:var(--radius-small);background:var(--color-error-bg);color:var(--color-error);font-size:var(--font-caption);font-weight:700}
 .field__hint{margin-top:var(--space-2);font-size:var(--font-caption);color:var(--color-text-secondary)}
-.field__error{display:flex;gap:var(--space-2);margin-top:var(--space-2);padding:var(--space-2) var(--space-3);border-radius:var(--radius-small);background:var(--color-error-bg);color:var(--color-error);font-size:var(--font-caption);font-weight:700}
+.field__error{display:flex;gap:var(--space-2);margin-top:var(--space-2);padding:var(--space-2) var(--space-3);border:1px solid var(--color-error-line);border-radius:var(--radius-small);background:var(--color-error-bg);color:var(--color-error);font-size:var(--font-caption);font-weight:700}
 .input[aria-invalid="true"],.select[aria-invalid="true"],.textarea[aria-invalid="true"]{border-color:var(--color-error);border-width:2px}
-.input,.select,.textarea{width:100%;min-height:48px;padding:var(--space-2) var(--space-3);border:1px solid var(--color-border);border-radius:var(--radius-small);font:inherit;font-size:var(--font-body);color:var(--color-text-primary);background:var(--color-background)}
+.input,.select,.textarea{width:100%;min-height:44px;padding:var(--space-2) var(--space-3);border:1px solid var(--color-border);border-radius:6px;font:inherit;font-size:var(--font-body);color:var(--color-text-primary);background:var(--color-background)}
 .textarea{min-height:96px;line-height:var(--line-height-body);resize:vertical}
-.radio-row{display:flex;align-items:flex-start;gap:var(--space-2);padding:var(--space-3);border:1px solid var(--color-border-light);border-radius:var(--radius-small);margin-bottom:var(--space-2);cursor:pointer}
+.radio-row{display:flex;align-items:flex-start;gap:var(--space-2);padding:var(--space-3);border:1px solid var(--color-border-light);border-radius:6px;margin-bottom:var(--space-2);cursor:pointer}
 .radio-row input{margin-top:5px;width:18px;height:18px;flex:none}
+.radio-row:hover{border-color:var(--color-border)}
 .radio-row strong{display:block}
 .radio-row span{font-size:var(--font-caption);color:var(--color-text-secondary)}
 .check-row{display:flex;align-items:center;gap:var(--space-2);font-size:var(--font-caption);padding:var(--space-1) 0}
 .check-row input{width:18px;height:18px;flex:none}
 .chip-row{display:flex;flex-wrap:wrap;gap:var(--space-2);margin-top:var(--space-2)}
-.chip{padding:var(--space-2) var(--space-3);border:1px solid var(--color-border);border-radius:var(--radius-pill);background:var(--color-background);font:inherit;font-size:var(--font-caption);cursor:pointer}
+.chip{padding:6px var(--space-3);border:1px solid var(--color-border-light);border-radius:var(--radius-pill);background:var(--color-background);font:inherit;font-size:var(--font-caption);cursor:pointer}
 .chip:hover{background:var(--color-primary-subtle);border-color:var(--color-primary);color:var(--color-primary)}
 
 /* カード / KPI */
-.card{padding:var(--space-5);background:var(--color-background);border:1px solid var(--color-border-light);border-radius:var(--radius-medium);box-shadow:var(--shadow-low)}
+.card{padding:var(--space-5);background:var(--color-background);border:1px solid var(--color-border-light);border-radius:var(--radius-medium)}
 .grid{display:grid;gap:var(--space-5)}
 .grid--kpi{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
-.grid--kpi .card{border-top:3px solid var(--color-primary);transition:box-shadow .15s ease,transform .15s ease}
-.grid--kpi .card:hover{box-shadow:var(--shadow-middle);transform:translateY(-2px)}
+.grid--kpi{gap:var(--space-4)}
+.grid--kpi .card{transition:border-color .15s ease}
+.grid--kpi .card:hover{border-color:var(--color-border)}
 .kpi__label{font-size:var(--font-caption);color:var(--color-text-secondary)}
 .kpi__value{margin-top:var(--space-2);font-size:var(--font-page-title);font-weight:700;line-height:var(--line-height-dense);font-variant-numeric:tabular-nums}
 .kpi__unit{font-size:var(--font-body);font-weight:400}
 .kpi__note{margin-top:var(--space-2);font-size:var(--font-caption);color:var(--color-text-secondary)}
 
 /* テーブル */
-.table-wrap{overflow-x:auto;background:var(--color-background);border:1px solid var(--color-border-light);border-radius:var(--radius-medium);box-shadow:var(--shadow-low)}
+.table-wrap{overflow-x:auto;background:var(--color-background);border:1px solid var(--color-border-light);border-radius:var(--radius-medium)}
 .table-meta{display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap;margin-bottom:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)}
 table{width:100%;border-collapse:collapse;font-size:var(--font-body)}
-thead th{position:sticky;top:0;z-index:1;padding:var(--space-3) var(--space-4);background:var(--color-background-muted);border-bottom:1px solid var(--color-border);font-size:var(--font-caption);font-weight:700;text-align:left;white-space:nowrap;color:var(--color-text-secondary);letter-spacing:.02em}
+thead th{position:sticky;top:0;z-index:1;padding:var(--space-3) var(--space-4);background:var(--color-background-subtle);border-bottom:1px solid var(--color-border-light);font-size:var(--font-caption);font-weight:700;text-align:left;white-space:nowrap;color:var(--color-text-secondary);letter-spacing:.02em}
 tbody td{padding:var(--space-3) var(--space-4);border-bottom:1px solid var(--color-border-light);line-height:var(--line-height-dense);vertical-align:top}
 tbody tr:hover{background:var(--color-background-subtle)}
 tbody tr:last-child td{border-bottom:0}
@@ -120,24 +145,26 @@ tbody tr:last-child td{border-bottom:0}
 .cell-sub{font-size:var(--font-caption);color:var(--color-text-secondary)}
 .mono{font-family:var(--font-mono)}
 .table-wrap td .btn{white-space:nowrap}
-.libchip{display:inline-flex;align-items:center;gap:var(--space-1);padding:2px var(--space-2);border:1px solid var(--color-border-light);border-radius:var(--radius-small);background:var(--color-background-subtle);font-size:var(--font-caption);white-space:nowrap}
+.libchip{display:inline-flex;align-items:center;gap:var(--space-1);padding:2px var(--space-2);border:1px solid var(--color-border-light);border-radius:var(--radius-pill);background:var(--color-background-subtle);font-size:var(--font-caption);white-space:nowrap}
 .nowrap{white-space:nowrap}
 td.col-text{min-width:15em}
 
 /* ステータス */
-.status{display:inline-flex;align-items:center;gap:var(--space-1);padding:var(--space-1) var(--space-3);border-radius:var(--radius-pill);font-size:var(--font-caption);font-weight:700;white-space:nowrap}
-.status--ai{background:var(--color-info-bg);color:var(--color-info)}
-.status--todo{background:var(--color-background-muted);color:var(--color-text-secondary)}
-.status--warn{background:var(--color-warning-bg);color:var(--color-warning)}
-.status--done{background:var(--color-success-bg);color:var(--color-success)}
-.status--risk{background:var(--color-error-bg);color:var(--color-error)}
+.status{display:inline-flex;align-items:center;gap:var(--space-1);padding:3px var(--space-3);border:1px solid transparent;border-radius:var(--radius-pill);font-size:var(--font-caption);font-weight:700;white-space:nowrap}
+.status--ai{background:var(--color-primary-subtle);color:var(--color-primary);border-color:var(--color-primary-line)}
+.status--todo{background:var(--color-background-muted);color:var(--color-text-secondary);border-color:var(--color-border-light)}
+.status--warn{background:var(--color-warning-bg);color:var(--color-warning);border-color:var(--color-warning-line)}
+.status--done{background:var(--color-success-bg);color:var(--color-success);border-color:var(--color-success-line)}
+.status--risk{background:var(--color-error-bg);color:var(--color-error);border-color:var(--color-error-line)}
 .sod-badge{display:inline-block;min-width:34px;padding:2px var(--space-1);border-radius:var(--radius-small);text-align:center;font-size:var(--font-caption);font-weight:700;background:var(--color-background-muted)}
-.sod-badge--hi{background:var(--color-error-bg);color:var(--color-error)}
+.sod-badge--hi{background:var(--color-error-bg);color:var(--color-error);border:1px solid var(--color-error-line)}
 
 /* 補助表示 */
-.callout{display:flex;gap:var(--space-3);padding:var(--space-4);border-radius:var(--radius-medium);font-size:var(--font-body)}
-.callout--info{background:var(--color-info-bg);border:1px solid var(--color-primary-subtle)}
-.callout--warn{background:var(--color-warning-bg)}
+.callout{display:flex;gap:var(--space-3);padding:var(--space-4);background:var(--color-background);border:1px solid var(--color-border-light);border-left:4px solid var(--color-border);border-radius:var(--radius-medium);font-size:var(--font-caption);line-height:var(--line-height-body)}
+.callout--info{border-left-color:var(--color-primary);background:var(--color-primary-subtle);border-color:var(--color-primary-line)}
+.callout--warn{border-left-color:var(--color-warning);background:var(--color-warning-bg);border-color:var(--color-warning-line)}
+.callout--error{border-left-color:var(--color-error);background:var(--color-error-bg);border-color:var(--color-error-line)}
+.callout + .callout{margin-top:var(--space-3)}
 .callout__title{font-weight:700;margin-bottom:var(--space-1)}
 .stepper{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:var(--space-3)}
 .step{display:flex;align-items:flex-start;gap:var(--space-3);font-size:var(--font-body)}
@@ -147,12 +174,13 @@ td.col-text{min-width:15em}
 .step[data-state="active"] .step__text{font-weight:700;color:var(--color-primary)}
 .step[data-state="todo"] .step__text{color:var(--color-text-tertiary)}
 .empty{padding:var(--space-8) var(--space-5);text-align:center;background:var(--color-background);border:1px dashed var(--color-border);border-radius:var(--radius-medium)}
-.empty::before{content:"";display:block;width:56px;height:56px;margin:0 auto var(--space-4);border-radius:var(--radius-pill);background:var(--color-primary-subtle) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%230017c1" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4.5-4.5"/></svg>') center/26px no-repeat}
-.empty__title{font-size:var(--font-subsection-title);margin-bottom:var(--space-3)}
+.empty__title{font-size:var(--font-body-large)}
+.empty::before{content:"";display:block;width:56px;height:56px;margin:0 auto var(--space-4);border-radius:var(--radius-pill);background:var(--color-primary-subtle) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%231666c9" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4.5-4.5"/></svg>') center/26px no-repeat}
+.empty__title{margin-bottom:var(--space-3)}
 .empty__body{max-width:560px;margin:0 auto;color:var(--color-text-secondary);text-align:left}
 .empty__body ul{margin:var(--space-3) 0 0;padding-left:1.2em}
 .quote{padding:var(--space-4);background:var(--color-background-subtle);border-left:4px solid var(--color-primary);border-radius:0 var(--radius-small) var(--radius-small) 0;font-size:var(--font-body);line-height:var(--line-height-body);overflow-wrap:anywhere}
-.quote mark{background:var(--color-warning-bg);padding:0 2px;font-weight:700}
+.quote mark{background:var(--color-warning-bg);border-bottom:2px solid var(--color-warning-line);padding:0 2px;font-weight:700}
 .meta-list{margin:0;font-size:var(--font-body)}
 .meta-list dt{font-size:var(--font-caption);color:var(--color-text-secondary);margin-top:var(--space-3)}
 .meta-list dd{margin:var(--space-1) 0 0;overflow-wrap:anywhere}
@@ -163,7 +191,8 @@ td.col-text{min-width:15em}
 .panel__head{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-5);border-bottom:1px solid var(--color-border-light)}
 .panel__title{font-size:var(--font-subsection-title)}
 .panel__body{flex:1;overflow-y:auto;padding:var(--space-5)}
-.icon-btn{margin-left:auto;width:44px;height:44px;display:grid;place-items:center;border:1px solid var(--color-border);border-radius:var(--radius-small);background:var(--color-background);cursor:pointer}
+.icon-btn{margin-left:auto;width:40px;height:40px;display:grid;place-items:center;border:1px solid var(--color-border);border-radius:var(--radius-medium);background:var(--color-background);cursor:pointer}
+.icon-btn:hover{background:var(--color-background-subtle)}
 .toast-area{position:fixed;right:var(--space-5);bottom:var(--space-5);z-index:50;display:flex;flex-direction:column;gap:var(--space-3)}
 .toast{display:flex;align-items:flex-start;gap:var(--space-3);min-width:320px;max-width:420px;padding:var(--space-4);background:var(--color-background);border:1px solid var(--color-border-light);border-left:4px solid var(--color-success);border-radius:var(--radius-medium);box-shadow:var(--shadow-middle)}
 .toast--warn{border-left-color:var(--color-warning)}
@@ -176,28 +205,30 @@ td.col-text{min-width:15em}
 .dist__col{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:var(--font-caption)}
 .dist__bar{width:20px;background:var(--color-primary);border-radius:2px 2px 0 0;min-height:2px}
 .dist__bar--warn{background:var(--color-warning)}
+.dist__bar{transition:none}
 .dist__d{color:var(--color-text-secondary)}
 
 /* 故障モードの源泉系統バッジ（設計品質系デモ） */
 .src{display:inline-flex;align-items:center;gap:var(--space-1);padding:2px var(--space-2);border-radius:var(--radius-small);font-size:var(--font-caption);font-weight:700;white-space:nowrap;border:1px solid transparent}
-.src--past{background:var(--color-info-bg);color:var(--color-info);border-color:#c5d7fb}
-.src--func{background:var(--color-success-bg);color:var(--color-success);border-color:#b7dfc6}
-.src--phys{background:var(--color-warning-bg);color:var(--color-warning);border-color:#e8d38a}
+.src--past{background:var(--color-primary-subtle);color:var(--color-primary);border-color:var(--color-primary-line)}
+.src--func{background:var(--color-success-bg);color:var(--color-success);border-color:var(--color-success-line)}
+.src--phys{background:var(--color-warning-bg);color:var(--color-warning);border-color:var(--color-warning-line)}
 .src--env{background:var(--color-background-muted);color:var(--color-text-secondary);border-color:var(--color-border-light)}
 
 /* インライン編集セル */
-.editcell{display:block;min-height:1.6em;padding:var(--space-1) var(--space-2);border:1px dashed var(--color-border-light);border-radius:var(--radius-small);background:var(--color-background)}
+.editcell{display:block;min-height:1.6em;padding:var(--space-1) var(--space-2);border:1px dashed var(--color-border);border-radius:var(--radius-small);background:var(--color-background)}
 .editcell:hover{border-color:var(--color-border);background:var(--color-background-subtle)}
 .editcell:focus{outline:3px solid var(--color-primary);outline-offset:1px;border-style:solid;background:var(--color-background)}
 tr[data-edited="true"]{background:var(--color-success-bg)}
 tr[data-edited="true"]:hover{background:var(--color-success-bg)}
+tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
 
 /* 知見カード */
-.kcard{padding:var(--space-4);background:var(--color-background);border:1px solid var(--color-border-light);border-left:4px solid var(--color-primary);border-radius:var(--radius-medium);box-shadow:var(--shadow-low);margin-bottom:var(--space-4)}
+.kcard{padding:var(--space-4);background:var(--color-background);border:1px solid var(--color-border-light);border-left:4px solid var(--color-primary);border-radius:var(--radius-medium);margin-bottom:var(--space-4)}
 .kcard[data-state="approved"]{border-left-color:var(--color-success)}
 .kcard[data-state="fix"]{border-left-color:var(--color-warning)}
 .kcard__head{display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap;margin-bottom:var(--space-2)}
-.kcard__title{font-size:var(--font-subsection-title)}
+.kcard__title{font-size:var(--font-body-large)}
 .kcard__body{line-height:var(--line-height-body)}
 .kcard__foot{display:flex;gap:var(--space-3);flex-wrap:wrap;margin-top:var(--space-4)}
 
@@ -211,13 +242,13 @@ tr[data-edited="true"]:hover{background:var(--color-success-bg)}
 .modal__opt:hover{border-color:var(--color-primary);background:var(--color-primary-subtle)}
 .modal__opt strong{display:block;font-size:var(--font-body-large);margin-bottom:var(--space-1)}
 .modal__opt span{font-size:var(--font-caption);color:var(--color-text-secondary);line-height:var(--line-height-body)}
-.modal__rec{margin-left:var(--space-2);padding:2px var(--space-2);border-radius:var(--radius-pill);background:var(--color-success-bg);color:var(--color-success);font-size:var(--font-caption);font-weight:700}
+.modal__rec{margin-left:var(--space-2);padding:2px var(--space-2);border:1px solid var(--color-success-line);border-radius:var(--radius-pill);background:var(--color-success-bg);color:var(--color-success);font-size:var(--font-caption);font-weight:700}
 
 /* DRBFMの掘り下げ列（「他に〜ないか」）— AIが補助する所を区別する */
-.dig{display:block;padding:var(--space-2);border-left:3px solid var(--color-info);border-radius:0 var(--radius-small) var(--radius-small) 0;background:var(--color-info-bg)}
+.dig{display:block;padding:var(--space-2);border-left:3px solid var(--color-primary);border-radius:0 var(--radius-small) var(--radius-small) 0;background:var(--color-primary-subtle)}
 
 /* FTA（故障の木） */
-.fta{width:100%;overflow-x:auto;background:var(--color-background);border:1px solid var(--color-border-light);border-radius:var(--radius-medium);box-shadow:var(--shadow-low)}
+.fta{width:100%;overflow-x:auto;background:var(--color-background);border:1px solid var(--color-border-light);border-radius:var(--radius-medium)}
 .fta svg{display:block;min-width:900px}
 .fta text{font-family:var(--font-sans);font-size:14px;fill:var(--color-text-primary)}
 .fta .lk{stroke:var(--color-border);stroke-width:2;fill:none}
@@ -251,7 +282,7 @@ tr[data-edited="true"]:hover{background:var(--color-success-bg)}
 .msg__body{min-width:0;flex:1}
 .msg--me .msg__body{flex:0 1 auto;max-width:min(680px,80%)}
 .msg__bubble{padding:var(--space-4);border-radius:var(--radius-medium);background:var(--color-background);border:1px solid var(--color-border-light);line-height:var(--line-height-body)}
-.msg--me .msg__bubble{background:var(--color-primary-subtle);border-color:#c5d7fb}
+.msg--me .msg__bubble{background:var(--color-primary-subtle);border-color:var(--color-primary-line)}
 .msg__meta{margin-top:var(--space-2);font-size:var(--font-caption);color:var(--color-text-secondary)}
 .msg__sec{margin-top:var(--space-4)}
 .msg__sec > h4{font-size:var(--font-body);margin-bottom:var(--space-2);display:flex;align-items:center;gap:var(--space-2)}
@@ -270,20 +301,46 @@ tr[data-edited="true"]:hover{background:var(--color-success-bg)}
 .sheet-shot{display:block;width:100%;padding:0;border:1px solid var(--color-border);border-radius:var(--radius-small);background:var(--color-background);cursor:zoom-in;overflow:hidden}
 .sheet-shot:hover{border-color:var(--color-primary)}
 .sheet-shot img{display:block;width:100%;height:auto}
+.shot-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:var(--space-4)}
+.shot-strip__i{margin:0}
+.shot-strip .sheet-shot{height:190px;overflow:hidden}
+.shot-strip .sheet-shot img{height:auto;object-fit:cover;object-position:top left}
+.shot-strip figcaption{margin-top:var(--space-2);font-size:var(--font-caption);color:var(--color-text-secondary);line-height:var(--line-height-dense)}
 .shot-zoom{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.86);overflow:auto;padding:var(--space-5);cursor:zoom-out}
 .shot-zoom img{display:block;width:auto;min-width:1400px;max-width:none;margin:0 auto;background:#fff}
 .shot-zoom__close{position:fixed;top:var(--space-5);right:var(--space-5);z-index:71}
 
 /* 投げ込み（ファイル起点） */
+.filepick__input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.filepick{display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap}
+.filepick label{cursor:pointer}
+.filepick__input:focus-visible + .filepick label{outline:3px solid var(--color-primary);outline-offset:2px}
+.filepick__name{font-size:var(--font-caption);color:var(--color-text-secondary);word-break:break-all}
 .drop{padding:var(--space-4);border:2px dashed var(--color-border);border-radius:var(--radius-medium);background:var(--color-background-subtle)}
 .drop__hint{margin-top:var(--space-2);font-size:var(--font-caption);color:var(--color-text-secondary)}
 
 /* 簡易図面（SVG） */
-.dwg{width:100%;background:var(--color-background);border:1px solid var(--color-border-light);border-radius:var(--radius-small)}
-.dwg text{font-family:var(--font-mono);font-size:14px;fill:var(--color-text-secondary)}
-.dwg .dim{stroke:var(--color-text-tertiary);stroke-width:1}
-.dwg .part{stroke:var(--color-text-primary);stroke-width:2;fill:none}
-.dwg .hit{stroke:var(--color-error);stroke-width:3;fill:var(--color-error-bg);fill-opacity:.35}
+.dwg{width:100%;background:#fff;border:1px solid var(--color-border-light);border-radius:var(--radius-small)}
+.dwg text{font-family:var(--font-mono);font-size:11px;fill:#1a1a1a}
+.dwg .frame{stroke:#1a1a1a;stroke-width:1.6;fill:none}
+.dwg .tb{stroke:#1a1a1a;stroke-width:.9;fill:none}
+.dwg .tb-lbl{font-size:8.5px;fill:#666}
+.dwg .tb-val{font-size:11px;fill:#1a1a1a;font-weight:700}
+.dwg .outline{stroke:#1a1a1a;stroke-width:1.9;fill:#fff;stroke-linejoin:round}
+.dwg .inner{stroke:#1a1a1a;stroke-width:1.9;fill:none}
+.dwg .hid{stroke:#1a1a1a;stroke-width:.9;fill:none;stroke-dasharray:6 3}
+.dwg .ctr{stroke:#1a1a1a;stroke-width:.7;fill:none;stroke-dasharray:14 3 2 3}
+.dwg .dim{stroke:#1a1a1a;stroke-width:.7;fill:none}
+.dwg .dimtxt{font-size:11px;fill:#1a1a1a}
+.dwg .note{font-size:10px;fill:#1a1a1a}
+.dwg .vw{font-size:12px;fill:#1a1a1a;font-weight:700}
+.dwg .hatch{fill:url(#hatch);stroke:#1a1a1a;stroke-width:1.9}
+/* AIが指摘した箇所 */
+.dwg .hit{stroke:var(--color-error);stroke-width:2.2;fill:none}
+.dwg .hitfill{fill:var(--color-error);fill-opacity:.10;stroke:none}
+.dwg .balloon{fill:var(--color-error);stroke:#fff;stroke-width:1.5}
+.dwg .balloon-t{font-size:11px;fill:#fff;font-weight:700}
+.dwg .lead{stroke:var(--color-error);stroke-width:1.2;fill:none}
 
 [hidden]{display:none !important}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
@@ -299,13 +356,15 @@ tr[data-edited="true"]:hover{background:var(--color-success-bg)}
   .app-sidebar{transform:translateX(-100%);transition:transform .2s ease}
   .app-sidebar[data-open="true"]{transform:none;box-shadow:var(--shadow-high)}
   .app-main{margin-left:0}
+  .app-header{left:0}
+  .nav-toggle{display:grid}
+  .hmeta{display:none}
   .split-grid{grid-template-columns:1fr !important}
 }
 @media (max-width:768px){
   .app-main{padding-left:var(--space-4);padding-right:var(--space-4)}
   .page-head{flex-direction:column}
   .page-head__actions{margin-left:0}
-  .app-header__context{display:none}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
 
@@ -313,19 +372,17 @@ tr[data-edited="true"]:hover{background:var(--color-success-bg)}
 </head>
 <body>
 
-<header class="app-header">
-  <button class="icon-btn" style="margin-left:0" id="navToggle" aria-label="メニューを開閉する" aria-expanded="false">
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
-  </button>
-  <span class="app-header__brand"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--color-primary)" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 9v12"/></svg>設計審査（DR）支援AI</span>
-  <span class="app-header__context">技術部・品質保証部 ／ 設計審査の準備と指摘管理</span>
-  <span class="env-badge">デモ環境・架空データ</span>
-  <span class="app-header__spacer"></span>
-  <span class="app-header__user">山田（品質保証部）</span>
-</header>
-
 <nav class="app-sidebar" id="sidebar" aria-label="メインメニュー">
-  <button class="nav-item" data-view="gates" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21V7l9-4 9 4v14"/><path d="M9 21v-6h6v6M3 11h18"/></svg>
+  <a class="sb-brand" href="index.html" aria-label="デモ一覧へ戻る"><img class="logo" src="data:image/png;base64,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" alt="JINGS"></a>
+  <div class="sb-user">
+    <span class="sb-user__ava" aria-hidden="true">山</span>
+    <span class="sb-user__name">山田 太一<em>品質保証部</em></span>
+  </div>
+  <div class="sb-nav">
+  <button class="nav-item" data-view="intake" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>
+    帳票の取り込み
+  </button>
+  <button class="nav-item" data-view="gates"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21V7l9-4 9 4v14"/><path d="M9 21v-6h6v6M3 11h18"/></svg>
     審査ゲート
   </button>
   <button class="nav-item" data-view="prep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12l5 5L20 6"/></svg>
@@ -337,15 +394,144 @@ tr[data-edited="true"]:hover{background:var(--color-success-bg)}
   <button class="nav-item" data-view="carry"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4v6h6M20 20v-6h-6"/><path d="M20 9a8 8 0 0 0-14.3-3M4 15a8 8 0 0 0 14.3 3"/></svg>
     過去指摘の横展開
   </button>
-  <a class="nav-back" href="index.html">
-    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
-    デモ一覧へ戻る
-  </a>
+  </div>
+  <div class="nav-note">
+    <p class="nav-note__role">DRの勘所をチェックリストにする</p>
+    <p class="nav-note__time">通しで見ると 約5分</p>
+  </div>
+  <div class="sb-foot">
+    <span class="env-badge">デモ環境・架空データ</span>
+    <a class="nav-back" href="index.html">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+      デモ一覧へ戻る
+    </a>
+  </div>
 </nav>
 
+<header class="app-header">
+  <button class="nav-toggle" id="navToggle" aria-label="メニューを開閉する" aria-expanded="false">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+  </button>
+  <div class="app-header__main">
+    <h1 class="app-header__title">DR</h1>
+    <p class="app-header__crumb"><a href="index.html">JINGS 営業デモ</a><span aria-hidden="true">›</span>DR</p>
+  </div>
+  <dl class="hmeta">
+    <div><dt><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 21h18M5 21V7l7-4 7 4v14"/><path d="M9 21v-5h6v5"/></svg>想定部署</dt><dd>技術部・品質保証部</dd></div>
+    <div><dt><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 14h8"/></svg>想定業務</dt><dd>設計審査の準備と指摘管理</dd></div>
+    <div><dt><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>対象データ</dt><dd>JINGSデモ精機（架空）</dd></div>
+  </dl>
+</header>
+
 <main class="app-main" id="main">
+<!-- ========== 帳票の取り込み（中核） ========== -->
+<section class="view" data-view="intake">
+  <p class="breadcrumb">帳票の取り込み</p>
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">帳票の取り込み</h1>
+      <p class="page-lead">やることは2つです。過去のDR記録を取り込んで、ベテランが毎回言っていたことをチェックリストに起こす。そのあと今回の図面や変更発議書を取り込んで、チェックリストに沿った指摘を出す。</p>
+    </div>
+  </div>
+
+  <!-- ステップ1 -->
+  <div class="section">
+    <h2 class="section__title">1. 過去のDR記録から、確認すべき観点を起こす</h2>
+    <p class="section__lead">これまでのDR議事録を投げ込むと、同じ観点が何度も出ているものを束ねて項目にします。1回しか出ていないものは項目にしません。</p>
+    <div class="grid split-grid" style="grid-template-columns:380px 1fr;align-items:start">
+      <div class="card">
+        <div class="field">
+          <span class="field__label">過去のDR議事録</span>
+          <div class="filepick">
+            <label class="btn btn--secondary" for="pastFile">ファイルを選ぶ</label>
+            <input type="file" id="pastFile" accept=".xlsx,.xls,.csv,.pdf,.docx" multiple hidden>
+            <span class="filepick__name" id="pastFileName">選ばれていません</span>
+          </div>
+          <p class="field__hint">Excel・Word・PDFのどれでも構いません。議事録の形式が揃っていなくても読みます。</p>
+          <button class="btn btn--quiet btn--small" type="button" id="btnPastSample" style="margin-top:var(--space-3)">手元にない場合はこちら（見本を使う）</button>
+        </div>
+        <div id="pastReadout" hidden></div>
+        <button class="btn btn--primary" type="button" id="btnPastRun" style="width:100%;margin-top:var(--space-4)" disabled>観点を起こす</button>
+      </div>
+
+      <div>
+        <div class="empty" id="pastIdle">
+          <h2 class="empty__title">過去のDR議事録を取り込んでください</h2>
+          <div class="empty__body">
+            <p>議事録の発言をそのまま読んで、次を出します。</p>
+            <ul>
+              <li>同じ観点が繰り返し出ているもの（何回・どの機種で出たか）</li>
+              <li>その観点をチェックリストの項目に書き直した文</li>
+              <li>1回しか出ていないため、項目にしなかったもの</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card" id="pastLoading" hidden aria-live="polite">
+          <h2 style="font-size:var(--font-subsection-title);margin-bottom:var(--space-2)">議事録を読んでいます</h2>
+          <p style="font-size:var(--font-caption);color:var(--color-text-secondary);margin-bottom:var(--space-4)" id="pastLoadMeta"></p>
+          <ol class="stepper" id="pastStepper">
+            <li class="step" data-state="todo"><span class="step__mark">1</span><span class="step__text">議事録から発言を抜き出しています</span></li>
+            <li class="step" data-state="todo"><span class="step__mark">2</span><span class="step__text">言い回しの違う同じ指摘をまとめています</span></li>
+            <li class="step" data-state="todo"><span class="step__mark">3</span><span class="step__text">繰り返し出ている観点を数えています</span></li>
+            <li class="step" data-state="todo"><span class="step__mark">4</span><span class="step__text">チェックリストの文に書き直しています</span></li>
+          </ol>
+        </div>
+        <div id="pastResult" hidden></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ステップ2 -->
+  <div class="section" id="sec2" hidden>
+    <h2 class="section__title">2. 今回の帳票を取り込んで、指摘を出す</h2>
+    <p class="section__lead">上で起こしたチェックリストに沿って、図面や変更発議書の記載を見ます。書いてあるが足りないもの、そもそも記載がないものを分けて出します。</p>
+    <div class="grid split-grid" style="grid-template-columns:380px 1fr;align-items:start">
+      <div class="card">
+        <div class="field">
+          <span class="field__label">今回の帳票</span>
+          <div class="filepick">
+            <label class="btn btn--secondary" for="docFile">ファイルを選ぶ</label>
+            <input type="file" id="docFile" accept=".xlsx,.xls,.csv,.pdf,.dwg,.docx" multiple hidden>
+            <span class="filepick__name" id="docFileName">選ばれていません</span>
+          </div>
+          <p class="field__hint">図面、変更発議書、評価計画書など。複数まとめて構いません。</p>
+          <button class="btn btn--quiet btn--small" type="button" id="btnDocSample" style="margin-top:var(--space-3)">手元にない場合はこちら（見本を使う）</button>
+        </div>
+        <div id="docReadout" hidden></div>
+        <button class="btn btn--primary" type="button" id="btnDocRun" style="width:100%;margin-top:var(--space-4)" disabled>指摘を出す</button>
+      </div>
+
+      <div>
+        <div class="empty" id="docIdle">
+          <h2 class="empty__title">今回の帳票を取り込んでください</h2>
+          <div class="empty__body">
+            <p>チェックリストの各項目について、次を判断します。</p>
+            <ul>
+              <li>帳票のどこに、何と書いてあるか</li>
+              <li>その記載でこの項目に答えられているか</li>
+              <li>足りない場合、DRで何を求めるか</li>
+            </ul>
+            <p style="margin-top:var(--space-3)">記載が見つからない項目は「なし」ではなく「見つけられなかった」として残します。文書が未登録なだけかもしれないためです。</p>
+          </div>
+        </div>
+        <div class="card" id="docLoading" hidden aria-live="polite">
+          <h2 style="font-size:var(--font-subsection-title);margin-bottom:var(--space-2)">帳票を読んでいます</h2>
+          <p style="font-size:var(--font-caption);color:var(--color-text-secondary);margin-bottom:var(--space-4)" id="docLoadMeta"></p>
+          <ol class="stepper" id="docStepper">
+            <li class="step" data-state="todo"><span class="step__mark">1</span><span class="step__text">帳票から記載事項を抜き出しています</span></li>
+            <li class="step" data-state="todo"><span class="step__mark">2</span><span class="step__text">チェックリストの項目と突き合わせています</span></li>
+            <li class="step" data-state="todo"><span class="step__mark">3</span><span class="step__text">記載が足りない箇所を判定しています</span></li>
+            <li class="step" data-state="todo"><span class="step__mark">4</span><span class="step__text">DRで確認すべきことをまとめています</span></li>
+          </ol>
+        </div>
+        <div id="docResult" hidden></div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ========== 審査ゲート ========== -->
-<section class="view" data-view="gates">
+<section class="view" data-view="gates" hidden>
   <p class="breadcrumb">審査ゲート</p>
   <div class="page-head">
     <div>
@@ -369,11 +555,17 @@ tr[data-edited="true"]:hover{background:var(--color-success-bg)}
         <caption class="visually-hidden">審査ゲートの一覧</caption>
         <thead><tr>
           <th scope="col">ゲート</th><th scope="col">実施日</th><th scope="col">主査</th>
-          <th scope="col">確認項目</th><th scope="col">未完了の指摘</th><th scope="col">状態</th><th scope="col">操作</th>
+          <th scope="col">確認項目</th><th scope="col">未完了の指摘</th><th scope="col">操作</th>
         </tr></thead>
         <tbody id="gateBody"></tbody>
       </table>
     </div>
+  </div>
+
+  <div class="section">
+    <h2 class="section__title">完了扱いになっている指摘の再確認</h2>
+    <p class="section__lead" id="missMeta"></p>
+    <div id="missCards"></div>
   </div>
 
   <div class="section">
@@ -384,7 +576,7 @@ tr[data-edited="true"]:hover{background:var(--color-success-bg)}
         <caption class="visually-hidden">持ち越している指摘の一覧</caption>
         <thead><tr>
           <th scope="col">指摘番号</th><th scope="col">区分</th><th scope="col">指摘内容</th>
-          <th scope="col">担当</th><th scope="col">期限</th><th scope="col">状態</th><th scope="col">根拠</th>
+          <th scope="col">担当</th><th scope="col">期限</th><th scope="col">根拠</th>
         </tr></thead>
         <tbody id="carryBody"></tbody>
       </table>
@@ -417,6 +609,8 @@ tr[data-edited="true"]:hover{background:var(--color-success-bg)}
         <label class="check-row"><input type="checkbox" id="mxChange" checked> 今回の変更点（DRBFM）</label>
         <label class="check-row"><input type="checkbox" id="mxTrouble" checked> 過去不具合の記録</label>
         <label class="check-row"><input type="checkbox" id="mxPrev" checked> 前回までのDR指摘</label>
+        <label class="check-row"><input type="checkbox" id="mxDone" checked> 完了扱いの指摘（完了後の設計変更を確認）</label>
+        <p class="field__hint">外すと結果が変わります。完了扱いを外すと、完了後に設計変更が入った指摘を拾わなくなります。</p>
       </div>
       <button class="btn btn--primary" type="submit" style="width:100%">確認すべき項目を絞り込む</button>
     </form>
@@ -430,6 +624,7 @@ tr[data-edited="true"]:hover{background:var(--color-success-bg)}
             <li>今回の変更点で新たにリスクが生じる項目</li>
             <li>過去に不具合が発生していて、同じ観点が今回も必要な項目</li>
             <li>前回までのDRで指摘され、まだ完了していない項目</li>
+            <li>完了扱いになっているが、完了と判断した後に設計変更が入っている指摘</li>
           </ul>
           <p style="margin-top:var(--space-3)">突き合わせの結果が付かなかった項目も、標準項目として残します。AIが確認項目を削ることはしません。</p>
         </div>
@@ -443,7 +638,8 @@ tr[data-edited="true"]:hover{background:var(--color-success-bg)}
           <li class="step" data-state="todo"><span class="step__mark">2</span><span class="step__text">今回の変更点と突き合わせています</span></li>
           <li class="step" data-state="todo"><span class="step__mark">3</span><span class="step__text">過去不具合の記録と突き合わせています</span></li>
           <li class="step" data-state="todo"><span class="step__mark">4</span><span class="step__text">前回までのDR指摘の未完了を確認しています</span></li>
-          <li class="step" data-state="todo"><span class="step__mark">5</span><span class="step__text">確認すべき項目の優先度をまとめています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">5</span><span class="step__text">完了扱いの指摘に、完了後の設計変更がないかを確認しています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">6</span><span class="step__text">確認すべき項目の優先度をまとめています</span></li>
         </ol>
       </div>
 
@@ -470,12 +666,6 @@ tr[data-edited="true"]:hover{background:var(--color-success-bg)}
         <label class="field__label" for="fGate">ゲート</label>
         <select class="select" id="fGate"><option value="">すべて</option></select>
       </div>
-      <div class="field" style="margin:0">
-        <label class="field__label" for="fStat">状態</label>
-        <select class="select" id="fStat">
-          <option value="">すべて</option><option>未着手</option><option>対応中</option><option>完了</option>
-        </select>
-      </div>
     </div>
   </div>
   <div class="table-meta" id="findMeta"></div>
@@ -485,7 +675,7 @@ tr[data-edited="true"]:hover{background:var(--color-success-bg)}
       <thead><tr>
         <th scope="col">指摘番号</th><th scope="col">ゲート</th><th scope="col">区分</th>
         <th scope="col">指摘内容</th><th scope="col">担当</th><th scope="col">期限</th>
-        <th scope="col">状態</th><th scope="col">操作</th>
+        <th scope="col">操作</th>
       </tr></thead>
       <tbody id="findBody"></tbody>
     </table>
@@ -970,6 +1160,116 @@ const DR_FINDINGS = [
   { id: 'DR3-12', gate: 'DR3', cat: '評価', item: 'ブラシレス化に伴う基板の熱解析結果と実測の対比を示すこと', by: '技術部 中村', due: '2026-08-25', status: '未着手', link: 'QT-2023-0233' }
 ];
 
+/* 過去のDR議事録 -----------------------------------------
+   ベテランがその場で口にした指摘を、言い回しのまま残したもの。
+   同じ観点が別の言い方で何度も出ている。これを束ねて項目にするのが、
+   このデモで言う「暗黙知の形式知化」。
+   theme は正解ラベルではなく、束ねた結果を検算するために持たせている。 */
+const DR_PAST = [
+  { id: 'M-0412', dr: 'DR3', prod: 'ACT-180', date: '2021-03-11', by: '生技 川口',
+    say: '工具が入らない。この締め位置だと、ドライバーを立てられないから斜めに当てることになる', theme: 'tool' },
+  { id: 'M-0455', dr: 'DR3', prod: 'ACT-190', date: '2021-09-02', by: '生技 川口',
+    say: '本数を増やすのはいいが、真ん中の1本は手が届かない。組む人のことを考えているか', theme: 'tool' },
+  { id: 'M-0601', dr: 'DR3', prod: 'ACT-210', date: '2022-07-14', by: '生技 藤本',
+    say: '締付順序を決めておかないと、片締めになって面が浮く。順番を図面に入れてほしい', theme: 'tool' },
+  { id: 'M-0733', dr: 'DR3', prod: 'ACT-215', date: '2023-05-25', by: '生技 川口',
+    say: '前も言ったが、締結の作業姿勢を確認していない。設備で組めるかを先に見てくれ', theme: 'tool' },
+
+  { id: 'M-0418', dr: 'DR3', prod: 'ACT-180', date: '2021-03-11', by: '品証 高橋',
+    say: '作動音は「異音なきこと」では判定できない。人によって合否が変わる', theme: 'noise' },
+  { id: 'M-0620', dr: 'DR3', prod: 'ACT-210', date: '2022-07-14', by: '品証 高橋',
+    say: '音の基準が官能のままだ。dBでもいいから数字を置いてほしい', theme: 'noise' },
+  { id: 'M-0810', dr: 'DR3', prod: 'ACT-220', date: '2023-11-08', by: '品証 高橋',
+    say: '検査員が代わると判定がぶれる。限度見本だけでは足りない', theme: 'noise' },
+
+  { id: 'M-0505', dr: 'DR2', prod: 'ACT-190', date: '2021-12-16', by: '技術 森',
+    say: 'ハーネスの逃げがない。可動部の近くを通すなら、動いた時にどこまで寄るかを見ておくこと', theme: 'harness' },
+  { id: 'M-0640', dr: 'DR3', prod: 'ACT-210', date: '2022-07-14', by: '技術 森',
+    say: '配線が締結部の上を通っている。組付時にかみ込む', theme: 'harness' },
+  { id: 'M-0755', dr: 'DR3', prod: 'ACT-215', date: '2023-05-25', by: '生技 藤本',
+    say: 'ガイドを付けたと言うが、実機で本当に逃げているのか。図面だけでは分からない', theme: 'harness' },
+  { id: 'M-0902', dr: 'DR3', prod: 'ACT-220', date: '2024-06-19', by: '技術 森',
+    say: 'ケーブルの取り回しは、最悪の位置で当たるかを見ること。中立位置で見ても意味がない', theme: 'harness' },
+
+  { id: 'M-0530', dr: 'DR2', prod: 'ACT-190', date: '2021-12-16', by: '技術 大野',
+    say: '樹脂を変えるなら収縮率が変わる。前の型で成立した寸法がそのまま出ると思わないこと', theme: 'resin' },
+  { id: 'M-0715', dr: 'DR2', prod: 'ACT-215', date: '2023-02-09', by: '技術 大野',
+    say: '材質変更の実測データが付いていない。カタログ値で寸法を決めていないか', theme: 'resin' },
+  { id: 'M-0845', dr: 'DR2', prod: 'ACT-220', date: '2023-11-08', by: '品証 高橋',
+    say: '成形収縮のばらつきを見ていない。ロット間で寸法が振れる', theme: 'resin' },
+
+  { id: 'M-0612', dr: 'DR3', prod: 'ACT-210', date: '2022-07-14', by: '品証 高橋',
+    say: '検査装置の設定を機種ごとに切り替えるなら、間違えたときに気づく仕組みがいる', theme: 'setup' },
+  { id: 'M-0760', dr: 'DR3', prod: 'ACT-215', date: '2023-05-25', by: '品証 高橋',
+    say: '段取り替えのときに前機種の設定のまま流れる。過去にやっている', theme: 'setup' },
+  { id: 'M-0915', dr: 'DR3', prod: 'ACT-220', date: '2024-06-19', by: '生技 藤本',
+    say: '切替を人の確認に頼らない形にしてほしい', theme: 'setup' },
+
+  { id: 'M-0525', dr: 'DR2', prod: 'ACT-190', date: '2021-12-16', by: '品証 高橋',
+    say: '試験条件が量産の条件を包んでいない。実際のラインはもっと振れる', theme: 'test' },
+  { id: 'M-0722', dr: 'DR2', prod: 'ACT-215', date: '2023-02-09', by: '技術 大野',
+    say: '温度サイクルの上限が実使用より低い。この条件で通っても保証にならない', theme: 'test' },
+  { id: 'M-0930', dr: 'DR3', prod: 'ACT-220', date: '2024-06-19', by: '品証 高橋',
+    say: '振動試験の加振条件が、車両の実測とずれている', theme: 'test' },
+
+  { id: 'M-0470', dr: 'DR1', prod: 'ACT-190', date: '2021-06-03', by: '技術 大野',
+    say: '目標原価の根拠が薄い。数量前提を明記すること', theme: '' },
+  { id: 'M-0688', dr: 'DR1', prod: 'ACT-215', date: '2022-10-20', by: '営業 井上',
+    say: '客先の要求納期が確定していない段階で、金型を起こす判断はできない', theme: '' },
+  { id: 'M-0871', dr: 'DR4', prod: 'ACT-220', date: '2024-02-15', by: '生技 藤本',
+    say: '初期流動の抜取数が少ない。立ち上げ1か月は全数で見たい', theme: '' },
+  { id: 'M-0940', dr: 'DR4', prod: 'ACT-220', date: '2024-06-19', by: '品証 高橋',
+    say: '海外拠点に展開するときの教育計画が入っていない', theme: '' }
+];
+
+/* 過去議事録から起こす、チェックリストの候補 --------------
+   min は「何回出たら項目にするか」のしきい値。デモでは2回。
+   1回しか出ていない観点は項目にせず、保留として見せる（作りすぎない）。 */
+const DR_THEMES = [
+  { key: 'tool', cat: '製造性', item: '締結部の工具アクセス性と作業姿勢が、実際の設備で成立することを確認したか',
+    why: '「工具が入らない」「手が届かない」という指摘が、機種を変えて繰り返し出ている。設計側が図面上で成立と判断し、組む側の条件を見ていないときに起きる。' },
+  { key: 'noise', cat: '検査性', item: '作動音・異音の合否判定を、人によらない定量値で定義したか',
+    why: '「異音なきこと」のままDRに出てくることが多い。検査員が代わると判定が変わるという指摘が同じ人から3回出ている。' },
+  { key: 'harness', cat: '構造', item: '配線・可動部と締結部の干渉を、可動範囲の最悪位置で実機確認したか',
+    why: '中立位置での確認で済ませた結果、可動端で当たる・かみ込むという指摘が繰り返されている。図面確認では見つからない。' },
+  { key: 'resin', cat: '材質', item: '材質変更に伴う成形収縮率を、カタログ値ではなく実測で確認したか',
+    why: 'カタログ値で寸法を決めて、成形後に狙いから外れる。ロット間ばらつきまで見ていないという指摘も出ている。' },
+  { key: 'setup', cat: '検査性', item: '検査装置の機種切替時に、誤設定が人の確認以外で検出されるか',
+    why: '段取り替えで前機種の設定のまま流れた実績がある。人の確認に頼る仕組みのままDRを通している。' },
+  { key: 'test', cat: '評価', item: '試験条件が、量産ラインと実使用の振れ幅を包含しているか',
+    why: '試験は通ったが実際の条件を包んでいない、という指摘が設計審査と量産移行の両方で出ている。' }
+];
+
+/* 取り込んだ帳票から出す指摘 ------------------------------
+   チェックリストの項目に対して、帳票の記載が答えになっているかを見る。
+   found が帳票の実際の記載。ng が「これでは足りない」と判断した理由。 */
+const DR_INTAKE_HITS = [
+  { theme: 'tool', doc: '図面 ACT-230-300 RevA', where: '注記欄',
+    found: '締結：M3×6本　締付トルク 1.2±0.1N・m',
+    ng: '締付順序の指定がない。6本を任意順で締めると片締めになり、合わせ面が浮く。過去に同じ指摘が4回出ている。',
+    ask: '締付順序を図面の注記に入れ、中央部の工具アクセスを実機の設備で確認する', sev: 'high' },
+  { theme: 'harness', doc: '変更発議書 ACT-230 2026-07-01', where: '変更内容 4項',
+    found: 'ハーネス経路変更（配線ガイド追加により干渉回避）',
+    ng: '「干渉回避」と書いてあるが、確認したのが可動範囲のどの位置かが書かれていない。中立位置での確認だと過去4件と同じ見落としになる。',
+    ask: '可動端（最も寄る位置）での実機確認結果を添付する', sev: 'high' },
+  { theme: 'noise', doc: '変更発議書 ACT-230 2026-07-01', where: '評価計画',
+    found: '作動音：異音なきこと（限度見本による）',
+    ng: '判定が官能のまま。限度見本だけでは検査員が代わると合否が変わる。同じ指摘が3回出ている。',
+    ask: '作動音の判定を dB などの定量値で置き、限度見本は補助にする', sev: 'high' },
+  { theme: 'test', doc: '変更発議書 ACT-230 2026-07-01', where: '評価計画',
+    found: '温度サイクル −30〜+85℃　振動 20〜200Hz',
+    ng: '上限85℃が実使用の想定より低い。量産ラインの条件も包含できているかが読み取れない。',
+    ask: '実使用と量産条件の実測値を示し、試験条件がそれを包むことを説明する', sev: 'mid' },
+  { theme: 'resin', doc: '図面 ACT-230-300 RevA', where: '材質欄',
+    found: '材質：PPS（GF40）',
+    ng: '前機種から材質が変わっているが、成形収縮率の実測データが図面にも発議書にも見当たらない。',
+    ask: '実測の収縮率とロット間ばらつきを添付する', sev: 'mid' },
+  { theme: 'setup', doc: '—', where: '—',
+    found: '（記載を見つけられなかった）',
+    ng: 'チェックリストの項目に対応する記載が、取り込んだ帳票のどこにもない。検査装置の切替に触れた文書が未登録の可能性がある。',
+    ask: '検査要領書を取り込むか、切替時の誤設定防止をDRの場で確認する', sev: 'open' }
+];
+
 /* 図面 ----------------------------------------------------- */
 const DRAWINGS = [
   { no: 'ACT-220-100', name: 'ハウジング', rev: 'E', date: '2025-04-18', prod: 'ACT-220', key: '軸受穴 φ12.0 +0.02/0', ecn: 'ECN-2025-007' },
@@ -1150,7 +1450,7 @@ const FTA_TREES = [
 const DATA = {
   CO, PRODUCTS, PROCESSES, MARK_LEGEND, SOD_CRITERIA, DEVIATIONS, PROC_REQS,
   TROUBLES, TROUBLE_TOTAL, PFMEA, PFMEA_TOTAL,
-  DRBFM, DR_GATES, DR_FINDINGS, DR_CHECKLIST, DRAWINGS, DWG_RULES, DWG_FINDINGS,
+  DRBFM, DR_GATES, DR_FINDINGS, DR_CHECKLIST, DR_PAST, DR_THEMES, DR_INTAKE_HITS, DRAWINGS, DWG_RULES, DWG_FINDINGS,
   ECNS, CHANGE_REFLECT, SRC_KINDS, D8_STEPS, FTA_TREES, M1E
 };
 
@@ -1219,6 +1519,28 @@ function sheetShot(key, caption, note) {
     <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)">
       ${esc(note || '本実装では、該当セルへ直接ジャンプできるようにします。')}
     </p>`;
+}
+
+/* 回答の本文に帳票の実物を並べる。
+   根拠パネルを開かなくても「本当にこの紙から取っている」ことが伝わるようにする。 */
+function sheetStrip(items, lead) {
+  const use = items.filter(x => (typeof SHEET_IMG !== 'undefined') && SHEET_IMG[x.key]);
+  if (!use.length) return '';
+  return `
+    <div class="section">
+      <h2 class="section__title">引用元の帳票</h2>
+      <p class="section__lead">${esc(lead)}</p>
+      <div class="shot-strip">
+        ${use.map(x => `
+          <figure class="shot-strip__i">
+            <button class="sheet-shot" type="button" data-zoom="${esc(x.key)}"
+                    aria-label="${esc(x.cap)}を拡大して見る">
+              <img src="${SHEET_IMG[x.key]}" alt="${esc(x.cap)}">
+            </button>
+            <figcaption>${esc(x.cap)}</figcaption>
+          </figure>`).join('')}
+      </div>
+    </div>`;
 }
 
 /* 拡大表示（画面いっぱいで帳票を読む） */
@@ -1296,6 +1618,38 @@ function wireShell() {
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && !$('#panel').hidden) closePanel();
   });
+}
+
+/* ---- 投げ込み起点（ファイルを渡せば動くことを見せる） ----
+   プルダウンだけだと「うちのデータを全部入れないと使えないのか」と受け取られる。
+   1ファイルから始められることを、投げ込みの動作で示す。
+   opt: { file, sample, readout, target, onRead } */
+function wireDrop(opt) {
+  const nameEl = $(opt.file + 'Name');
+  const show = name => {
+    if (nameEl) nameEl.textContent = name;
+    $(opt.readout).hidden = false;
+    $(opt.readout).innerHTML = `
+      <div class="callout callout--info">
+        <div>
+          <p class="callout__title">ファイルを読み取りました</p>
+          <dl class="meta-list" style="margin-top:var(--space-2)">
+            <dt>ファイル</dt><dd class="mono">${esc(name)}</dd>
+            ${opt.rows.map(r => `<dt>${esc(r.k)}</dt><dd>${r.v}</dd>`).join('')}
+          </dl>
+          <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)">
+            デモ環境のため、読み取り結果はサンプルを表示しています。本実装では投げ込んだファイルの記載内容を解析します。
+          </p>
+        </div>
+      </div>`;
+    if (opt.onRead) opt.onRead(name);
+    toast('ファイルを読み取りました', opt.toast || '内容を読み取りました。このまま実行できます。');
+  };
+  $(opt.file).addEventListener('change', e => {
+    const f = e.target.files && e.target.files[0];
+    if (f) show(f.name);
+  });
+  $(opt.sample).addEventListener('click', () => show(opt.sampleName));
 }
 
 /* ---- 確認モーダル（生成を止めて人に判断を仰ぐ） ----
@@ -1404,6 +1758,88 @@ function dice(a, b) {
 let findings = DATA.DR_FINDINGS.map(f => ({ ...f }));
 let curPrep = [];
 
+/* ---- 完了扱いの指摘の見落とし検出 ----
+   完了にした指摘は、以後の確認対象から外れる。ここが設計審査の穴になる。
+   完了の判断より後に設計変更が入っていれば、その判断は変更前の条件で出したものになる。
+   完了指摘 → 根拠となった不具合 → 同じ不具合を理由とする設計変更 の順にたどり、
+   完了期限より後に発行された変更があるものを、再確認が必要な指摘として拾う。
+   さらに、その観点が今回のDR3の指摘一覧に立っているかどうかを確認する。 */
+function detectMissed() {
+  const sw = $('#mxDone');
+  if (sw && !sw.checked) return { checked: 0, out: [], off: true };
+  const done = findings.filter(f => f.status === '完了' && f.link);
+  const out = [];
+  done.forEach(f => {
+    DATA.ECNS.filter(e => e.src === f.link && e.date > f.due).forEach(ecn => {
+      const g = grams(f.item + ' ' + f.cat);
+      let cov = null, cs = 0;
+      findings.filter(x => x.gate === 'DR3').forEach(x => {
+        const s = dice(g, grams(x.item + ' ' + x.cat));
+        if (s > cs) { cs = s; cov = x; }
+      });
+      let ci = null, is = 0;
+      (DATA.DR_CHECKLIST.DR3 || []).forEach(c => {
+        const s = dice(g, grams(c.item + ' ' + c.cat));
+        if (s > is) { is = s; ci = c; }
+      });
+      out.push({
+        f, ecn, item: ci, tr: TR_BY_ID[f.link],
+        covered: cs >= 0.30, cover: cs >= 0.30 ? cov : null,
+        piggy: (ecn.piggy || []).map(p => DATA.ECNS.find(e => e.no === p)).filter(Boolean)
+      });
+    });
+  });
+  return { checked: done.length, out };
+}
+
+let missed = { checked: 0, out: [] };
+
+function renderMissed() {
+  missed = detectMissed();
+  const n = missed.out.length;
+  if (missed.off) {
+    $('#missMeta').textContent = '審査準備の画面で「完了扱いの指摘」の突き合わせを外しているため、確認していません。';
+    $('#missCards').innerHTML = `
+      <div class="empty">
+        <h2 class="empty__title">完了扱いの指摘は確認していません</h2>
+        <div class="empty__body"><p>審査準備の画面で突き合わせる情報に「完了扱いの指摘」を含めると、ここに結果が出ます。</p></div>
+      </div>`;
+    return;
+  }
+  $('#missMeta').innerHTML = n
+    ? `完了扱いの指摘 ${missed.checked} 件をたどり、<strong>${n} 件</strong>について、完了と判断した後に設計変更が入っていることを確認しました。`
+      + `完了扱いのままだとDR3の確認対象から外れます。`
+    : `完了扱いの指摘 ${missed.checked} 件をたどりましたが、完了の判断より後に入った設計変更はありませんでした。`;
+
+  $('#missCards').innerHTML = n ? missed.out.map((m, i) => `
+    <div class="kcard" data-misscard="${i}" style="border-left:4px solid var(--color-error)">
+      <div class="kcard__head">
+        <h3 class="kcard__title">${esc(m.f.cat)}の観点が、変更後の条件で確認されていません</h3>
+        <span class="status status--risk">再確認が必要</span>
+        <span class="cell-sub mono">${esc(m.f.id)}（${esc(m.f.gate)}）</span>
+      </div>
+      <div class="kcard__body">
+        <p><strong>完了にした指摘</strong>　${esc(m.f.item)}</p>
+        <p style="margin-top:var(--space-2)" class="cell-sub">担当 ${esc(m.f.by)}　／　期限 <span class="mono">${esc(m.f.due)}</span> で完了</p>
+        <p style="margin-top:var(--space-3)"><strong>その後に入った設計変更</strong>　<span class="mono">${esc(m.ecn.no)}</span>（<span class="mono">${esc(m.ecn.date)}</span>・${esc(m.ecn.stage)}）${esc(m.ecn.title)}</p>
+        <p style="margin-top:var(--space-3)"><mark>完了の判断は ${esc(m.f.due)} 時点のものです。${esc(m.ecn.date)} の設計変更で対象そのものが変わっているため、この判断は変更前の条件に対するものになります。</mark></p>
+        <p style="margin-top:var(--space-3)" class="cell-sub">${m.covered
+          ? `DR3の指摘 <span class="mono">${esc(m.cover.id)}</span> が同じ観点に当たります。内容が変更後の条件を含んでいるか確認してください。`
+          : `DR3の指摘一覧に、この観点に当たる項目はありません。標準の確認項目では <span class="mono">${esc(m.item.id)}</span>「${esc(m.item.item)}」が対応します。`}</p>
+      </div>
+      <div class="kcard__foot">
+        <button class="btn btn--quiet btn--small" data-missev="${i}">たどった経路を確認する</button>
+        ${m.covered ? '' : `<button class="btn btn--quiet btn--small" data-missraise="${i}">DR3の指摘として起票する</button>`}
+      </div>
+    </div>`).join('') : `
+    <div class="empty">
+      <h2 class="empty__title">再確認が必要な指摘はありません</h2>
+      <div class="empty__body">
+        <p>完了扱いの指摘について、完了と判断した後に入った設計変更はありませんでした。</p>
+      </div>
+    </div>`;
+}
+
 /* ---- 突き合わせ ---- */
 function buildPrep(gate) {
   const list = DATA.DR_CHECKLIST[gate] || [];
@@ -1479,6 +1915,22 @@ function renderPrep(gate) {
       </p>
     </div>
 
+    ${missed.out.length ? `
+    <div class="section">
+      <h2 class="section__title">完了扱いの指摘に、再確認が必要なものがあります</h2>
+      <p class="section__lead">完了にした指摘は確認対象から外れます。完了と判断した後に設計変更が入っているものを ${missed.out.length} 件見つけました。</p>
+      ${missed.out.map((m, i) => `
+        <div class="callout callout--error">
+          <div>
+            <p class="callout__title">${esc(m.f.id)}　${esc(m.f.item)}</p>
+            <p>期限 ${esc(m.f.due)} で完了としていますが、${esc(m.ecn.date)} に <span class="mono">${esc(m.ecn.no)}</span>「${esc(m.ecn.title)}」が発行されています。完了の判断は変更前の条件に対するものです。</p>
+            <p style="margin-top:var(--space-2)">
+              <button class="btn btn--quiet btn--small" data-missev="${i}">たどった経路を確認する</button>
+            </p>
+          </div>
+        </div>`).join('')}
+    </div>` : ''}
+
     <div class="section">
       <h2 class="section__title">確認すべき項目</h2>
       <p class="section__lead">優先度の高い順に表示しています。各項目には、なぜ今回確認が必要かの根拠を付けています。</p>
@@ -1520,6 +1972,9 @@ function renderPrep(gate) {
   $('#btnPrepCsv').addEventListener('click', () => {
     downloadCsv(`DR審査シート_${gate}_${today()}.csv`, [
       ['優先度', '項目番号', '区分', '確認項目', '今回確認が必要な理由', '突き合わせ元'],
+      ...missed.out.map(m => ['再確認が必要', m.item.id, m.f.cat, m.item.item,
+        `${m.f.id} を ${m.f.due} で完了としているが、${m.ecn.date} に ${m.ecn.no}（${m.ecn.title}）が発行されている`,
+        '完了扱いの指摘']),
       ...curPrep.map(p => [
         p.level === 'high' ? '重点確認' : p.level === 'mid' ? '確認' : '標準項目',
         p.item.id, p.item.cat, p.item.item,
@@ -1577,13 +2032,16 @@ function renderGates() {
   const kpis = [
     { label: '審査ゲート', value: DATA.DR_GATES.length, unit: ' 件', note: `完了 ${DATA.DR_GATES.filter(g => g.status === '完了').length} 件` },
     { label: '未完了の指摘', value: open.length, unit: ' 件', warn: true, note: `対応中 ${open.filter(f => f.status === '対応中').length} 件／未着手 ${open.filter(f => f.status === '未着手').length} 件` },
-    { label: '次のゲート', value: 'DR3', unit: '', note: '詳細設計審査（2026-08-27 予定）' },
+    { label: '完了扱いだが再確認が必要', value: missed.off ? '—' : missed.out.length, unit: missed.off ? '' : ' 件',
+      risk: !missed.off && missed.out.length > 0,
+      note: missed.off ? '審査準備で突き合わせ対象から外しています'
+                       : `完了後に設計変更が入った指摘（完了扱い ${missed.checked} 件を確認）` },
     { label: '標準の確認項目', value: (DATA.DR_CHECKLIST.DR3 || []).length, unit: ' 件', note: 'DR3の設計審査規程より' }
   ];
   $('#kpiGrid').innerHTML = kpis.map(k => `
     <div class="card">
       <p class="kpi__label">${esc(k.label)}</p>
-      <p class="kpi__value"${k.warn ? ' style="color:var(--color-warning)"' : ''}>${esc(k.value)}<span class="kpi__unit">${esc(k.unit)}</span></p>
+      <p class="kpi__value"${k.warn ? ' style="color:var(--color-warning)"' : k.risk ? ' style="color:var(--color-error)"' : ''}>${esc(k.value)}<span class="kpi__unit">${esc(k.unit)}</span></p>
       <p class="kpi__note">${esc(k.note)}</p>
     </div>`).join('');
 
@@ -1595,7 +2053,6 @@ function renderGates() {
       <td class="nowrap">${esc(g.chair)}</td>
       <td class="nowrap mono">${g.items ? g.items + ' 件' : '—'}</td>
       <td class="nowrap">${o ? `<span class="status status--warn">${o} 件</span>` : '<span class="cell-empty">—</span>'}</td>
-      <td class="nowrap"><span class="status status--${g.status === '完了' ? 'done' : g.status === '準備中' ? 'warn' : 'todo'}">${esc(g.status)}</span></td>
       <td class="nowrap">${g.status === '準備中'
         ? '<button class="btn btn--quiet btn--small" data-goto="prep">審査準備を開く</button>'
         : '<span class="cell-empty">—</span>'}</td>
@@ -1610,18 +2067,16 @@ function renderGates() {
       <td class="col-text">${esc(f.item)}</td>
       <td class="nowrap">${esc(f.by)}</td>
       <td class="mono nowrap">${esc(f.due)}</td>
-      <td class="nowrap"><span class="status status--${f.status === '対応中' ? 'warn' : 'todo'}">${esc(f.status)}</span></td>
       <td class="nowrap">${f.link ? `<button class="btn btn--quiet btn--small" data-extr="${esc(f.link)}">関連記録を確認する</button>` : '<span class="cell-empty">—</span>'}</td>
     </tr>`).join('') : `<tr><td colspan="7" class="cell-empty">持ち越している指摘はありません</td></tr>`;
 }
 
 /* ---- 指摘事項 ---- */
 function renderFindings() {
-  const g = $('#fGate').value, s = $('#fStat').value;
+  const g = $('#fGate').value, s = '';
   const rows = findings.filter(f => (!g || f.gate === g) && (!s || f.status === s));
   const cond = [];
   if (g) cond.push('ゲート=' + g);
-  if (s) cond.push('状態=' + s);
   $('#findMeta').innerHTML = `全 ${findings.length} 件中 <strong>${rows.length} 件</strong>を表示`
     + (cond.length ? `　／　絞り込み中：${esc(cond.join('、'))}` : '');
   $('#findEmpty').hidden = rows.length > 0;
@@ -1634,7 +2089,6 @@ function renderFindings() {
       <td class="col-text">${esc(f.item)}</td>
       <td class="nowrap">${esc(f.by)}</td>
       <td class="mono nowrap">${esc(f.due)}</td>
-      <td class="nowrap"><span class="status status--${f.status === '完了' ? 'done' : f.status === '対応中' ? 'warn' : 'todo'}">${esc(f.status)}</span></td>
       <td class="nowrap">${f.status !== '完了'
         ? `<button class="btn btn--quiet btn--small" data-close="${esc(f.id)}">完了にする</button>`
         : '<span class="cell-empty">—</span>'}</td>
@@ -1686,6 +2140,7 @@ function renderCarry() {
 
 /* ---- 初期化 ---- */
 wireShell();
+renderMissed();
 renderGates();
 renderFindings();
 let carryCands = renderCarry();
@@ -1702,7 +2157,7 @@ DATA.DR_GATES.forEach(g => {
 });
 $('#gateSelect').value = 'DR3';
 
-['#fGate', '#fStat'].forEach(s => $(s).addEventListener('change', renderFindings));
+$('#fGate').addEventListener('change', renderFindings);
 
 $('#prepForm').addEventListener('submit', e => {
   e.preventDefault();
@@ -1722,6 +2177,8 @@ $('#prepForm').addEventListener('submit', e => {
     `対象：${gate}　／　標準の確認項目 ${(DATA.DR_CHECKLIST[gate] || []).length} 件　／　変更点 ${DATA.DRBFM.length} 件・不具合記録 ${DATA.TROUBLE_TOTAL.toLocaleString()} 件と突き合わせます`;
   runSteps('#prepStepper', () => {
     curPrep = buildPrep(gate);
+    renderMissed();
+    renderGates();
     $('#prepLoading').hidden = true;
     renderPrep(gate);
     $('#prepResult').hidden = false;
@@ -1749,7 +2206,7 @@ document.addEventListener('click', e => {
     findings.push({ id, gate: 'DR3', cat: p.item.cat, item: p.item.item,
       by: '技術部 森', due: '2026-08-25', status: '未着手',
       link: p.hits.find(h => h.kind === 'trouble') ? p.hits.find(h => h.kind === 'trouble').rec.id : '' });
-    renderGates(); renderFindings();
+    renderMissed(); renderGates(); renderFindings();
     toast('指摘として起票しました', `${id}　担当と期限は仮置きです。指摘事項の画面で修正できます。`);
     return;
   }
@@ -1759,8 +2216,57 @@ document.addEventListener('click', e => {
     const f = findings.find(x => x.id === cl.dataset.close);
     if (!f) return;
     f.status = '完了';
-    renderGates(); renderFindings(); carryCands = renderCarry();
+    renderMissed(); renderGates(); renderFindings(); carryCands = renderCarry();
     toast('指摘を完了にしました', `${f.id}　完了した指摘は、次の機種の横展開候補になります。`);
+    return;
+  }
+
+  const me = e.target.closest('[data-missev]');
+  if (me) {
+    const m = missed.out[Number(me.dataset.missev)];
+    if (!m) return;
+    openPanel('たどった経路：' + m.f.id, `
+      <p style="line-height:var(--line-height-body)">完了扱いの指摘から、根拠となった不具合記録、その不具合を理由とする設計変更の順にたどりました。日付の前後関係だけで判定しています。</p>
+      <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">1. 完了にした指摘</h3>
+      <div class="quote">
+        <p><strong><span class="mono">${esc(m.f.id)}</span>（${esc(m.f.gate)}　${esc(m.f.cat)}）</strong></p>
+        <p style="margin-top:var(--space-2)">${esc(m.f.item)}</p>
+        <p style="margin-top:var(--space-2)">担当：${esc(m.f.by)}　期限：<span class="mono">${esc(m.f.due)}</span>　状態：完了</p>
+      </div>
+      <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">2. 指摘の根拠になった不具合</h3>
+      <div class="quote">
+        <p><strong><span class="mono">${esc(m.tr.id)}</span>（${esc(m.tr.date)}・${esc(m.tr.prod)}）</strong></p>
+        <p style="margin-top:var(--space-2)">${esc(m.tr.sym)}</p>
+        <p style="margin-top:var(--space-2)"><strong>恒久対策</strong><br>${esc(m.tr.perm)}</p>
+      </div>
+      <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">3. 同じ不具合を理由とする設計変更</h3>
+      <div class="quote">
+        <p><strong><span class="mono">${esc(m.ecn.no)}</span>（発行 ${esc(m.ecn.date)}・${esc(m.ecn.stage)}版・${esc(m.ecn.status)}）</strong></p>
+        <p style="margin-top:var(--space-2)">${esc(m.ecn.title)}</p>
+        <p style="margin-top:var(--space-2)"><strong>変更理由</strong><br>${esc(m.ecn.reason)}</p>
+        ${m.piggy.length ? `<p style="margin-top:var(--space-2)"><strong>共連れ変更</strong><br>${m.piggy.map(x => `<span class="mono">${esc(x.no)}</span>　${esc(x.title)}`).join('<br>')}</p>` : ''}
+      </div>
+      <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">4. 判定</h3>
+      <div class="quote">
+        <p><mark>完了期限 ${esc(m.f.due)} ＜ 設計変更の発行日 ${esc(m.ecn.date)}</mark></p>
+        <p style="margin-top:var(--space-2)">完了と判断した時点では、この設計変更はまだ入っていません。指摘で確認した内容は変更前の条件に対するものです。</p>
+      </div>
+      ${sheetShot('dr', '設計審査記録 DR3（ACT-230 詳細設計審査）',
+         '指摘の状態と期限は、この帳票の指摘事項欄から読み込んでいます。')}
+      <p style="margin-top:var(--space-5);font-size:var(--font-caption);color:var(--color-text-secondary)">この判定は日付と根拠記録のつながりによるものです。実際に再確認が必要かどうかは主査が判断してください。設計変更の内容が指摘の確認範囲に影響しない場合もあります。</p>`);
+    return;
+  }
+
+  const mr = e.target.closest('[data-missraise]');
+  if (mr) {
+    const m = missed.out[Number(mr.dataset.missraise)];
+    if (!m) return;
+    const id = `DR3-${String(findings.filter(f => f.gate === 'DR3').length + 20).padStart(2, '0')}`;
+    findings.push({ id, gate: 'DR3', cat: m.f.cat,
+      item: `${m.f.item}（${m.ecn.no} の変更後の条件で再確認すること。${m.f.id} は変更前の条件で完了としている）`,
+      by: m.f.by, due: '2026-08-25', status: '未着手', link: m.f.link });
+    renderMissed(); renderGates(); renderFindings();
+    toast('DR3の指摘として起票しました', `${id}　${m.f.id} を引き継いだ指摘です。担当と期限は仮置きです。`);
     return;
   }
 
@@ -1813,6 +2319,306 @@ document.addEventListener('click', e => {
         <p style="margin-top:var(--space-3)"><strong>原因</strong><br>${esc(t.cause)}</p>
         <p style="margin-top:var(--space-3)"><strong>恒久対策</strong><br>${esc(t.perm)}</p>
       </div>`);
+  }
+});
+
+/* ===== 帳票の取り込み =====================================
+   ここがこのデモの入口。過去のDR議事録を読ませて、
+   ベテランが毎回言っていたことをチェックリストの項目に起こす。
+   そのあと今回の帳票を読ませて、その項目に沿った指摘を出す。 */
+
+const PAST_SAMPLE = [
+  { k: '対象機種', v: 'ACT-180／ACT-190／ACT-210／ACT-215／ACT-220' },
+  { k: '対象ゲート', v: 'DR1〜DR4' },
+  { k: '発言の件数', v: DATA.DR_PAST.length + ' 件' }
+];
+const DOC_SAMPLE = [
+  { k: '対象機種', v: 'ACT-230（新機種）' },
+  { k: '対象ゲート', v: 'DR3 詳細設計審査（2026-08-27）' },
+  { k: '読み取る欄', v: '注記・材質・変更内容・評価計画' }
+];
+
+let checklistMade = false;
+
+function readoutHtml(rows) {
+  return `<dl class="kv" style="margin-top:var(--space-3)">`
+    + rows.map(r => `<dt>${esc(r.k)}</dt><dd>${esc(r.v)}</dd>`).join('')
+    + `</dl>`;
+}
+
+/* 議事録を観点ごとに束ねる。2回以上出たものだけを項目にする。 */
+function groupPast() {
+  const groups = DATA.DR_THEMES.map(t => ({
+    t, says: DATA.DR_PAST.filter(p => p.theme === t.key)
+  })).filter(g => g.says.length >= 2);
+  const singles = DATA.DR_PAST.filter(p => !p.theme);
+  return { groups, singles };
+}
+
+function runPast() {
+  $('#pastIdle').hidden = true;
+  $('#pastResult').hidden = true;
+  $('#pastLoading').hidden = false;
+  $('#pastLoadMeta').textContent =
+    `${DATA.DR_PAST.length}件の発言／5機種／DR1〜DR4`;
+  runSteps('#pastStepper', () => {
+    $('#pastLoading').hidden = true;
+    renderPast();
+    $('#pastResult').hidden = false;
+    checklistMade = true;
+    $('#sec2').hidden = false;
+    toast('チェックリストを作りました', `${groupPast().groups.length} 項目を起こしました。`);
+  });
+}
+
+function renderPast() {
+  const { groups, singles } = groupPast();
+  const total = groups.reduce((a, g) => a + g.says.length, 0);
+
+  $('#pastResult').innerHTML = `
+    <div class="card" style="border-left:4px solid var(--color-primary);margin-bottom:var(--space-5)">
+      <div style="display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap;margin-bottom:var(--space-3)">
+        <span class="status status--ai">議事録から起こしました</span>
+        <span class="cell-sub">${DATA.DR_PAST.length}件の発言を読み、${total}件が${groups.length}つの観点にまとまりました</span>
+      </div>
+      <p style="line-height:var(--line-height-body)">
+        同じことを別の言い方で繰り返し言っている発言が ${total} 件ありました。これを ${groups.length} つの観点にまとめ、
+        チェックリストの項目に書き直しています。1回しか出ていない ${singles.length} 件は項目にしていません。
+      </p>
+    </div>
+
+    ${groups.map((g, i) => {
+      const prods = [...new Set(g.says.map(s => s.prod))];
+      const people = [...new Set(g.says.map(s => s.by))];
+      return `
+      <div class="card" style="margin-bottom:var(--space-4)">
+        <div style="display:flex;align-items:flex-start;gap:var(--space-3);flex-wrap:wrap;margin-bottom:var(--space-3)">
+          <span class="status status--done">${esc(g.t.cat)}</span>
+          <span class="status status--warn">${g.says.length} 回</span>
+          <span class="cell-sub">${esc(prods.join('・'))}　／　${esc(people.join('・'))}</span>
+        </div>
+        <h3 style="font-size:var(--font-subsection-title);margin-bottom:var(--space-2)">${esc(g.t.item)}</h3>
+        <p style="font-size:var(--font-caption);color:var(--color-text-secondary);line-height:var(--line-height-body);margin-bottom:var(--space-4)">${esc(g.t.why)}</p>
+        <details>
+          <summary>もとの発言 ${g.says.length} 件を見る</summary>
+          <div style="margin-top:var(--space-3)">
+            ${g.says.map(s => `
+              <blockquote class="quote" style="margin-bottom:var(--space-3)">
+                <p>${esc(s.say)}</p>
+                <footer class="cell-sub" style="margin-top:var(--space-2)">
+                  ${esc(s.id)}　${esc(s.date)}　${esc(s.prod)}　${esc(s.dr)}　${esc(s.by)}
+                </footer>
+              </blockquote>`).join('')}
+          </div>
+        </details>
+        <div style="margin-top:var(--space-4);display:flex;gap:var(--space-3);flex-wrap:wrap">
+          <button class="btn btn--secondary btn--small" data-adopt="${i}">この項目を採用する</button>
+          <button class="btn btn--quiet btn--small" data-drop="${i}">今回は使わない</button>
+        </div>
+      </div>`;
+    }).join('')}
+
+    <div class="section">
+      <h2 class="section__title">項目にしなかった発言</h2>
+      <p class="section__lead">1回しか出ていないため、まとめていません。重要かどうかは人が見て判断してください。</p>
+      <div class="table-wrap">
+        <table>
+          <caption class="visually-hidden">項目にしなかった発言</caption>
+          <thead><tr>
+            <th scope="col">記録</th><th scope="col">機種</th><th scope="col">発言者</th><th scope="col">発言</th>
+          </tr></thead>
+          <tbody>${singles.map(s => `
+            <tr>
+              <td class="mono nowrap">${esc(s.id)}<div class="cell-sub">${esc(s.date)}</div></td>
+              <td class="nowrap">${esc(s.prod)}<div class="cell-sub">${esc(s.dr)}</div></td>
+              <td class="nowrap">${esc(s.by)}</td>
+              <td class="col-text">${esc(s.say)}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="callout callout--warn" style="margin-top:var(--space-5)">
+      <div>
+        <p class="callout__title">この結果の見方</p>
+        <p>回数が多い観点ほど、設計側が毎回同じところで止まっているということです。項目の文はAIが書き直したものなので、社内の言い方に合わせて直してから使ってください。</p>
+      </div>
+    </div>
+
+    <div style="margin-top:var(--space-5);display:flex;gap:var(--space-3);flex-wrap:wrap">
+      <button class="btn btn--primary" id="btnChkCsv">チェックリストをCSVで出力する</button>
+      <button class="btn btn--quiet" data-goto="prep">審査準備に進む</button>
+    </div>`;
+}
+
+/* ---- 取り込んだ帳票から指摘を出す ---- */
+function runDoc() {
+  $('#docIdle').hidden = true;
+  $('#docResult').hidden = true;
+  $('#docLoading').hidden = false;
+  const { groups } = groupPast();
+  $('#docLoadMeta').textContent = `2ファイル／チェックリスト ${groups.length} 項目と突き合わせ`;
+  runSteps('#docStepper', () => {
+    $('#docLoading').hidden = true;
+    renderDoc();
+    $('#docResult').hidden = false;
+    const n = DATA.DR_INTAKE_HITS.filter(h => h.sev !== 'open').length;
+    toast('指摘を出しました', `${n} 件の指摘と、確認できなかった項目 ${DATA.DR_INTAKE_HITS.length - n} 件です。`);
+  });
+}
+
+const SEV_LABEL = {
+  high: '<span class="status status--risk">DRで必ず確認</span>',
+  mid: '<span class="status status--warn">確認</span>',
+  open: '<span class="status status--todo">確認できず</span>'
+};
+
+function renderDoc() {
+  const TH = {}; DATA.DR_THEMES.forEach(t => TH[t.key] = t);
+  const hits = DATA.DR_INTAKE_HITS;
+  const real = hits.filter(h => h.sev !== 'open');
+  const open = hits.filter(h => h.sev === 'open');
+
+  $('#docResult').innerHTML = `
+    <div class="card" style="border-left:4px solid var(--color-primary);margin-bottom:var(--space-5)">
+      <div style="display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap;margin-bottom:var(--space-3)">
+        <span class="status status--ai">帳票から出した指摘</span>
+        <span class="cell-sub">図面 ACT-230-300 RevA ／ 変更発議書 ACT-230 2026-07-01</span>
+      </div>
+      <p style="line-height:var(--line-height-body)">
+        チェックリスト ${hits.length} 項目のうち、${real.length} 項目で記載が足りていませんでした。
+        ${open.length} 項目は、対応する記載を帳票の中に見つけられませんでした。
+        いずれもDRの場で確認する材料であり、可否の判断はしていません。
+      </p>
+    </div>
+
+    ${hits.map((h, i) => {
+      const t = TH[h.theme];
+      const says = DATA.DR_PAST.filter(p => p.theme === h.theme);
+      return `
+      <div class="card" style="margin-bottom:var(--space-4);border-left:4px solid var(--color-${h.sev === 'high' ? 'error' : h.sev === 'mid' ? 'warning' : 'border'})">
+        <div style="display:flex;align-items:flex-start;gap:var(--space-3);flex-wrap:wrap;margin-bottom:var(--space-3)">
+          ${SEV_LABEL[h.sev]}
+          <span class="status status--todo">${esc(t.cat)}</span>
+          <span class="cell-sub">${esc(h.doc)}${h.where !== '—' ? '　' + esc(h.where) : ''}</span>
+        </div>
+        <h3 style="font-size:var(--font-subsection-title);margin-bottom:var(--space-3)">${esc(t.item)}</h3>
+
+        <div style="display:grid;gap:var(--space-3)">
+          <div>
+            <p style="font-size:var(--font-caption);color:var(--color-text-secondary);margin-bottom:var(--space-1)">帳票の記載</p>
+            <blockquote class="quote"><p>${esc(h.found)}</p></blockquote>
+          </div>
+          <div>
+            <p style="font-size:var(--font-caption);color:var(--color-text-secondary);margin-bottom:var(--space-1)">足りないと判断した理由</p>
+            <p style="line-height:var(--line-height-body)">${esc(h.ng)}</p>
+          </div>
+          <div>
+            <p style="font-size:var(--font-caption);color:var(--color-text-secondary);margin-bottom:var(--space-1)">DRで求めること</p>
+            <p style="line-height:var(--line-height-body)"><strong>${esc(h.ask)}</strong></p>
+          </div>
+        </div>
+
+        ${says.length ? `
+        <details style="margin-top:var(--space-4)">
+          <summary>この項目のもとになった過去の発言 ${says.length} 件</summary>
+          <div style="margin-top:var(--space-3)">
+            ${says.map(s => `
+              <blockquote class="quote" style="margin-bottom:var(--space-3)">
+                <p>${esc(s.say)}</p>
+                <footer class="cell-sub" style="margin-top:var(--space-2)">${esc(s.id)}　${esc(s.date)}　${esc(s.prod)}　${esc(s.by)}</footer>
+              </blockquote>`).join('')}
+          </div>
+        </details>` : ''}
+
+        <div style="margin-top:var(--space-4);display:flex;gap:var(--space-3);flex-wrap:wrap">
+          <button class="btn btn--secondary btn--small" data-raise="${i}">指摘として起票する</button>
+          <button class="btn btn--quiet btn--small" data-skip="${i}">起票しない</button>
+        </div>
+      </div>`;
+    }).join('')}
+
+    <div class="callout callout--warn" style="margin-top:var(--space-5)">
+      <div>
+        <p class="callout__title">この結果の見方</p>
+        <p>「確認できず」は、記載がないという意味ではありません。取り込んだ帳票の中に見つけられなかっただけで、別の文書に書いてある可能性があります。記載なしとして扱わないでください。</p>
+      </div>
+    </div>
+
+    <div style="margin-top:var(--space-5)">
+      <button class="btn btn--primary" id="btnHitCsv">指摘をCSVで出力する</button>
+    </div>`;
+}
+
+/* ---- 配線 ---- */
+wireDrop({
+  file: '#pastFile', sample: '#btnPastSample', readout: '#pastReadout',
+  sampleName: '設計審査議事録_2021-2024（12ファイル）', rows: PAST_SAMPLE,
+  onRead: () => { $('#btnPastRun').disabled = false; }
+});
+wireDrop({
+  file: '#docFile', sample: '#btnDocSample', readout: '#docReadout',
+  sampleName: '図面 ACT-230-300 RevA ほか1件', rows: DOC_SAMPLE,
+  onRead: () => { $('#btnDocRun').disabled = false; }
+});
+$('#btnPastRun').addEventListener('click', runPast);
+$('#btnDocRun').addEventListener('click', runDoc);
+
+document.addEventListener('click', e => {
+  const ad = e.target.closest('#pastResult [data-adopt]');
+  if (ad) {
+    const { groups } = groupPast();
+    const g = groups[Number(ad.dataset.adopt)];
+    ad.closest('.card').style.background = 'var(--color-success-bg)';
+    ad.closest('.card').style.borderColor = 'var(--color-success-line)';
+    ad.textContent = '採用しました';
+    ad.disabled = true;
+    toast('項目を採用しました', esc(g.t.item));
+    return;
+  }
+  const dr = e.target.closest('#pastResult [data-drop]');
+  if (dr) {
+    dr.closest('.card').style.opacity = '.5';
+    dr.textContent = '使いません';
+    dr.disabled = true;
+    return;
+  }
+  const rz = e.target.closest('#docResult [data-raise]');
+  if (rz) {
+    const h = DATA.DR_INTAKE_HITS[Number(rz.dataset.raise)];
+    const TH = {}; DATA.DR_THEMES.forEach(t => TH[t.key] = t);
+    rz.closest('.card').style.background = 'var(--color-success-bg)';
+    rz.textContent = '起票しました';
+    rz.disabled = true;
+    toast('指摘を起票しました', TH[h.theme].item);
+    return;
+  }
+  const sk = e.target.closest('#docResult [data-skip]');
+  if (sk) {
+    sk.closest('.card').style.opacity = '.5';
+    sk.textContent = '起票しません';
+    sk.disabled = true;
+    return;
+  }
+  if (e.target.id === 'btnChkCsv') {
+    const { groups } = groupPast();
+    downloadCsv(`DRチェックリスト_${today()}.csv`, [
+      ['区分', 'チェック項目', '過去の指摘回数', '対象機種', '起こしたもとの記録'],
+      ...groups.map(g => [g.t.cat, g.t.item, g.says.length,
+        [...new Set(g.says.map(s => s.prod))].join('・'), g.says.map(s => s.id).join(' ')])
+    ]);
+    toast('CSVを出力しました', `${groups.length} 項目を出力しました。`);
+  }
+  if (e.target.id === 'btnHitCsv') {
+    const TH = {}; DATA.DR_THEMES.forEach(t => TH[t.key] = t);
+    downloadCsv(`DR指摘_${today()}.csv`, [
+      ['重み', '区分', 'チェック項目', '帳票', '該当欄', '帳票の記載', '足りない理由', 'DRで求めること'],
+      ...DATA.DR_INTAKE_HITS.map(h => [
+        h.sev === 'high' ? 'DRで必ず確認' : h.sev === 'mid' ? '確認' : '確認できず',
+        TH[h.theme].cat, TH[h.theme].item, h.doc, h.where, h.found, h.ng, h.ask])
+    ]);
+    toast('CSVを出力しました', `${DATA.DR_INTAKE_HITS.length} 件を出力しました。`);
   }
 });
 

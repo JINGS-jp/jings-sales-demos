@@ -42,6 +42,10 @@
     "complaint_QT-2023-0142",
     "complaint_QT-2025-0077",
     "complaint_QT-2023-0301",
-    "pfmea"
-  ]
+    "pfmea",
+    "ecr"
+  ],
+  "dept": "品証",
+  "order": 1,
+  "role": "入口。まずこれで「根拠が出る」を見せる"
 }

@@ -19,6 +19,7 @@ let readOk = false, carryMode = null, curRows = [], edits = 0;
 /* ---- 発議書の読み取り（デモではサンプル表示） ---- */
 function showReadout(fileName) {
   readOk = true;
+  $('#triggerFileName').textContent = fileName;
   $('#readout').hidden = false;
   $('#readout').innerHTML = `
     <div class="callout callout--info">

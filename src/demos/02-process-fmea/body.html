@@ -11,12 +11,27 @@
   <div class="grid split-grid" style="grid-template-columns:370px 1fr;align-items:start">
     <form class="card" id="genForm" novalidate style="position:sticky;top:calc(var(--header-height) + var(--space-5))">
       <div class="field">
+        <span class="field__label">工程の情報をどこから取るか</span>
+        <div class="drop">
+          <label class="field__label" for="flowFile" style="font-size:var(--font-caption)">工程フロー表を投げ込む</label>
+          <input type="file" id="flowFile" accept=".xlsx,.xls,.pdf" class="filepick__input">
+        <div class="filepick">
+          <label class="btn btn--quiet btn--small" for="flowFile">ファイルを選ぶ</label>
+          <span class="filepick__name" id="flowFileName">選択されていません</span>
+        </div>
+          <p class="drop__hint">投げ込むと工程の一覧を読み取り、下の対象工程に反映します。</p>
+          <button type="button" class="btn btn--quiet btn--small" id="btnFlowSample" style="margin-top:var(--space-2)">サンプルの工程フロー表で試す</button>
+        </div>
+        <div id="flowReadout" hidden style="margin-top:var(--space-3)"></div>
+      </div>
+
+      <div class="field">
         <label class="field__label" for="procSelect">対象工程<span class="field__req">必須</span></label>
         <select class="select" id="procSelect" required aria-describedby="procHint">
           <option value="">工程番号・工程名で選択してください</option>
         </select>
         <p class="field__error" id="procError" hidden>対象工程が選択されていません。工程を選択してから、製造FMEAドラフトを生成してください。</p>
-        <p class="field__hint" id="procHint">ACT-220 第一工場 組立ライン（工程10〜19）を工程フロー順に表示しています。</p>
+        <p class="field__hint" id="procHint">登録済みの ACT-220 第一工場 組立ライン（工程10〜19）を工程フロー順に表示しています。投げ込んだ場合はその内容に切り替わります。</p>
       </div>
 
       <div class="field">

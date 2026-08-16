@@ -263,6 +263,19 @@ ordered.forEach(t => {
   $('#trSelect').appendChild(o);
 });
 
+wireDrop({
+  file: '#clFile', sample: '#btnClSample', readout: '#clReadout',
+  sampleName: '苦情報告書_QT-2023-0187_ACT-220.xlsx',
+  rows: [
+    { k: '読み取った品番', v: '<span class="mono">ACT-220</span>' },
+    { k: '読み取った現象', v: '車両組付時にコネクタが半嵌合のまま組み付けられた' },
+    { k: '読み取った発生日', v: '<span class="mono">2023-07-02</span>' },
+    { k: '突き合わせた社内記録', v: '<span class="mono">QT-2023-0187</span>（顧客流出あり）' }
+  ],
+  toast: 'クレーム票の内容を社内の不具合記録に突き合わせました。報告書を作成できます。',
+  onRead: () => { $('#trSelect').value = 'QT-2023-0187'; }
+});
+
 $('#genForm').addEventListener('submit', e => {
   e.preventDefault();
   const id = $('#trSelect').value;

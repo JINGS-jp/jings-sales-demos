@@ -261,6 +261,17 @@ function buildAnswer(qRaw) {
   }
   checks.push(`作業要領書と検査記録が未登録のため、作業条件・測定値の実績はシステム外での確認が必要`);
 
+  // 回答に添える帳票。引用したものだけを出す。
+  const shots = [];
+  if (t0 && COMPLAINT_SHOT[t0.id]) {
+    shots.push({ key: COMPLAINT_SHOT[t0.id], cap: `苦情報告書 ${t0.id}（${t0.date}・${t0.prod}）` });
+  }
+  if (trs.length > 1 && COMPLAINT_SHOT[trs[1].rec.id]) {
+    shots.push({ key: COMPLAINT_SHOT[trs[1].rec.id], cap: `苦情報告書 ${trs[1].rec.id}（${trs[1].rec.date}・${trs[1].rec.prod}）` });
+  }
+  if (fms.length) shots.push({ key: 'pfmea', cap: '工程FMEA ACT-220 Ver.09（様式1）' });
+  if (ecs.length) shots.push({ key: 'ecr', cap: `設計変更依頼書 ${ecs[0].rec.no}` });
+
   const body = `
     <div class="card" style="border-left:4px solid var(--color-primary)">
       <div style="display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap;margin-bottom:var(--space-3)">
@@ -272,6 +283,8 @@ function buildAnswer(qRaw) {
     </div>
 
     ${trTable}${fmTable}${ecTable}
+
+    ${sheetStrip(shots, '上の表に書いた内容は、この帳票から読み取ったものです。画像を押すと拡大して、どの欄から取ったかを確かめられます。')}
 
     <div class="section">
       <h2 class="section__title">今回確認すべき項目</h2>

@@ -638,6 +638,19 @@ DATA.PROCESSES.forEach(p => {
     sel.appendChild(o);
   });
 });
+wireDrop({
+  file: '#flowFile', sample: '#btnFlowSample', readout: '#flowReadout',
+  sampleName: '工程フロー_QC工程表_ACT-220.xlsx',
+  rows: [
+    { k: '対象ライン', v: 'ACT-220 第一工場 組立ライン' },
+    { k: '読み取った工程', v: `${DATA.PROCESSES.length} 件（工程10〜19）` },
+    { k: '同時に読み取った帳票', v: 'QC工程表（管理項目と規格値）' }
+  ],
+  toast: `工程 ${DATA.PROCESSES.length} 件を読み取りました。対象工程から選べます。`,
+  onRead: () => { $('#procHint').textContent =
+    '投げ込んだ工程フロー表から読み取った工程です。登録済みの内容と同じ並びになっています。'; }
+});
+
 $('#exProc').addEventListener('change', renderExisting);
 $('#btnExCsv').addEventListener('click', () => {
   const rows = renderExisting();

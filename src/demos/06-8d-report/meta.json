@@ -37,5 +37,8 @@
     "complaint_QT-2023-0142",
     "complaint_QT-2025-0077",
     "complaint_QT-2023-0301"
-  ]
+  ],
+  "dept": "品証",
+  "order": 3,
+  "role": "顧客提出物を推測で埋めない姿勢を見せる"
 }

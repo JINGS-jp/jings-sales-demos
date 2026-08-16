@@ -30,5 +30,8 @@
   "sheets": [
     "drawing",
     "pfmea"
-  ]
+  ],
+  "dept": "設計",
+  "order": 2,
+  "role": "出図前の検図。限界を明言する姿勢を見せる"
 }

@@ -6,11 +6,34 @@
   "designScope": true,
   "pitch": "起きてはいけない事象から下へ掘り下げて故障の木を作ります。末端の事象には過去不具合と工程FMEAの実績を紐づけます。",
   "minutes": 5,
-  "sheets": ["pfmea", "complaint"],
+  "sheets": [
+    "pfmea",
+    "complaint"
+  ],
   "nav": [
-    { "view": "tree", "label": "故障の木", "icon": "alert" },
-    { "view": "basic", "label": "基本事象一覧", "icon": "folder" },
-    { "view": "compare", "label": "FMEAとの関係", "icon": "change" },
-    { "view": "docs", "label": "参照文書", "icon": "doc" }
-  ]
+    {
+      "view": "tree",
+      "label": "故障の木",
+      "icon": "alert"
+    },
+    {
+      "view": "basic",
+      "label": "基本事象一覧",
+      "icon": "folder"
+    },
+    {
+      "view": "compare",
+      "label": "FMEAとの関係",
+      "icon": "change"
+    },
+    {
+      "view": "docs",
+      "label": "参照文書",
+      "icon": "doc"
+    }
+  ],
+  "dept": "品証",
+  "order": 2,
+  "role": "原因の掘り下げが偏っていないかを見せる",
+  "alsoFor": "技術部にも効きます（重大事象の原因分析）"
 }

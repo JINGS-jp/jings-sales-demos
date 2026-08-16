@@ -65,6 +65,28 @@ function sheetShot(key, caption, note) {
     </p>`;
 }
 
+/* 回答の本文に帳票の実物を並べる。
+   根拠パネルを開かなくても「本当にこの紙から取っている」ことが伝わるようにする。 */
+function sheetStrip(items, lead) {
+  const use = items.filter(x => (typeof SHEET_IMG !== 'undefined') && SHEET_IMG[x.key]);
+  if (!use.length) return '';
+  return `
+    <div class="section">
+      <h2 class="section__title">引用元の帳票</h2>
+      <p class="section__lead">${esc(lead)}</p>
+      <div class="shot-strip">
+        ${use.map(x => `
+          <figure class="shot-strip__i">
+            <button class="sheet-shot" type="button" data-zoom="${esc(x.key)}"
+                    aria-label="${esc(x.cap)}を拡大して見る">
+              <img src="${SHEET_IMG[x.key]}" alt="${esc(x.cap)}">
+            </button>
+            <figcaption>${esc(x.cap)}</figcaption>
+          </figure>`).join('')}
+      </div>
+    </div>`;
+}
+
 /* 拡大表示（画面いっぱいで帳票を読む） */
 function wireSheetZoom() {
   document.addEventListener('click', e => {
@@ -140,6 +162,38 @@ function wireShell() {
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && !$('#panel').hidden) closePanel();
   });
+}
+
+/* ---- 投げ込み起点（ファイルを渡せば動くことを見せる） ----
+   プルダウンだけだと「うちのデータを全部入れないと使えないのか」と受け取られる。
+   1ファイルから始められることを、投げ込みの動作で示す。
+   opt: { file, sample, readout, target, onRead } */
+function wireDrop(opt) {
+  const nameEl = $(opt.file + 'Name');
+  const show = name => {
+    if (nameEl) nameEl.textContent = name;
+    $(opt.readout).hidden = false;
+    $(opt.readout).innerHTML = `
+      <div class="callout callout--info">
+        <div>
+          <p class="callout__title">ファイルを読み取りました</p>
+          <dl class="meta-list" style="margin-top:var(--space-2)">
+            <dt>ファイル</dt><dd class="mono">${esc(name)}</dd>
+            ${opt.rows.map(r => `<dt>${esc(r.k)}</dt><dd>${r.v}</dd>`).join('')}
+          </dl>
+          <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)">
+            デモ環境のため、読み取り結果はサンプルを表示しています。本実装では投げ込んだファイルの記載内容を解析します。
+          </p>
+        </div>
+      </div>`;
+    if (opt.onRead) opt.onRead(name);
+    toast('ファイルを読み取りました', opt.toast || '内容を読み取りました。このまま実行できます。');
+  };
+  $(opt.file).addEventListener('change', e => {
+    const f = e.target.files && e.target.files[0];
+    if (f) show(f.name);
+  });
+  $(opt.sample).addEventListener('click', () => show(opt.sampleName));
 }
 
 /* ---- 確認モーダル（生成を止めて人に判断を仰ぐ） ----

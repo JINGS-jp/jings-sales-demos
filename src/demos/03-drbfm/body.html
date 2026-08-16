@@ -12,7 +12,11 @@
     <form class="card" id="genForm" novalidate style="position:sticky;top:calc(var(--header-height) + var(--space-5))">
       <div class="field">
         <label class="field__label" for="triggerFile">起点ファイル（変更発議書）<span class="field__req">必須</span></label>
-        <input class="input" type="file" id="triggerFile" accept=".xlsx,.xls,.pdf" style="padding-top:10px">
+        <input type="file" id="triggerFile" accept=".xlsx,.xls,.pdf" class="filepick__input">
+        <div class="filepick">
+          <label class="btn btn--quiet btn--small" for="triggerFile">ファイルを選ぶ</label>
+          <span class="filepick__name" id="triggerFileName">選択されていません</span>
+        </div>
         <p class="field__hint">投げ込むと内容をAIが読み取ります。デモ環境では読み取り結果をサンプルで表示します（本実装では実ファイルを解析します）。</p>
         <button type="button" class="btn btn--quiet btn--small" id="btnSample" style="margin-top:var(--space-2)">サンプルの発議書で試す</button>
         <div id="readout" hidden style="margin-top:var(--space-4)"></div>

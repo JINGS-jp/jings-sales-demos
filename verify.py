@@ -26,7 +26,7 @@ def flat(s: str) -> str:
 async def check_index(pg, errors):
     await pg.goto((DIST / "index.html").as_uri())
     txt = await pg.inner_text(".lp")
-    assert "JINGS 営業デモ集" in txt, "トップの見出しがない"
+    assert "製造業向けAIデモ" in txt, "トップの見出しがない"
     cards = await pg.eval_on_selector_all(".demo-card", "els => els.map(e => e.getAttribute('href'))")
     assert cards, "デモカードが1件もない"
     for href in cards:
@@ -127,6 +127,12 @@ async def check_01(pg, errors):
 
 async def check_02(pg, errors):
     await pg.goto((DIST / "02-process-fmea.html").as_uri())
+    # 投げ込み入口（1ファイルから始められることを示す）
+    await pg.click("#btnFlowSample")
+    await pg.wait_for_selector("#flowReadout:not([hidden])", timeout=6000)
+    dr = await pg.inner_text("#flowReadout")
+    assert "読み取りました" in dr, "工程フローを投げ込んでも読み取り結果が出ない"
+    assert "サンプルを表示" in dr, "デモ環境である旨の断りがない"
     # 起点が工程であること（最初の画面が工程選択のドラフト生成）
     assert await pg.is_visible("#procSelect"), "対象工程の選択が最初に出ていない"
     assert await pg.is_visible("#genIdle"), "初期状態が空白になっている"
@@ -306,11 +312,43 @@ async def check_03(pg, errors):
 
 async def check_04(pg, errors):
     await pg.goto((DIST / "04-design-review.html").as_uri())
+    # 手順1：過去のDR議事録から確認すべき観点を起こす
+    await pg.click("#btnPastSample")
+    await pg.click("#btnPastRun")
+    await pg.wait_for_selector("#pastResult:not([hidden])", timeout=25000)
+    n = await pg.eval_on_selector_all("#pastResult [data-adopt]", "e => e.length")
+    assert n >= 5, f"議事録から観点が起きていない: {n}"
+    past = await pg.inner_text("#pastResult")
+    assert "回" in past and "項目にしなかった発言" in past, "回数と保留分が出ていない"
+    # 手順2：今回の帳票から指摘を出す
+    await pg.click("#btnDocSample")
+    await pg.click("#btnDocRun")
+    await pg.wait_for_selector("#docResult:not([hidden])", timeout=25000)
+    m = await pg.eval_on_selector_all("#docResult [data-raise]", "e => e.length")
+    assert m >= 5, f"帳票から指摘が出ていない: {m}"
+    doc = await pg.inner_text("#docResult")
+    assert "帳票の記載" in doc and "DRで求めること" in doc, "指摘の中身が不足"
+    assert "確認できず" in doc, "記載を見つけられなかった項目が区別されていない"
+    # ここからゲートの確認
+    await pg.click('[data-view="gates"]')
     kpi = await pg.inner_text("#kpiGrid")
     assert "DR3" in kpi and "未完了の指摘" in kpi, "ゲートのKPIが出ていない"
     gates = await pg.inner_text("#gateBody")
     assert "DR1" in gates and "DR4" in gates, "ゲート一覧が出ていない"
     assert await pg.inner_text("#carryBody"), "持ち越し指摘が出ていない"
+    # 完了扱いの指摘の見落とし検出
+    assert "完了扱いだが再確認が必要" in kpi, "見落とし検出のKPIが出ていない"
+    mc = await pg.locator("#missCards .kcard").count()
+    assert mc >= 1, f"完了扱いの指摘の見落としを検出できていない: {mc}件"
+    mtxt = await pg.inner_text("#missCards")
+    assert "DR2-07" in mtxt and "ECN-2026-009" in mtxt, "見落としの根拠（指摘番号と設計変更番号）が出ていない"
+    assert "変更前の条件" in mtxt, "なぜ再確認が必要かの説明がない"
+    await pg.click('#missCards [data-missev="0"]')
+    mp = await pg.inner_text("#panelBody")
+    for k in ["完了にした指摘", "指摘の根拠になった不具合", "設計変更", "判定"]:
+        assert k in mp, f"たどった経路の「{k}」が出ていない"
+    assert "2026-01-31" in mp and "2026-07-15" in mp, "日付の前後関係が示されていない"
+    await pg.click("#panelClose")
     # 審査準備：未選択エラー
     await pg.click('[data-view="prep"]')
     await pg.select_option("#gateSelect", "")
@@ -322,6 +360,7 @@ async def check_04(pg, errors):
     await pg.wait_for_selector("#prepResult:not([hidden])", timeout=12000)
     r = await pg.inner_text("#prepResult")
     assert "重点確認" in r and "標準項目" in r, "優先度の区分が出ていない"
+    assert await pg.locator("#prepResult .callout--error").count() >= 1, "審査準備の結果に見落としの指摘が出ていない"
     assert "削除していません" in r, "標準項目を削らない旨の明記がない"
     for k in ["変更点", "過去不具合", "前回指摘"]:
         assert k in r, f"突き合わせ元「{k}」が出ていない"
@@ -351,6 +390,27 @@ async def check_04(pg, errors):
     d = await dl.value
     head = open(await d.path(), encoding="utf-8-sig").readline()
     assert "指摘番号" in head, f"CSV列が不正: {head[:80]}"
+    # 完了扱いの突き合わせを外すと結果が変わる（飾りのチェックボックスでないこと）
+    await pg.click('[data-view="prep"]')
+    await pg.uncheck("#mxDone")
+    await pg.click("#prepForm button[type=submit]")
+    await pg.wait_for_selector("#prepResult:not([hidden])", timeout=12000)
+    assert await pg.locator("#prepResult .callout--error").count() == 0, \
+        "完了扱いを外しても見落としの指摘が残っている（飾りになっている）"
+    await pg.click('[data-view="gates"]')
+    off = await pg.locator("#missCards .kcard").count()
+    assert off == 0, f"完了扱いを外しても検出結果が消えない: {off}件"
+    await pg.click('[data-view="prep"]')
+    await pg.check("#mxDone")
+    await pg.click("#prepForm button[type=submit]")
+    await pg.wait_for_selector("#prepResult:not([hidden])", timeout=12000)
+    # 見落としから起票すると、DR3の指摘として立つ
+    await pg.click('[data-view="gates"]')
+    rb = await pg.query_selector('#missCards [data-missraise="0"]')
+    if rb:
+        await rb.click()
+        after = await pg.inner_text("#missCards")
+        assert "同じ観点に当たります" in after, "起票してもカードの表示が変わらない"
     # 過去指摘の横展開
     await pg.click('[data-view="carry"]')
     c = await pg.inner_text('section[data-view="carry"]')
@@ -361,13 +421,20 @@ async def check_04(pg, errors):
         await pg.click("#panelClose")
         await pg.click("#carryCards [data-carryadd]")
         assert await pg.query_selector('.kcard[data-state="approved"]'), "追加してもカードの状態が変わらない"
-    return "デモ4：ゲート管理・標準項目を削らない絞り込み・突き合わせ根拠・起票と完了の追跡・横展開"
+    return "デモ4：ゲート管理・完了扱いの指摘の見落とし検出・標準項目を削らない絞り込み・突き合わせ根拠・起票と完了の追跡・横展開"
 
 
 async def check_05(pg, errors):
     await pg.goto((DIST / "05-drawing.html").as_uri())
     await pg.click("#ckForm button[type=submit]")
     assert await pg.is_visible("#dwgError"), "図面未選択のエラーが出ない"
+    # 投げ込み入口（1ファイルから始められることを示す）
+    await pg.click("#btnDwgSample")
+    await pg.wait_for_selector("#dwgReadout:not([hidden])", timeout=6000)
+    dr = await pg.inner_text("#dwgReadout")
+    assert "読み取りました" in dr, "図面を投げ込んでも読み取り結果が出ない"
+    assert "サンプルを表示" in dr, "デモ環境である旨の断りがない"
+    assert await pg.input_value("#dwgSelect") == "ACT-230-300", "投げ込んだ内容が対象の選択に反映されない"
     await pg.select_option("#dwgSelect", "ACT-230-300")
     await pg.click("#ckForm button[type=submit]")
     await pg.wait_for_selector("#ckResult:not([hidden])", timeout=12000)
@@ -416,6 +483,13 @@ async def check_06(pg, errors):
     await pg.goto((DIST / "06-8d-report.html").as_uri())
     await pg.click("#genForm button[type=submit]")
     assert await pg.is_visible("#trError"), "不具合未選択のエラーが出ない"
+    # 投げ込み入口（1ファイルから始められることを示す）
+    await pg.click("#btnClSample")
+    await pg.wait_for_selector("#clReadout:not([hidden])", timeout=6000)
+    dr = await pg.inner_text("#clReadout")
+    assert "読み取りました" in dr, "クレーム票を投げ込んでも読み取り結果が出ない"
+    assert "サンプルを表示" in dr, "デモ環境である旨の断りがない"
+    assert await pg.input_value("#trSelect") == "QT-2023-0187", "投げ込んだ内容が対象の選択に反映されない"
     # 顧客流出のある記録で作成
     await pg.select_option("#trSelect", "QT-2023-0187")
     await pg.click("#genForm button[type=submit]")

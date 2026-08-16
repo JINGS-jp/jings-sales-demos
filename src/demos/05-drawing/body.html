@@ -11,12 +11,27 @@
   <div class="grid split-grid" style="grid-template-columns:340px 1fr;align-items:start">
     <form class="card" id="ckForm" novalidate style="position:sticky;top:calc(var(--header-height) + var(--space-5))">
       <div class="field">
+        <span class="field__label">検図する図面をどこから取るか</span>
+        <div class="drop">
+          <label class="field__label" for="dwgFile" style="font-size:var(--font-caption)">出図前の図面を投げ込む</label>
+          <input type="file" id="dwgFile" accept=".pdf,.dwg,.dxf,.xlsx" class="filepick__input">
+        <div class="filepick">
+          <label class="btn btn--quiet btn--small" for="dwgFile">ファイルを選ぶ</label>
+          <span class="filepick__name" id="dwgFileName">選択されていません</span>
+        </div>
+          <p class="drop__hint">まだ登録していない図面でも、投げ込めば検図できます。寸法・公差・注記・部品表を読み取ります。</p>
+          <button type="button" class="btn btn--quiet btn--small" id="btnDwgSample" style="margin-top:var(--space-2)">サンプルの図面で試す</button>
+        </div>
+        <div id="dwgReadout" hidden style="margin-top:var(--space-3)"></div>
+      </div>
+
+      <div class="field">
         <label class="field__label" for="dwgSelect">対象図面<span class="field__req">必須</span></label>
         <select class="select" id="dwgSelect">
           <option value="">図面番号で選択してください</option>
         </select>
         <p class="field__error" id="dwgError" hidden>対象図面が選択されていません。図面を選んでから検図を開始してください。</p>
-        <p class="field__hint">出図前のACT-230の図面を対象にしています。</p>
+        <p class="field__hint">登録済みの出図前図面です。投げ込んだ場合はその図面が選択されます。</p>
       </div>
       <div class="field">
         <span class="field__label">確認する観点</span>

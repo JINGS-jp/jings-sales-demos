@@ -1,5 +1,111 @@
+<!-- ========== 帳票の取り込み（中核） ========== -->
+<section class="view" data-view="intake">
+  <p class="breadcrumb">帳票の取り込み</p>
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">帳票の取り込み</h1>
+      <p class="page-lead">やることは2つです。過去のDR記録を取り込んで、ベテランが毎回言っていたことをチェックリストに起こす。そのあと今回の図面や変更発議書を取り込んで、チェックリストに沿った指摘を出す。</p>
+    </div>
+  </div>
+
+  <!-- ステップ1 -->
+  <div class="section">
+    <h2 class="section__title">1. 過去のDR記録から、確認すべき観点を起こす</h2>
+    <p class="section__lead">これまでのDR議事録を投げ込むと、同じ観点が何度も出ているものを束ねて項目にします。1回しか出ていないものは項目にしません。</p>
+    <div class="grid split-grid" style="grid-template-columns:380px 1fr;align-items:start">
+      <div class="card">
+        <div class="field">
+          <span class="field__label">過去のDR議事録</span>
+          <div class="filepick">
+            <label class="btn btn--secondary" for="pastFile">ファイルを選ぶ</label>
+            <input type="file" id="pastFile" accept=".xlsx,.xls,.csv,.pdf,.docx" multiple hidden>
+            <span class="filepick__name" id="pastFileName">選ばれていません</span>
+          </div>
+          <p class="field__hint">Excel・Word・PDFのどれでも構いません。議事録の形式が揃っていなくても読みます。</p>
+          <button class="btn btn--quiet btn--small" type="button" id="btnPastSample" style="margin-top:var(--space-3)">手元にない場合はこちら（見本を使う）</button>
+        </div>
+        <div id="pastReadout" hidden></div>
+        <button class="btn btn--primary" type="button" id="btnPastRun" style="width:100%;margin-top:var(--space-4)" disabled>観点を起こす</button>
+      </div>
+
+      <div>
+        <div class="empty" id="pastIdle">
+          <h2 class="empty__title">過去のDR議事録を取り込んでください</h2>
+          <div class="empty__body">
+            <p>議事録の発言をそのまま読んで、次を出します。</p>
+            <ul>
+              <li>同じ観点が繰り返し出ているもの（何回・どの機種で出たか）</li>
+              <li>その観点をチェックリストの項目に書き直した文</li>
+              <li>1回しか出ていないため、項目にしなかったもの</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card" id="pastLoading" hidden aria-live="polite">
+          <h2 style="font-size:var(--font-subsection-title);margin-bottom:var(--space-2)">議事録を読んでいます</h2>
+          <p style="font-size:var(--font-caption);color:var(--color-text-secondary);margin-bottom:var(--space-4)" id="pastLoadMeta"></p>
+          <ol class="stepper" id="pastStepper">
+            <li class="step" data-state="todo"><span class="step__mark">1</span><span class="step__text">議事録から発言を抜き出しています</span></li>
+            <li class="step" data-state="todo"><span class="step__mark">2</span><span class="step__text">言い回しの違う同じ指摘をまとめています</span></li>
+            <li class="step" data-state="todo"><span class="step__mark">3</span><span class="step__text">繰り返し出ている観点を数えています</span></li>
+            <li class="step" data-state="todo"><span class="step__mark">4</span><span class="step__text">チェックリストの文に書き直しています</span></li>
+          </ol>
+        </div>
+        <div id="pastResult" hidden></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ステップ2 -->
+  <div class="section" id="sec2" hidden>
+    <h2 class="section__title">2. 今回の帳票を取り込んで、指摘を出す</h2>
+    <p class="section__lead">上で起こしたチェックリストに沿って、図面や変更発議書の記載を見ます。書いてあるが足りないもの、そもそも記載がないものを分けて出します。</p>
+    <div class="grid split-grid" style="grid-template-columns:380px 1fr;align-items:start">
+      <div class="card">
+        <div class="field">
+          <span class="field__label">今回の帳票</span>
+          <div class="filepick">
+            <label class="btn btn--secondary" for="docFile">ファイルを選ぶ</label>
+            <input type="file" id="docFile" accept=".xlsx,.xls,.csv,.pdf,.dwg,.docx" multiple hidden>
+            <span class="filepick__name" id="docFileName">選ばれていません</span>
+          </div>
+          <p class="field__hint">図面、変更発議書、評価計画書など。複数まとめて構いません。</p>
+          <button class="btn btn--quiet btn--small" type="button" id="btnDocSample" style="margin-top:var(--space-3)">手元にない場合はこちら（見本を使う）</button>
+        </div>
+        <div id="docReadout" hidden></div>
+        <button class="btn btn--primary" type="button" id="btnDocRun" style="width:100%;margin-top:var(--space-4)" disabled>指摘を出す</button>
+      </div>
+
+      <div>
+        <div class="empty" id="docIdle">
+          <h2 class="empty__title">今回の帳票を取り込んでください</h2>
+          <div class="empty__body">
+            <p>チェックリストの各項目について、次を判断します。</p>
+            <ul>
+              <li>帳票のどこに、何と書いてあるか</li>
+              <li>その記載でこの項目に答えられているか</li>
+              <li>足りない場合、DRで何を求めるか</li>
+            </ul>
+            <p style="margin-top:var(--space-3)">記載が見つからない項目は「なし」ではなく「見つけられなかった」として残します。文書が未登録なだけかもしれないためです。</p>
+          </div>
+        </div>
+        <div class="card" id="docLoading" hidden aria-live="polite">
+          <h2 style="font-size:var(--font-subsection-title);margin-bottom:var(--space-2)">帳票を読んでいます</h2>
+          <p style="font-size:var(--font-caption);color:var(--color-text-secondary);margin-bottom:var(--space-4)" id="docLoadMeta"></p>
+          <ol class="stepper" id="docStepper">
+            <li class="step" data-state="todo"><span class="step__mark">1</span><span class="step__text">帳票から記載事項を抜き出しています</span></li>
+            <li class="step" data-state="todo"><span class="step__mark">2</span><span class="step__text">チェックリストの項目と突き合わせています</span></li>
+            <li class="step" data-state="todo"><span class="step__mark">3</span><span class="step__text">記載が足りない箇所を判定しています</span></li>
+            <li class="step" data-state="todo"><span class="step__mark">4</span><span class="step__text">DRで確認すべきことをまとめています</span></li>
+          </ol>
+        </div>
+        <div id="docResult" hidden></div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ========== 審査ゲート ========== -->
-<section class="view" data-view="gates">
+<section class="view" data-view="gates" hidden>
   <p class="breadcrumb">審査ゲート</p>
   <div class="page-head">
     <div>
@@ -23,11 +129,17 @@
         <caption class="visually-hidden">審査ゲートの一覧</caption>
         <thead><tr>
           <th scope="col">ゲート</th><th scope="col">実施日</th><th scope="col">主査</th>
-          <th scope="col">確認項目</th><th scope="col">未完了の指摘</th><th scope="col">状態</th><th scope="col">操作</th>
+          <th scope="col">確認項目</th><th scope="col">未完了の指摘</th><th scope="col">操作</th>
         </tr></thead>
         <tbody id="gateBody"></tbody>
       </table>
     </div>
+  </div>
+
+  <div class="section">
+    <h2 class="section__title">完了扱いになっている指摘の再確認</h2>
+    <p class="section__lead" id="missMeta"></p>
+    <div id="missCards"></div>
   </div>
 
   <div class="section">
@@ -38,7 +150,7 @@
         <caption class="visually-hidden">持ち越している指摘の一覧</caption>
         <thead><tr>
           <th scope="col">指摘番号</th><th scope="col">区分</th><th scope="col">指摘内容</th>
-          <th scope="col">担当</th><th scope="col">期限</th><th scope="col">状態</th><th scope="col">根拠</th>
+          <th scope="col">担当</th><th scope="col">期限</th><th scope="col">根拠</th>
         </tr></thead>
         <tbody id="carryBody"></tbody>
       </table>
@@ -71,6 +183,8 @@
         <label class="check-row"><input type="checkbox" id="mxChange" checked> 今回の変更点（DRBFM）</label>
         <label class="check-row"><input type="checkbox" id="mxTrouble" checked> 過去不具合の記録</label>
         <label class="check-row"><input type="checkbox" id="mxPrev" checked> 前回までのDR指摘</label>
+        <label class="check-row"><input type="checkbox" id="mxDone" checked> 完了扱いの指摘（完了後の設計変更を確認）</label>
+        <p class="field__hint">外すと結果が変わります。完了扱いを外すと、完了後に設計変更が入った指摘を拾わなくなります。</p>
       </div>
       <button class="btn btn--primary" type="submit" style="width:100%">確認すべき項目を絞り込む</button>
     </form>
@@ -84,6 +198,7 @@
             <li>今回の変更点で新たにリスクが生じる項目</li>
             <li>過去に不具合が発生していて、同じ観点が今回も必要な項目</li>
             <li>前回までのDRで指摘され、まだ完了していない項目</li>
+            <li>完了扱いになっているが、完了と判断した後に設計変更が入っている指摘</li>
           </ul>
           <p style="margin-top:var(--space-3)">突き合わせの結果が付かなかった項目も、標準項目として残します。AIが確認項目を削ることはしません。</p>
         </div>
@@ -97,7 +212,8 @@
           <li class="step" data-state="todo"><span class="step__mark">2</span><span class="step__text">今回の変更点と突き合わせています</span></li>
           <li class="step" data-state="todo"><span class="step__mark">3</span><span class="step__text">過去不具合の記録と突き合わせています</span></li>
           <li class="step" data-state="todo"><span class="step__mark">4</span><span class="step__text">前回までのDR指摘の未完了を確認しています</span></li>
-          <li class="step" data-state="todo"><span class="step__mark">5</span><span class="step__text">確認すべき項目の優先度をまとめています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">5</span><span class="step__text">完了扱いの指摘に、完了後の設計変更がないかを確認しています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">6</span><span class="step__text">確認すべき項目の優先度をまとめています</span></li>
         </ol>
       </div>
 
@@ -124,12 +240,6 @@
         <label class="field__label" for="fGate">ゲート</label>
         <select class="select" id="fGate"><option value="">すべて</option></select>
       </div>
-      <div class="field" style="margin:0">
-        <label class="field__label" for="fStat">状態</label>
-        <select class="select" id="fStat">
-          <option value="">すべて</option><option>未着手</option><option>対応中</option><option>完了</option>
-        </select>
-      </div>
     </div>
   </div>
   <div class="table-meta" id="findMeta"></div>
@@ -139,7 +249,7 @@
       <thead><tr>
         <th scope="col">指摘番号</th><th scope="col">ゲート</th><th scope="col">区分</th>
         <th scope="col">指摘内容</th><th scope="col">担当</th><th scope="col">期限</th>
-        <th scope="col">状態</th><th scope="col">操作</th>
+        <th scope="col">操作</th>
       </tr></thead>
       <tbody id="findBody"></tbody>
     </table>
