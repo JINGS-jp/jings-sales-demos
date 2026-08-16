@@ -627,21 +627,26 @@ async def check_08(pg, errors):
     await pg.click("#ftForm button[type=submit]")
     await pg.wait_for_selector("#ftResult:not([hidden])", timeout=12000)
     r = await pg.inner_text("#ftResult")
-    assert "原因の分岐（5M1E）" in r, "5M1Eの分岐が出ていない"
+    assert "故障の木" in r and "中間事象" in r, "頂上→中間事象→基本事象の木が出ていない"
+    assert "基本事象の5M1E分類" in r, "5M1Eの抜け確認が出ていない"
     # 6分類すべてが図に出る（候補0件の分類も枠を残す）
     cats = await pg.eval_on_selector_all("#ftResult [data-cat]", "e => e.length")
     assert cats == 6, f"6分類すべてが出ていない: {cats}"
-    empties = await pg.eval_on_selector_all("#ftResult .bx--cat-empty", "e => e.length")
-    assert empties >= 1, "候補なしの分類が破線で示されていない"
+    assert "候補なし" in r, "候補が挙がらなかった分類が示されていない"
     assert "候補なしの分類" in r, "候補なしの分類のセクションがない"
     assert "候補が挙がっていません" in r, "掘り下げ不足の指摘がない"
-    assert "推定" in r and "実績あり" in r, "実績と推定が区別されていない"
+    assert "未評価" in r and "関連記録あり" in r, "記録の有無で発生度の扱いが分かれていない"
     # 現象・分類・原因それぞれの根拠が開く
     await pg.click('#ftResult [data-node="top"]')
     p0 = await pg.inner_text("#panelBody")
-    assert "分類ごとの候補数" in p0, "現象の詳細に分類別の件数がない"
+    assert "分類ごとの候補数" in p0, "頂上事象の詳細に分類別の件数がない"
     await pg.click("#panelClose")
-    await pg.click("#ftResult .bx--cat-empty")
+    # 候補が挙がらなかった分類の行を開く
+    empty_cat = await pg.eval_on_selector_all(
+        "#ftResult [data-cat]",
+        "e => e.filter(x => x.innerText.includes('候補なし')).map(x => x.dataset.cat)")
+    assert empty_cat, "候補が挙がらなかった分類が表にない"
+    await pg.click(f'#ftResult [data-cat="{empty_cat[0]}"]')
     p1 = await pg.inner_text("#panelBody")
     assert "候補が挙がっていません" in p1, "候補なし分類の説明がない"
     assert "原因になり得ないとは限りません" in p1, "候補なしの解釈の注意がない"
@@ -679,7 +684,7 @@ async def check_08(pg, errors):
     # FMEAとの関係：向きの違いと未登録の原因
     await pg.click('[data-view="compare"]')
     c = await pg.inner_text('section[data-view="compare"]')
-    assert "原因 → 影響" in c and "結果 → 原因" in c, "FMEAとFTAの向きの違いが説明されていない"
+    assert "工程・故障モードを起点" in c and "発生した事象を起点" in c, "工程FMEAと故障の木の起点の違いが説明されていない"
     assert "工程FMEAに登録がない原因" in c, "工程FMEA未登録の原因のセクションがない"
     await pg.click("#gapBody [data-toproc]")
     assert await pg.is_visible("#toastArea .toast"), "検討依頼の通知が出ない"
@@ -687,7 +692,7 @@ async def check_08(pg, errors):
     await pg.click('[data-view="docs"]')
     dc = await pg.inner_text("#docsBody")
     assert "未登録" in dc, "未登録文書が明示されていない"
-    return "デモ8：現象起点・5M1Eの6分類・候補なしの分類を残す・実績と推定の区別・FMEAとの向きの違い・Excel出力"
+    return "デモ8：現象起点・頂上→中間事象→基本事象の木・5M1Eの抜け確認・記録なしは未評価・FMEAとの向きの違い・Excel出力"
 
 
 CHECKS = {"index": check_index, "01-knowledge": check_01, "02-process-fmea": check_02,

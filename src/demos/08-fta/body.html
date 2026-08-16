@@ -33,7 +33,7 @@
         <span class="field__label">紐づける実績</span>
         <label class="check-row"><input type="checkbox" id="lkTr" checked> 過去不具合の記録</label>
         <label class="check-row"><input type="checkbox" id="lkFm" checked> 工程FMEAの登録行</label>
-        <p class="field__hint">末端の基本事象に実績が紐づかない場合は、発生率を推定として扱います。</p>
+        <p class="field__hint">基本事象に過去記録が紐づかない場合、発生度は出さず「未評価」として扱います。</p>
       </div>
       <button class="btn btn--primary" type="submit" style="width:100%">故障の木を展開する</button>
     </form>
@@ -44,10 +44,11 @@
         <div class="empty__body">
           <p>選択した現象について、次を作ります。</p>
           <ul>
-            <li>原因を 人・設備・材料・方法・測定・環境 の6分類に分けた木</li>
+            <li>頂上事象 → 中間事象（論理ゲート） → 基本事象 の木</li>
+            <li>基本事象を 人・設備・材料・方法・測定・環境 に分類した結果</li>
             <li><strong>候補が挙がらなかった分類</strong>（掘り下げが足りていない可能性がある箇所）</li>
-            <li>各原因に紐づく過去不具合と工程FMEAの行</li>
-            <li>実績が紐づかない原因（発生度が推定になる箇所）</li>
+            <li>各基本事象に紐づく過去記録と、関連する工程FMEA</li>
+            <li>過去記録が紐づかない基本事象（発生度を出さず未評価にする箇所）</li>
           </ul>
         </div>
       </div>
@@ -106,13 +107,13 @@
   <div class="section">
     <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr))">
       <div class="card">
-        <h2 style="font-size:var(--font-subsection-title);margin-bottom:var(--space-3)">工程FMEA（原因 → 影響）</h2>
+        <h2 style="font-size:var(--font-subsection-title);margin-bottom:var(--space-3)">工程FMEA：工程・故障モードを起点にリスクを確認</h2>
         <p>工程ごとに、要求事項を満たせない状態を洗い出して影響を評価します。<strong>網羅性に強い</strong>反面、複数の原因が重なって初めて起きる事象を扱いにくいです。</p>
         <p style="margin-top:var(--space-3)" class="cell-sub">登録済み：<span class="mono" id="cmpFmea"></span></p>
       </div>
       <div class="card">
-        <h2 style="font-size:var(--font-subsection-title);margin-bottom:var(--space-3)">FTA（結果 → 原因）</h2>
-        <p>現象から原因を5M1Eに分けて掘り下げます。<strong>分類の抜けが見えるのが強み</strong>で、材料や環境を見落としていることに気づけます。反面、選んだ現象しか見ません。</p>
+        <h2 style="font-size:var(--font-subsection-title);margin-bottom:var(--space-3)">故障の木：発生した事象を起点に要因を掘り下げ</h2>
+        <p>頂上事象を中間事象に分解し、基本事象まで掘り下げます。<strong>分類の抜けが見えるのが強み</strong>で、材料や環境を見落としていることに気づけます。反面、選んだ現象しか見ません。</p>
         <p style="margin-top:var(--space-3)" class="cell-sub">登録済み：<span class="mono" id="cmpFta"></span></p>
       </div>
     </div>

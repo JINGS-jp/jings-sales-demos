@@ -25,81 +25,90 @@ function groupByM1E(tree) {
 }
 
 /* ---- 木の描画（左から右へ：現象 → 6分類 → 原因） ---- */
-const TOPW = 220, CATW = 160, CAUW = 320, RH = 58, RGAP = 10, COLGAP = 46;
+const TOPW = 220, GATEW = 210, CAUW = 330, RH = 62, RGAP = 10, COLGAP = 52;
 
-function treeSvg(groups) {
-  // 各分類の高さは原因の数で決まる（0件のときも1行ぶん確保する）
+/* 故障の木を描く。
+   頂上事象 → 中間事象（論理ゲート） → 基本事象 の3階層。
+   5M1Eは基本事象に付ける分類で、木の階層ではない。分類の抜けは木の下の表で見る。 */
+function treeSvg() {
+  const gates = curTree.gates.map(g => ({
+    g, causes: curTree.causes.filter(c => c.g === g.id)
+  }));
+
+  // 各中間事象の高さは、ぶら下がる基本事象の数で決まる
   let y = 0;
-  const rows = groups.map(g => {
-    const n = Math.max(1, g.causes.length);
+  const rows = gates.map(r => {
+    const n = Math.max(1, r.causes.length);
     const h = n * RH + (n - 1) * RGAP;
-    const r = { g, y, h, cy: y + h / 2 };
-    y += h + RGAP * 2;
-    return r;
+    const o = { ...r, y, h, cy: y + h / 2 };
+    y += h + RGAP * 3;
+    return o;
   });
-  const H = y;
-  const x0 = 0, x1 = TOPW + COLGAP, x2 = x1 + CATW + COLGAP;
+  const H = Math.max(y, 160);
+  const x0 = 0, x1 = TOPW + COLGAP, x2 = x1 + GATEW + COLGAP;
   const W = x2 + CAUW + 8;
   const topCy = H / 2;
 
   const links = rows.map(r => {
     const mx = x0 + TOPW + COLGAP / 2;
-    const cat = `<path class="lk" d="M${x0 + TOPW} ${topCy} H${mx} V${r.cy} H${x1}"/>`;
-    const cau = r.g.causes.map((c, i) => {
+    const toGate = `<path class="lk" d="M${x0 + TOPW} ${topCy} H${mx} V${r.cy} H${x1}"/>`;
+    const toCause = r.causes.map((c, i) => {
       const cy = r.y + i * (RH + RGAP) + RH / 2;
-      const mx2 = x1 + CATW + COLGAP / 2;
-      return `<path class="lk" d="M${x1 + CATW} ${r.cy} H${mx2} V${cy} H${x2}"/>`;
+      const mx2 = x1 + GATEW + COLGAP / 2;
+      return `<path class="lk" d="M${x1 + GATEW} ${r.cy} H${mx2} V${cy} H${x2}"/>`;
     }).join('');
-    return cat + cau;
+    return toGate + toCause;
   }).join('');
 
   const topBox = `<g class="node" tabindex="0" role="button" data-node="top"
-      aria-label="現象の詳細を見る">
-    <rect class="bx bx--top" x="${x0}" y="${topCy - 44}" width="${TOPW}" height="88"/>
-    <text x="${x0 + TOPW / 2}" y="${topCy - 22}" text-anchor="middle"
-      style="font-size:14px;fill:var(--color-error)">現象</text>
+      aria-label="頂上事象の詳細を見る">
+    <rect class="bx bx--top" x="${x0}" y="${topCy - 46}" width="${TOPW}" height="92"/>
+    <text x="${x0 + TOPW / 2}" y="${topCy - 24}" text-anchor="middle"
+      style="font-size:14px;fill:var(--color-error)">頂上事象</text>
     ${wrapText(curTree.top, 13).map((t, i) => `<text x="${x0 + TOPW / 2}"
-      y="${topCy - 2 + i * 18}" text-anchor="middle">${esc(t)}</text>`).join('')}
+      y="${topCy - 4 + i * 18}" text-anchor="middle">${esc(t)}</text>`).join('')}
   </g>`;
 
-  const catBoxes = rows.map(r => {
-    const empty = r.g.causes.length === 0;
-    const marked = curConds.includes(r.g.m.key);   // 文章に手がかりがあった分類
-    return `<g class="node" tabindex="0" role="button" data-cat="${esc(r.g.m.key)}"
-        aria-label="${esc(r.g.m.label)}の分類を見る">
-      <rect class="bx ${empty ? 'bx--cat-empty' : 'bx--cat'}${marked ? ' bx--cat-mark' : ''}"
-        x="${x1}" y="${r.cy - 26}" width="${CATW}" height="52"/>
-      <text x="${x1 + CATW / 2}" y="${r.cy - 6}" text-anchor="middle"
-        style="font-weight:700">${esc(r.g.m.label)}${marked ? '　◆' : ''}</text>
-      <text x="${x1 + CATW / 2}" y="${r.cy + 14}" text-anchor="middle"
-        style="font-size:14px;fill:${empty ? 'var(--color-text-secondary)' : 'var(--color-primary)'}">${
-        empty ? '候補なし' : r.g.causes.length + '件'}</text>
-    </g>`;
-  }).join('');
+  // 中間事象。ORゲートの記号を左に添える。
+  const gateBoxes = rows.map(r => `
+    <g class="node" tabindex="0" role="button" data-gate="${esc(r.g.id)}"
+       aria-label="${esc(r.g.label)}の中間事象を見る">
+      <rect class="bx bx--inter" x="${x1}" y="${r.cy - 34}" width="${GATEW}" height="68"/>
+      <text x="${x1 + 10}" y="${r.cy - 16}" style="font-size:13px;fill:var(--color-primary)">中間事象　${esc(r.g.op)}</text>
+      ${wrapText(r.g.label, 15).slice(0, 2).map((t, i) => `<text x="${x1 + 10}"
+        y="${r.cy + 4 + i * 18}">${esc(t)}</text>`).join('')}
+      <text x="${x1 + GATEW - 8}" y="${r.cy + 26}" text-anchor="end"
+        style="font-size:13px;fill:var(--color-text-secondary)">${r.causes.length} 件</text>
+    </g>`).join('');
 
-  const cauBoxes = rows.map(r => r.g.causes.map((c, i) => {
+  // 基本事象。5M1Eの分類と、実績の有無をここに出す。
+  const cauBoxes = rows.map(r => r.causes.map((c, i) => {
     const cy = r.y + i * (RH + RGAP) + RH / 2;
     const hit = !!c.tr && $('#lkTr').checked;
     const idx = curTree.causes.indexOf(c);
+    const m = M_BY_KEY[c.m];
+    const marked = curConds.includes(c.m);
     return `<g class="node" tabindex="0" role="button" data-cause="${idx}"
         aria-label="${esc(c.label)}の根拠を見る">
       <rect class="bx bx--basic" x="${x2}" y="${cy - RH / 2}" width="${CAUW}" height="${RH}"/>
       ${hit ? `<rect class="bx-flag" x="${x2 + 1.5}" y="${cy - RH / 2 + 1.5}" width="4" height="${RH - 3}"/>` : ''}
-      ${wrapText(c.label, 20).slice(0, 2).map((t, k) => `<text x="${x2 + 10}"
-        y="${cy - 6 + k * 18}">${esc(t)}</text>`).join('')}
-      <text x="${x2 + CAUW - 8}" y="${cy + RH / 2 - 6}" text-anchor="end"
-        style="font-size:14px;fill:var(--color-text-secondary)">O${c.o}${hit ? '' : '（推定）'}</text>
+      <text x="${x2 + 12}" y="${cy - RH / 2 + 17}"
+        style="font-size:13px;fill:${marked ? 'var(--color-warning)' : 'var(--color-text-secondary)'}">${esc(m ? m.label : c.m)}${marked ? '　◆' : ''}</text>
+      ${wrapText(c.label, 21).slice(0, 2).map((t, k) => `<text x="${x2 + 12}"
+        y="${cy - RH / 2 + 36 + k * 17}">${esc(t)}</text>`).join('')}
+      <text x="${x2 + CAUW - 10}" y="${cy - RH / 2 + 17}" text-anchor="end"
+        style="font-size:13px;fill:var(--color-text-secondary)">${hit ? '関連記録あり' : '実績なし'}</text>
     </g>`;
   }).join('')).join('');
 
   return `<div class="fta"><svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}"
-      role="img" aria-label="${esc(curTree.top)}の原因を5M1Eに分けた図">
-    ${links}${topBox}${catBoxes}${cauBoxes}
+      role="img" aria-label="${esc(curTree.top)}の故障の木">
+    ${links}${topBox}${gateBoxes}${cauBoxes}
   </svg></div>
   <div class="fta-legend">
-    <span><i style="border-color:var(--color-error)"></i>現象</span>
-    <span><i style="border-color:var(--color-primary)"></i>分類（候補あり）</span>
-    <span><i style="background:var(--color-warning-bg);border-color:var(--color-warning)"></i>◆ 文章に手がかりがあった分類</span>
+    <span><i style="border-color:var(--color-error)"></i>頂上事象</span>
+    <span><i style="border-color:var(--color-primary)"></i>中間事象（論理ゲート）</span>
+    <span><i style="border-color:var(--color-border)"></i>基本事象</span>
     <span><i style="background:var(--color-background-muted);border-color:var(--color-border)"></i>分類（候補なし）</span>
     <span><i style="background:var(--color-warning-bg);border-color:var(--color-warning)"></i>原因（過去実績あり）</span>
     <span><i style="background:var(--color-background);border-color:var(--color-border)"></i>原因（実績なし・推定）</span>
@@ -138,9 +147,9 @@ function renderTree() {
       <p class="cell-sub" style="margin-bottom:var(--space-4)">${esc(curTree.scope)}</p>
       <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:var(--space-4);margin-bottom:var(--space-4)">
         <div><p class="kpi__label">原因の候補</p><p class="kpi__value" style="font-size:var(--font-section-title)">${curTree.causes.length}<span class="kpi__unit"> 件</span></p></div>
-        <div><p class="kpi__label">過去実績あり</p><p class="kpi__value" style="font-size:var(--font-section-title)">${withTr.length}<span class="kpi__unit"> 件</span></p><p class="kpi__note">残り ${curTree.causes.length - withTr.length} 件は推定</p></div>
+        <div><p class="kpi__label">関連する過去記録あり</p><p class="kpi__value" style="font-size:var(--font-section-title)">${withTr.length}<span class="kpi__unit"> 件</span></p><p class="kpi__note">残り ${curTree.causes.length - withTr.length} 件は推定</p></div>
         <div><p class="kpi__label">候補なしの分類</p><p class="kpi__value" style="font-size:var(--font-section-title)">${empty.length}<span class="kpi__unit"> / 6</span></p><p class="kpi__note">${empty.length ? esc(empty.map(g => g.m.label).join('・')) : 'すべての分類に候補あり'}</p></div>
-        <div><p class="kpi__label">工程FMEAに登録なし</p><p class="kpi__value" style="font-size:var(--font-section-title)">${noFmea.length}<span class="kpi__unit"> 件</span></p></div>
+        <div><p class="kpi__label">対応するFMEA行が未特定</p><p class="kpi__value" style="font-size:var(--font-section-title)">${noFmea.length}<span class="kpi__unit"> 件</span></p></div>
       </div>
       <p style="line-height:var(--line-height-body)">
         現象から原因を ${curTree.causes.length} 件挙げ、5M1Eの6分類に振り分けました。
@@ -154,22 +163,50 @@ function renderTree() {
     </div>
 
     <div class="section">
-      <h2 class="section__title">原因の分岐（5M1E）</h2>
-      <p class="section__lead">左が現象、中央が6分類、右が具体的な原因です。枠をクリックすると根拠と紐づく実績を確認できます。破線の分類は候補が挙がっていない箇所です。</p>
-      ${treeSvg(groups)}
+      <h2 class="section__title">故障の木</h2>
+      <p class="section__lead">左が頂上事象、中央が中間事象（論理ゲート）、右が基本事象です。枠を押すと根拠と紐づく記録を確認できます。</p>
+      ${treeSvg()}
+    </div>
+
+    <div class="section">
+      <h2 class="section__title">基本事象の5M1E分類（抜けの確認）</h2>
+      <p class="section__lead">木に出た基本事象を、人・設備・材料・方法・測定・環境に振り分けた結果です。候補が挙がらなかった分類も残します。この分類に原因がないと言い切ってよいかを確かめてください。</p>
+      <div class="table-wrap">
+        <table>
+          <caption class="visually-hidden">基本事象の5M1E分類</caption>
+          <thead><tr>
+            <th scope="col">分類</th><th scope="col">この分類が扱う範囲</th>
+            <th scope="col">基本事象</th><th scope="col">状態</th>
+          </tr></thead>
+          <tbody>${groups.map(g => `
+            <tr data-cat="${esc(g.m.key)}">
+              <td class="nowrap"><strong>${esc(g.m.label)}</strong>${curConds.includes(g.m.key)
+                ? '<div style="margin-top:var(--space-1)"><span class="status status--warn">入力に手がかりあり</span></div>' : ''}
+                <div class="cell-sub">${esc(g.m.en)}</div></td>
+              <td class="col-text cell-sub">${esc(g.m.desc)}</td>
+              <td class="col-text">${g.causes.length
+                ? g.causes.map(c => esc(c.label)).join('<br>')
+                : '<span class="cell-empty">候補が挙がっていません</span>'}</td>
+              <td class="nowrap">${g.causes.length
+                ? `<span class="status status--done">${g.causes.length} 件</span>`
+                : '<span class="status status--risk">候補なし</span>'}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
     </div>
 
     ${empty.length ? `
     <div class="section">
       <h2 class="section__title">候補が挙がっていない分類</h2>
-      <p class="section__lead">この分類に原因がないと言い切ってよいかを確かめてください。過去の記録に出てこないだけで、実際は原因になっていることがあります。</p>
+      <p class="section__lead">過去の記録に出てこないだけで、実際は原因になっていることがあります。掘り下げが済んでいるかを確認してください。</p>
       ${empty.filter(g => curConds.includes(g.m.key)).length ? `
         <div class="callout callout--error" style="margin-bottom:var(--space-4)">
           <div>
-            <p class="callout__title">ここが今回いちばん危ないところです</p>
+            <p class="callout__title">優先して確認したい観点があります</p>
             <p>${esc(empty.filter(g => curConds.includes(g.m.key)).map(g => g.m.label).join('・'))}
-            は、書かれた文章に手がかりが出ているのに、過去の記録には原因が1件もありません。
-            記録に残っていないだけで、今回まさにそこが効いている可能性があります。先に潰してください。</p>
+            について、入力内容に手がかりがありますが、過去の記録には対応する原因候補が見つかりませんでした。
+            未検討の可能性があるため、優先して確認してください。</p>
           </div>
         </div>` : ''}
       <div class="table-wrap">
@@ -209,7 +246,7 @@ function renderTree() {
               <td class="nowrap">${esc(M_BY_KEY[c.m].label)}</td>
               <td class="col-text"><strong>${esc(c.label)}</strong></td>
               <td class="col-text cell-sub">${esc(c.note)}</td>
-              <td class="nowrap"><span class="sod-badge">O${c.o}</span>
+              <td class="nowrap">${c.o != null ? `<span class="sod-badge">O${c.o}</span>` : '<span class="status status--todo">未評価</span>'}
                 <div class="cell-sub">${(useTr && c.tr) ? '実績あり' : '推定'}</div></td>
               <td class="nowrap">${(useTr && c.tr) ? `<span class="mono">${esc(c.tr)}</span>` : '<span class="cell-empty">—</span>'}</td>
               <td class="nowrap">${(useFm && c.fmea) ? esc(procLabel(c.fmea))
@@ -221,14 +258,14 @@ function renderTree() {
       </div>
       <div style="display:flex;gap:var(--space-3);margin-top:var(--space-4);flex-wrap:wrap">
         <button class="btn btn--primary" id="btnFtCsv">原因の分岐をExcelで出力する</button>
-        <button class="btn btn--secondary" id="btnToFmea">工程FMEAへ反映を依頼する</button>
+        <button class="btn btn--secondary" id="btnToFmea">工程FMEAへの反映イメージを見る</button>
       </div>
     </div>
 
     <div class="callout callout--warn">
       <div>
         <p class="callout__title">この結果を使うときの注意</p>
-        <p>原因の候補は過去の記録から集めたものです。これで全部とは言えません。候補が出なかった分類は「原因がない」ではなく「記録に出てこない」だけです。発生度は、実際に起きた記録があるものは記録から、ないものは推定です。本当の原因は、現物と現場を見てから決めてください。</p>
+        <p>原因の候補は過去の記録から集めたものです。これで全部とは言えません。候補が出なかった分類は「原因がない」ではなく「記録に出てこない」だけです。発生度は、実際に起きた記録があるものは記録から、ないものは推定です。最終的な原因判定は、現物・現場の確認結果を踏まえて担当者が行ってください。</p>
       </div>
     </div>`;
 
@@ -258,7 +295,7 @@ function exportTree() {
     [],
     ['分類', '分類（英）', '原因', '補足', '発生度O', '発生度の根拠', '過去不具合', '工程FMEA'],
     ...curTree.causes.map(c => [M_BY_KEY[c.m].label, M_BY_KEY[c.m].en, c.label, c.note,
-      c.o, c.tr ? '過去実績あり' : '推定', c.tr || '', c.fmea ? procLabel(c.fmea) : '登録なし']),
+      c.o != null ? c.o : '未評価', c.tr ? '関連する過去記録あり' : '記録なし', c.tr || '', c.fmea ? procLabel(c.fmea) : '登録なし']),
     [],
     ['候補が挙がっていない分類', '扱う範囲', '確認すべきこと'],
     ...groupByM1E(curTree).filter(g => !g.causes.length)
@@ -280,7 +317,9 @@ function openCause(i) {
     <dl class="meta-list">
       <dt>現象</dt><dd>${esc(curTree.top)}</dd>
       <dt>分類</dt><dd>${esc(m.label)}（${esc(m.en)}）　／　${esc(m.desc)}</dd>
-      <dt>発生度O</dt><dd class="mono">O${c.o}　（${c.tr ? '過去実績から' : '推定'}）</dd>
+      <dt>発生度O</dt><dd>${c.o != null
+        ? `<span class="mono">O${c.o}</span>　（関連する過去記録から引き当て）`
+        : '未評価（引き当てられる過去記録がないため、点数は出していません）'}</dd>
     </dl>
     <div class="quote" style="margin-top:var(--space-4)"><p>${esc(c.note)}</p></div>
     ${tr ? `
@@ -301,7 +340,7 @@ function openCause(i) {
         </div>
       </div>`}
     ${fmeaRows.length ? `
-      <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">同じ工程の工程FMEAの登録行</h3>
+      <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">同じ工程の関連する工程FMEA</h3>
       <div class="table-wrap">
         <table>
           <thead><tr><th scope="col">故障モード</th><th scope="col">現行の検出</th><th scope="col">S・O・D</th></tr></thead>
@@ -335,7 +374,7 @@ function openCat(key) {
     ${causes.length ? `
       <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">挙がっている原因</h3>
       <ul style="margin:0;padding-left:1.2em;line-height:var(--line-height-body)">
-        ${causes.map(c => `<li>${esc(c.label)}　<span class="cell-sub">（O${c.o}・${c.tr ? '実績あり' : '推定'}）</span></li>`).join('')}
+        ${causes.map(c => `<li>${esc(c.label)}　<span class="cell-sub">（${c.o != null ? 'O' + c.o : '未評価'}・${c.tr ? '関連記録あり' : '記録なし'}）</span></li>`).join('')}
       </ul>` : `
       <div class="callout callout--warn" style="margin-top:var(--space-4)">
         <div>
@@ -388,14 +427,14 @@ function renderBasic() {
   const rows = allCauses();
   const est = rows.filter(x => !x.c.tr).length;
   $('#basicMeta').innerHTML =
-    `全 ${rows.length} 件　／　過去実績あり ${rows.length - est} 件・<strong>推定 ${est} 件</strong>`;
+    `全 ${rows.length} 件　／　関連する過去記録あり ${rows.length - est} 件・<strong>記録なし ${est} 件</strong>`;
   $('#basicBody').innerHTML = rows.map(({ tree, c }) => `
     <tr>
       <td class="col-text cell-sub">${esc(tree.top)}</td>
       <td class="nowrap">${esc(M_BY_KEY[c.m].label)}</td>
       <td class="col-text"><strong>${esc(c.label)}</strong></td>
       <td class="col-text cell-sub">${esc(c.note)}</td>
-      <td class="nowrap"><span class="sod-badge">O${c.o}</span>
+      <td class="nowrap">${c.o != null ? `<span class="sod-badge">O${c.o}</span>` : '<span class="status status--todo">未評価</span>'}
         <div class="cell-sub">${c.tr ? '実績あり' : '推定'}</div></td>
       <td class="nowrap">
         ${c.tr ? `<span class="mono cell-sub">${esc(c.tr)}</span><br>` : ''}
@@ -580,10 +619,9 @@ function applyRead(text) {
     openModal('どの現象として扱いますか',
       '書かれた内容に近い現象を、登録済みのものから決められませんでした。'
       + 'AIが勝手に決めると、木の頂上が実際とずれます。近いものを選んでください。',
-      scored.slice(0, 3).map((x, i) => ({
+      scored.slice(0, 3).map(x => ({
         label: x.t.top,
         desc: `${x.t.prod}　文面の一致：${x.score >= 0.25 ? '高' : x.score >= 0.12 ? '中' : '低'}`,
-        rec: i === 0,
         onPick: () => go(x, true)
       })));
     return;
@@ -631,8 +669,9 @@ $('#btnBasicCsv').addEventListener('click', () => {
   const rows = renderBasic();
   downloadXlsx(`FTA原因一覧_${today()}.xlsx`, [
     ['現象', '分類', '原因', '補足', '発生度O', '発生度の根拠', '過去不具合', '工程FMEA'],
-    ...rows.map(({ tree, c }) => [tree.top, M_BY_KEY[c.m].label, c.label, c.note, c.o,
-      c.tr ? '過去実績あり' : '推定', c.tr || '', c.fmea ? procLabel(c.fmea) : '登録なし'])
+    ...rows.map(({ tree, c }) => [tree.top, M_BY_KEY[c.m].label, c.label, c.note,
+      c.o != null ? c.o : '未評価', c.tr ? '関連する過去記録あり' : '記録なし',
+      c.tr || '', c.fmea ? procLabel(c.fmea) : '未特定'])
   ]);
   toast('Excelを出力しました', `${rows.length} 件の原因を出力しました。`);
 });
