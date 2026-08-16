@@ -363,7 +363,7 @@ def build_index(css: str, metas: list) -> Path:
     </ul>
   </details>
 
-  <p class="lp__foot">株式会社JINGS　／　データはすべて架空です。実在する顧客の情報は含まれていません。</p>
+  <p class="lp__foot">株式会社JINGS 社内限り　／　データはすべて架空です</p>
 </main>
 </body>
 </html>
