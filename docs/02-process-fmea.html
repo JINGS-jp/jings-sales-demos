@@ -426,14 +426,14 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
   <div class="page-head">
     <div>
       <h1 class="page-title">FMEAドラフト生成</h1>
-      <p class="page-lead">工程を選ぶと、その工程が何をする工程かを工程フローから拾い、図面・条件表・作業標準から「守るべきこと」を抜き出します。それを満たせない状態を並べて、故障モードの候補にします。S・O・Dは勝手に確定しません。最終判断は担当者が行います。</p>
+      <p class="page-lead">工程を選択すると、工程フローから工程機能を整理し、図面・条件表・作業標準から要求事項を抽出します。要求事項からの逸脱を整理し、故障モード候補として提示します。S・O・Dは社内基準に基づく候補値であり、最終評価は担当者が行います。</p>
     </div>
   </div>
 
   <div class="grid split-grid" style="grid-template-columns:370px 1fr;align-items:start">
     <form class="card" id="genForm" novalidate style="position:sticky;top:calc(var(--header-height) + var(--space-5))">
       <div class="field">
-        <span class="field__label">工程の情報をどこから取るか</span>
+        <span class="field__label">工程情報の取得方法</span>
         <div class="drop">
           <label class="field__label" for="flowFile" style="font-size:var(--font-caption)">工程フロー表をアップロードする</label>
           <input type="file" id="flowFile" accept=".xlsx,.xls,.pdf" class="filepick__input">
@@ -475,7 +475,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
         <label class="check-row"><input type="checkbox" id="rfWi" checked> 作業要領書・検査基準書</label>
         <label class="check-row"><input type="checkbox" id="rfFmea" checked> 既存の工程FMEA</label>
         <label class="check-row"><input type="checkbox" id="rfTr" checked> 過去不具合の記録</label>
-        <p class="field__hint">外すと結果が変わります。どの文書が何に効いているかを確認できます。</p>
+        <p class="field__hint">選択を外した文書は参照対象から除外されます。各文書が結果に与える影響を確認できます。</p>
       </div>
 
       <button class="btn btn--primary" type="submit" style="width:100%">工程FMEAドラフトを生成する</button>
@@ -490,7 +490,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
           <ul>
             <li>工程 → 機能 → 要求事項 → 逸脱 → 故障モードの順に、画面上で追跡できます</li>
             <li>要求事項は出典の文書名と該当箇所を表示します</li>
-            <li>S・O・Dは社内基準に当てた候補の数字です。最終判断は担当者が行います</li>
+            <li>S・O・Dは社内評価基準に照らした候補値です。最終評価は担当者が行います</li>
           </ul>
         </div>
       </div>
@@ -520,7 +520,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
   <div class="page-head">
     <div>
       <h1 class="page-title">工程フロー</h1>
-      <p class="page-lead">ACT-220 第一工場 組立ラインの工程フローです。工程ごとに、何をする工程かと、抜き出せた要求の数を出しています。</p>
+      <p class="page-lead">ACT-220 第一工場 組立ラインの工程フローです。各工程の機能と、抽出した要求事項数を表示しています。</p>
     </div>
   </div>
   <div class="table-meta" id="flowMeta"></div>
@@ -542,7 +542,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
   <div class="page-head">
     <div>
       <h1 class="page-title">既存の工程FMEA</h1>
-      <p class="page-lead">いま入っている工程FMEAです。下書きを作るときは、ここと重ならない候補だけを出します。</p>
+      <p class="page-lead">現在登録されている工程FMEAです。ドラフト生成時は、既存行との重複を除いた候補を提示します。</p>
     </div>
     <div class="page-head__actions">
       <button class="btn btn--quiet" id="btnExCsv">一覧をExcelで出力する</button>
@@ -574,7 +574,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
   <div class="page-head">
     <div>
       <h1 class="page-title">参照文書</h1>
-      <p class="page-lead">要求を抜き出すもとにしている文書です。文書ごとに、いくつ抜き出せたかを出しています。</p>
+      <p class="page-lead">要求事項の抽出元として参照している文書です。文書ごとの抽出件数を表示します。</p>
     </div>
   </div>
   <div class="table-wrap">
@@ -824,7 +824,7 @@ const PFMEA = [
 
 /* 設計変更・DRBFM（ACT-230：ACT-220からの変更点） ----------
    DRBFMワークシートの様式に合わせる。要点は次の2つ。
-   ・「他に心配点はないか」「他に考えるべき要因はないか」＝掘り下げの列。AIが補助する所
+   ・「追加で考慮すべき心配点」「追加で考慮すべき要因」＝掘り下げの列。AIが補助する所
    ・対策は「設計／評価／製造」の3つへ振り分ける。ここまで出さないと現場が動けない */
 const DRBFM = [
   { cp: 'モータをブラシ付からブラシレスへ変更', prevPn: 'DCM-24-1800', why: '小型軽量化と寿命延長',
@@ -963,7 +963,7 @@ const DRBFM = [
 const SRC_KINDS = {
   past: { label: '過去実績', desc: '類似品番・過去帳票の実績検索から' },
   func: { label: '機能演繹', desc: '機能→要求→逸脱の演繹から（過去に実績がなくても出せる）' },
-  phys: { label: '物理推論', desc: '材料物性×ストレス条件の推論から' },
+  phys: { label: '物理特性に基づく推論', desc: '材料特性×使用条件の推論から' },
   env:  { label: '環境・一般知見', desc: '使用環境と車載分野の既知故障モードから' }
 };
 
@@ -1027,7 +1027,7 @@ const D8_STEPS = [
   { id: 'D5', name: '恒久対策の選定', hint: '再発を構造的に防ぐ対策' },
   { id: 'D6', name: '恒久対策の実施と検証', hint: '実施内容と効果の確認方法' },
   { id: 'D7', name: '再発防止（水平展開）', hint: '他工程・他機種への展開' },
-  { id: 'D8', name: 'チームの認識と完了', hint: '関係者の承認と記録' }
+  { id: 'D8', name: '完了確認・承認', hint: '関係者の承認と記録' }
 ];
 
 /* 設計審査（DR） ------------------------------------------- */
@@ -1174,9 +1174,9 @@ const DRAWINGS = [
 ];
 
 /* 設計変更通知（ECN） -------------------------------------
-   stage: 暫定 → 最終。暫定のまま止まっている変更が変化点管理の穴になる。
+   stage: 暫定 → 最終。暫定のまま止まっている変更が反映管理の穴になる。
    piggy: 関連変更（この変更に伴って見直すべき変更）。
-   notify: 配布先。変更を知らせるべき部署。 */
+   notify: 変更連絡の対象部署。 */
 const ECNS = [
   { no: 'ECN-2026-009', date: '2026-07-15', stage: '暫定',
     title: 'ACT-230 減速ギヤの歯面幅拡大および材質変更', prod: 'ACT-230',
@@ -1216,8 +1216,8 @@ const ECNS = [
     notify: ['技術部', '生産技術部', '品質保証部', '製造部', '営業部'] }
 ];
 
-/* 変更の反映状態（変化点管理の実態） ------------------------
-   kind: 反映先の種類 ／ status: 'done'=反映済み / 'open'=未反映 / 'unknown'=確認できず
+/* 変更の反映状態（反映管理の実態） ------------------------
+   kind: 反映先の種類 ／ status: 'done'=反映済み / 'open'=要対応 / 'pending'=確認待ち / 'unknown'=確認できず
    未反映と確認できずを区別することが重要。「確認できず」は文書が未登録で追えない状態。 */
 const CHANGE_REFLECT = {
   'ECN-2026-009': [
@@ -2039,7 +2039,7 @@ function renderResult() {
   const reqSec = `
     <div class="section">
       <h2 class="section__title">② 図面・条件表・作業標準から要求事項を抽出</h2>
-      <p class="section__lead">工程が満たすべき「あるべき状態」です。資料に明記のない項目はAIによる推定として区別しています。推定した数値を確定した規格値として扱わないでください。</p>
+      <p class="section__lead">工程で満たすべき要求事項です。資料に明記のない項目はAIによる推定として区別しています。推定した数値を確定した規格値として扱わないでください。</p>
       <div class="table-wrap">
         <table>
           <caption class="visually-hidden">抽出した要求事項</caption>
@@ -2315,9 +2315,9 @@ function evRow(key) {
       </dl>
       <p style="margin-top:var(--space-3);font-size:var(--font-caption)">判定基準：${esc(DATA.SOD_CRITERIA.doc)}。引き当て元の行と同じ影響区分と仮定した候補値です。担当者による確認が必要です。</p>
       ${sheetShot('pfmea', '工程FMEA ACT-220 Ver.09（様式1）— 引き当て元の帳票',
-        '影響・原因・予防・検出は、この帳票の該当行から引き当てています。')}
+        '影響・原因・予防・検出は、この帳票の該当行を参照しています。')}
       ${b.src && TR_BY_ID[b.src] ? `
-        <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">引き当て元の登録契機となった不具合</h3>
+        <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">参照行の登録契機となった不具合</h3>
         <p><span class="mono">${esc(b.src)}</span>（${esc(TR_BY_ID[b.src].date)}）${esc(TR_BY_ID[b.src].sym)}</p>` : ''}
     ` : `
       <div class="callout callout--warn" style="margin-top:var(--space-4)">
@@ -2518,7 +2518,7 @@ document.addEventListener('click', e => {
       cause: r.cause, prev: r.prev, det: r.det, s: r.s, o: r.o, d: r.d,
       ref: r.req.src, src: 'AI提案' });
     renderDraft();
-    toast('工程FMEAドラフトへ追加しました', `${r.mode}　状態は未確定です。担当者の確認後に確定してください。`);
+    toast('工程FMEAドラフトへ追加しました', `${r.mode}　状態は「未確定」です。内容を確認のうえ、担当者が確定してください。`);
     return;
   }
   const ga = e.target.closest('[data-gapadopt]');

@@ -232,7 +232,7 @@ function renderTree() {
 
     <div class="section">
       <h2 class="section__title">原因と紐づく実績</h2>
-      <p class="section__lead">各原因に、過去不具合と工程FMEAの実績を紐づけています。実績がない原因は発生度を推定として扱ってください。</p>
+      <p class="section__lead">各原因に、過去不具合と工程FMEAの実績を紐づけています。過去実績がない原因の発生度は未評価とし、必要に応じて担当者が評価してください。</p>
       <div class="table-wrap">
         <table>
           <caption class="visually-hidden">原因と紐づく実績</caption>
@@ -271,8 +271,8 @@ function renderTree() {
 
   $('#btnFtCsv').addEventListener('click', exportTree);
   $('#btnToFmea').addEventListener('click', () => {
-    toast('反映を依頼しました',
-      `工程FMEAに登録がない ${noFmea.length} 件について、生産技術部へ検討依頼を作成しました。`);
+    toast('検討依頼の下書きを作成しました',
+      `工程FMEAに登録がない ${noFmea.length} 件について、生産技術部への検討依頼を作成しました。デモのため実際には送信されません。`);
   });
 }
 
@@ -332,7 +332,7 @@ function openCause(i) {
         <p style="margin-top:var(--space-3)"><strong>評価</strong><br><span class="mono">S${tr.s}　O${tr.o}　D${tr.d}</span>${tr.leak ? '　／　顧客流出あり' : ''}</p>
       </div>
       ${sheetShot('complaint', '苦情報告書（品質苦情処理規定 QR-2201）',
-        'この原因の発生度は、この帳票に記録された実績から取っています。')}` : `
+        'この原因に関連する発生実績として、以下の帳票を参照しています。')}` : `
       <div class="callout callout--warn" style="margin-top:var(--space-4)">
         <div>
           <p class="callout__title">紐づく過去不具合はありません</p>
@@ -354,7 +354,7 @@ function openCause(i) {
         </table>
       </div>
       ${sheetShot('pfmea', '工程FMEA ACT-220 Ver.09（様式1）',
-        '同じ工程に登録されている行です。この原因と対応が取れているかを確認します。')}` : `
+        '同一工程に登録されているFMEA行です。この原因との対応関係を確認してください。')}` : `
       <div class="callout callout--warn" style="margin-top:var(--space-4)">
         <div>
           <p class="callout__title">工程FMEAに対応する行がありません</p>
@@ -465,13 +465,13 @@ function renderCompare() {
       <td class="col-text">${esc(gapReason(c))}</td>
       <td class="nowrap"><button class="btn btn--quiet btn--small" data-toproc="${esc(tree.id)}|${esc(tree.causes.indexOf(c))}">工程FMEAへの追加を検討する</button></td>
     </tr>`).join('')
-    : `<tr><td colspan="5" class="cell-empty">工程FMEAに登録がない原因はありません</td></tr>`;
+    : `<tr><td colspan="5" class="cell-empty">対応する工程FMEA行を確認できない原因候補はありません</td></tr>`;
 }
 
 function gapReason(c) {
-  if (c.m === 'meas') return '測定していないこと自体を故障モードとして立てていない';
-  if (c.m === 'envi') return '環境条件は特定の工程に属さないため、工程単位では扱われにくい';
-  if (c.m === 'man') return '作業条件による発生のため、工程FMEAでは原因欄に埋もれやすい';
+  if (c.m === 'meas') return '測定に関する観点が故障モードとして登録されていない可能性があります';
+  if (c.m === 'envi') return '環境条件は工程横断で影響する場合があり、工程単位のFMEAでは見落とされる可能性があります';
+  if (c.m === 'man') return '作業条件に関する要因は、工程FMEAの原因欄に記載されていても独立した観点として把握しにくい場合があります';
   return '複数の工程・部門にまたがる事象のため、工程単位では拾いにくい';
 }
 
@@ -482,7 +482,7 @@ function renderDocs() {
     ['工程FMEA', '様式1', '原因と工程FMEA行の対応付け', 'done', '解析完了'],
     ['苦情報告書', '苦情処理帳票', '発生事象・原因・対策の原文', 'done', '解析完了'],
     ['設計変更通知（ECN）', '変更管理帳票', '対策として設計変更した実績', 'done', '解析完了'],
-    ['検査記録（測定値）', '検査記録', '測定に関する原因の発生率。未登録のため推定', 'todo', '未登録'],
+    ['検査記録（測定値）', '検査記録', '測定に関する原因の発生度。未登録のため未評価', 'todo', '未登録'],
     ['作業要領書', '作業標準', '人・方法に関する原因の裏取り。未登録', 'todo', '未登録'],
     ['環境測定記録', '環境記録', '環境に関する原因の裏取り。未登録', 'todo', '未登録']
   ];
@@ -526,7 +526,7 @@ DATA.FTA_TREES.forEach(t => {
 });
 
 /* ===== 文章から現象を読み取る ==============================
-   起きていることを普段の言葉で書いてもらい、頂上に置く現象を決める。
+   起きていることを普段の言葉で書いてもらい、頂上事象を決める。
    一致が弱いときは勝手に決めず、候補を出して人に選んでもらう。
    あわせて、文章の中の手がかり語から「どの分類を重点的に見るか」を拾う。 */
 
@@ -560,7 +560,7 @@ let curConds = [];   // 文章から拾った手がかり（分類キーの配�
 
 const SIT_SAMPLE = 'ACT-220の最終組立で、ケースの合わせ面から異音が出ているという連絡が入った。'
   + '朝一番の立ち上げ直後に多いように見える。先週、締付の治具を交換している。'
-  + '今のところ検査では止められておらず、後工程で見つかっている。';
+  + '現時点では検査工程で検出できておらず、後工程で発見されています。';
 
 /* 文章を読み取って、頂上事象と手がかりを返す */
 function readSituation(text) {
@@ -581,9 +581,9 @@ function showReadout(best, scored, conds, decided) {
   $('#sitReadout').innerHTML = `
     <div class="callout callout--info">
       <div>
-        <p class="callout__title">文章から読み取りました</p>
+        <p class="callout__title">入力内容から候補を抽出しました</p>
         <dl class="meta-list" style="margin-top:var(--space-2)">
-          <dt>頂上に置く現象</dt><dd>${esc(best.t.top)}</dd>
+          <dt>頂上事象</dt><dd>${esc(best.t.top)}</dd>
           <dt>対象</dt><dd>${esc(best.t.prod)}</dd>
           <dt>文面の一致</dt><dd>${best.score >= 0.25 ? '高' : best.score >= 0.12 ? '中' : '低'}${decided ? '（現象は人が選択）' : ''}</dd>
         </dl>
@@ -618,7 +618,7 @@ function applyRead(text) {
   if (best.score < 0.14) {
     openModal('どの現象として扱いますか',
       '書かれた内容に近い現象を、登録済みのものから決められませんでした。'
-      + 'AIが勝手に決めると、木の頂上が実際とずれます。近いものを選んでください。',
+      + '候補を一意に特定できないため、該当する事象を選択してください。',
       scored.slice(0, 3).map(x => ({
         label: x.t.top,
         desc: `${x.t.prod}　文面の一致：${x.score >= 0.25 ? '高' : x.score >= 0.12 ? '中' : '低'}`,

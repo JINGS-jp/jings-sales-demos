@@ -51,9 +51,9 @@ function buildDoc(t) {
     ref: '' });
 
   doc.push({ id: 'D2', name: '問題の記述',
-    text: `${t.date}、${t.prod}の${procLabel(t.proc)}において、${t.part}に関し「${t.sym}」が発生しました。`
-      + `影響度の評価はS${t.s}、発生度O${t.o}、検出度D${t.d}です。`
-      + (t.leak ? '本件は顧客への流出に至っています。' : '社内で検出し、顧客への流出はありません。'),
+    text: `${t.date}、${t.prod}の${procLabel(t.proc)}で、${t.part}に「${t.sym}」が発生しました。`
+      + `当該不具合の評価は、重大度S${t.s}、発生度O${t.o}、検出度D${t.d}です。`
+      + (t.leak ? '本件は顧客流出が確認されています。' : '社内で検出されており、顧客流出は確認されていません。'),
     ref: `不具合記録 ${t.id}` });
 
   doc.push({ id: 'D3', name: '暫定処置',
@@ -65,7 +65,7 @@ function buildDoc(t) {
   const detHint = fmeaRows.length ? fmeaRows[0].det : '';
   doc.push({ id: 'D4', name: '根本原因の特定',
     text: `【発生原因】${t.cause}\n【流出原因】`
-      + (detHint ? `（確認材料）現行の検出手段は「${detHint}」ですが、本件は検出できていません。` : ''),
+      + (detHint ? `（確認材料）現行の検出手段として「${detHint}」が登録されていますが、本件では検出できませんでした。未検出となった条件は調査中です。` : ''),
     missing: detHint
       ? '流出原因（なぜ検出できなかったか）は特定できていません。上の検出手段は確認材料であり、流出原因そのものではありません。検査記録を確認して記入してください。'
       : '流出原因（なぜ検出できなかったか）が不具合記録から特定できません。検査記録を確認して記入してください。',
@@ -78,7 +78,7 @@ function buildDoc(t) {
 
   doc.push({ id: 'D6', name: '恒久対策の実施と検証',
     text: t.status === '完了'
-      ? `対策を実施し、対応を完了しています。`
+      ? `恒久対策は実施済みです。効果検証結果は別途確認が必要です。`
       : '',
     missing: t.status === '完了'
       ? '効果の検証結果（対策後の発生件数・測定値）が記録にありません。検証データを追記してください。'
@@ -95,7 +95,7 @@ function buildDoc(t) {
       : '類似する不具合の記録がないため、水平展開の候補を機械的に抽出できません。対象機種・工程を検討して記入してください。',
     ref: similar.length ? `類似記録 ${similar.map(x => x.o.id).join('、')}` : '' });
 
-  doc.push({ id: 'D8', name: 'チームの認識と完了', text: '',
+  doc.push({ id: 'D8', name: '完了確認・承認', text: '',
     missing: '承認者と完了日は記録から特定できません。関係者の確認後に記入してください。',
     ref: '' });
 
@@ -222,7 +222,7 @@ function exportDoc() {
   ]);
   const empty = cells.filter(e => !e.textContent.trim()).length;
   if (empty) {
-    toast('報告書を出力しました', `未記入が ${empty} 項目あります。提出前に埋めてください。`, 'warn');
+    toast('報告書を出力しました', `未記入項目が ${empty} 件あります。提出前に内容を確認し、必要な情報を補完してください。`, 'warn');
   } else {
     toast('報告書を出力しました', '全項目が記入されています。提出前に品質保証部の承認を受けてください。');
   }
@@ -244,7 +244,7 @@ function renderList() {
       <td class="nowrap">${h.filled === 8
         ? '<span class="status status--done">記入済み</span>'
         : '<span class="status status--warn">未記入あり</span>'}</td>
-      <td class="nowrap"><button class="btn btn--quiet btn--small" data-reopen="${esc(h.tr)}">この不具合で作り直す</button></td>
+      <td class="nowrap"><button class="btn btn--quiet btn--small" data-reopen="${esc(h.tr)}">この不具合から再作成</button></td>
     </tr>`;
   }).join('');
 }

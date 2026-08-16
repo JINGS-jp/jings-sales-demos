@@ -288,7 +288,7 @@ async def check_03(pg, errors):
     assert "再評価付きで適用" in r, "選んだ判定が結果に反映されていない"
     assert "要再評価" in r, "条件付き引き継ぎの要再評価が付いていない"
     # 4系統バッジ（過去実績だけでないことを示す）
-    for kind in ["過去実績", "機能演繹", "物理推論"]:
+    for kind in ["過去実績", "機能演繹", "物理特性に基づく推論"]:
         assert kind in r, f"生成系統「{kind}」が表示されていない"
     assert "過去実績のない領域" in r, "過去実績のない領域の件数が出ていない"
     # 根拠パネル：過去記録がない行は演繹で生成したと明示される
@@ -685,7 +685,7 @@ async def check_08(pg, errors):
     await pg.click('[data-view="compare"]')
     c = await pg.inner_text('section[data-view="compare"]')
     assert "工程・故障モードを起点" in c and "発生した事象を起点" in c, "工程FMEAと故障の木の起点の違いが説明されていない"
-    assert "工程FMEAに登録がない原因" in c, "工程FMEA未登録の原因のセクションがない"
+    assert "対応する工程FMEA行を確認できない原因候補" in c, "工程FMEA未登録の原因のセクションがない"
     await pg.click("#gapBody [data-toproc]")
     assert await pg.is_visible("#toastArea .toast"), "検討依頼の通知が出ない"
     # 参照文書

@@ -4,7 +4,7 @@
   <div class="page-head">
     <div>
       <h1 class="page-title">ダッシュボード</h1>
-      <p class="page-lead">いま入っている不具合記録・工程FMEA・設計変更の状況です。手を打つべきものを上に出しています。</p>
+      <p class="page-lead">現在登録されている不具合記録・工程FMEA・設計変更の状況です。対応が必要なものを上位に表示しています。</p>
     </div>
     <div class="page-head__actions">
       <button class="btn btn--primary" data-goto="search">ナレッジを検索する</button>
@@ -17,7 +17,7 @@
 
   <div class="section">
     <h2 class="section__title">対応が必要な不具合</h2>
-    <p class="section__lead">恒久対策が未完了の記録です。影響度Sの高いものから表示しています。</p>
+    <p class="section__lead">恒久対策が未完了の記録です。重大度Sの高いものから表示しています。</p>
     <div class="table-meta" id="openMeta"></div>
     <div class="table-wrap">
       <table>
@@ -133,7 +133,7 @@
   <div class="empty" id="listEmpty" hidden>
     <h2 class="empty__title">該当する記録が見つかりませんでした</h2>
     <div class="empty__body">
-      <p>追加で試せること:</p>
+      <p>追加で試せること</p>
       <ul>
         <li>絞り込み条件を「すべて」に戻して範囲を広げる</li>
         <li>製品ではなく工程で絞り込む</li>
@@ -149,7 +149,7 @@
   <div class="page-head">
     <div>
       <h1 class="page-title">登録文書</h1>
-      <p class="page-lead">検索の対象に入れている文書です。あとから足した分は、次に読み込むときに反映されます。</p>
+      <p class="page-lead">検索対象として登録されている文書です。追加した文書は、次回の取り込み後から検索対象に反映されます。</p>
     </div>
   </div>
   <div class="table-wrap">

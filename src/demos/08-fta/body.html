@@ -4,16 +4,16 @@
   <div class="page-head">
     <div>
       <h1 class="page-title">故障の木</h1>
-      <p class="page-lead">起きていることを文章で書くと、頂上に置く現象を読み取って、原因を人・設備・材料・方法・測定・環境の6分類に分けて広げます。候補が出なかった分類も枠として残すので、どこを掘れていないかが見えます。原因を最終判断は担当者が行います。</p>
+      <p class="page-lead">発生している事象を入力すると、登録済みの類似事象を特定し、過去不具合や工程FMEAから原因候補を収集します。頂上事象を中間事象に分解し、その下に基本事象を並べます。基本事象は5M1Eで分類し、候補がない分類も残すことで、未検討の可能性がある観点を示します。最終的な原因判定は、現物・現場の確認を踏まえて担当者が行います。</p>
     </div>
   </div>
 
   <div class="grid split-grid" style="grid-template-columns:360px 1fr;align-items:start">
     <form class="card" id="ftForm" novalidate style="position:sticky;top:calc(var(--header-height) + var(--space-5))">
       <div class="field">
-        <label class="field__label" for="sitText">いま起きていること</label>
+        <label class="field__label" for="sitText">発生している事象</label>
         <textarea class="textarea" id="sitText" rows="4" placeholder=""></textarea>
-        <p class="field__hint">分かっている範囲で構いません。どこで、何が、どんなときに起きたかを、普段の言葉で書いてください。</p>
+        <p class="field__hint">分かっている範囲で、発生場所・現象・発生条件を入力してください。</p>
         <div style="display:flex;gap:var(--space-2);flex-wrap:wrap;margin-top:var(--space-3)">
           <button class="btn btn--secondary btn--small" type="button" id="btnSitRead">この文章から読み取る</button>
           <button class="btn btn--quiet btn--small" type="button" id="btnSitSample">書き方の例を入れる</button>
@@ -27,10 +27,10 @@
           <option value="">文章から読み取るか、ここから選んでください</option>
         </select>
         <p class="field__error" id="topError" hidden>現象が選択されていません。現象を選んでから展開してください。</p>
-        <p class="field__hint">上の文章から読み取った結果が入ります。違っていれば選び直してください。原因ではなく現象から始めるのが決まりです。</p>
+        <p class="field__hint">上の文章から読み取った結果が入ります。違っていれば選び直してください。原因ではなく、まず発生している現象を起点にしてください。</p>
       </div>
       <div class="field">
-        <span class="field__label">紐づける実績</span>
+        <span class="field__label">参照する実績</span>
         <label class="check-row"><input type="checkbox" id="lkTr" checked> 過去不具合の記録</label>
         <label class="check-row"><input type="checkbox" id="lkFm" checked> 工程FMEAの登録行</label>
         <p class="field__hint">基本事象に過去記録が紐づかない場合、発生度は出さず「未評価」として扱います。</p>
@@ -46,7 +46,7 @@
           <ul>
             <li>頂上事象 → 中間事象（論理ゲート） → 基本事象 の木</li>
             <li>基本事象を 人・設備・材料・方法・測定・環境 に分類した結果</li>
-            <li><strong>候補が挙がらなかった分類</strong>（掘り下げが足りていない可能性がある箇所）</li>
+            <li><strong>候補が挙がらなかった分類</strong>（検討が不足している可能性がある観点）</li>
             <li>各基本事象に紐づく過去記録と、関連する工程FMEA</li>
             <li>過去記録が紐づかない基本事象（発生度を出さず未評価にする箇所）</li>
           </ul>
@@ -101,29 +101,29 @@
   <div class="page-head">
     <div>
       <h1 class="page-title">FMEAとの関係</h1>
-      <p class="page-lead">FTAとFMEAは向きが逆です。どちらかで足りるものではなく、片方で見落とす部分をもう片方が拾います。</p>
+      <p class="page-lead">工程FMEAは工程・故障モードを起点にリスクを確認し、FTAは発生事象を起点に原因候補を整理します。両者を照合することで、片方だけでは見落としやすい観点を確認できます。</p>
     </div>
   </div>
   <div class="section">
     <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr))">
       <div class="card">
         <h2 style="font-size:var(--font-subsection-title);margin-bottom:var(--space-3)">工程FMEA：工程・故障モードを起点にリスクを確認</h2>
-        <p>工程ごとに、要求事項を満たせない状態を洗い出して影響を評価します。<strong>網羅性に強い</strong>反面、複数の原因が重なって初めて起きる事象を扱いにくいです。</p>
+        <p>工程ごとに、要求事項を満たせない状態を洗い出して影響を評価します。<strong>工程ごとのリスクを体系的に整理しやすい</strong>反面、複数の原因が重なって初めて起きる事象を扱いにくいです。</p>
         <p style="margin-top:var(--space-3)" class="cell-sub">登録済み：<span class="mono" id="cmpFmea"></span></p>
       </div>
       <div class="card">
         <h2 style="font-size:var(--font-subsection-title);margin-bottom:var(--space-3)">故障の木：発生した事象を起点に要因を掘り下げ</h2>
-        <p>頂上事象を中間事象に分解し、基本事象まで掘り下げます。<strong>分類の抜けが見えるのが強み</strong>で、材料や環境を見落としていることに気づけます。反面、選んだ現象しか見ません。</p>
+        <p>頂上事象を中間事象に分解し、基本事象まで掘り下げます。<strong>5M1Eごとの候補有無を確認できるため、未検討の観点を把握しやすい</strong>で、材料や環境を見落としていることに気づけます。分析範囲は、選択した事象を起点とする内容に限定されます。</p>
         <p style="margin-top:var(--space-3)" class="cell-sub">登録済み：<span class="mono" id="cmpFta"></span></p>
       </div>
     </div>
   </div>
   <div class="section">
-    <h2 class="section__title">工程FMEAに登録がない原因</h2>
+    <h2 class="section__title">対応する工程FMEA行を確認できない原因候補</h2>
     <p class="section__lead">FTAで掘り下げた末端のうち、工程FMEAに対応する行が見つからないものです。工程単位では拾いにくかった観点の候補になります。</p>
     <div class="table-wrap">
       <table>
-        <caption class="visually-hidden">工程FMEAに登録がない原因</caption>
+        <caption class="visually-hidden">対応する工程FMEA行を確認できない原因候補</caption>
         <thead><tr>
           <th scope="col">現象</th><th scope="col">分類</th><th scope="col">原因</th>
           <th scope="col">工程FMEAにない理由（推定）</th><th scope="col">操作</th>
@@ -140,7 +140,7 @@
   <div class="page-head">
     <div>
       <h1 class="page-title">参照文書</h1>
-      <p class="page-lead">原因に紐づける実績の出どころです。検査記録が未登録のため、測定に関する原因は発生度を推定にしています。</p>
+      <p class="page-lead">原因に参照する実績の出どころです。検査記録が未登録のため、測定に関する原因は発生度を推定にしています。</p>
     </div>
   </div>
   <div class="table-wrap">

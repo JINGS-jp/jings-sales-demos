@@ -70,7 +70,7 @@ function renderDashboard() {
     { label: '登録済み不具合記録', value: DATA.TROUBLE_TOTAL.toLocaleString(), unit: ' 件',
       note: `2019年以降の全記録。画面には代表 ${DATA.TROUBLES.length} 件を表示しています` },
     { label: '恒久対策が未完了', value: open.length, unit: ' 件', warn: true,
-      note: `うち影響度S8以上 ${open.filter(t => t.s >= 8).length} 件` },
+      note: `うち重大度S8以上 ${open.filter(t => t.s >= 8).length} 件` },
     { label: '顧客流出に至った記録', value: leak.length, unit: ' 件', warn: true,
       note: '再発防止の横展開が必要な事例' },
     { label: '工程FMEA 登録行数', value: DATA.PFMEA_TOTAL.toLocaleString(), unit: ' 行',
@@ -86,7 +86,7 @@ function renderDashboard() {
     </div>`).join('');
 
   const sorted = open.slice().sort((a, b) => b.s - a.s);
-  $('#openMeta').textContent = `${open.length} 件を影響度Sの高い順に表示しています`;
+  $('#openMeta').textContent = `${open.length} 件を重大度Sの高い順に表示しています`;
   $('#openBody').innerHTML = sorted.map(t => `
     <tr>
       <td class="mono nowrap">${esc(t.id)}</td>
@@ -179,7 +179,7 @@ function buildAnswer(qRaw) {
         <table>
           <caption class="visually-hidden">類似する不具合記録</caption>
           <thead><tr>
-            <th scope="col">関連度</th><th scope="col">記録</th>
+            <th scope="col">関連度（文字一致）</th><th scope="col">記録</th>
             <th scope="col">現象</th><th scope="col">推定原因</th><th scope="col">根拠</th>
           </tr></thead>
           <tbody>${trs.map(x => `
@@ -203,7 +203,7 @@ function buildAnswer(qRaw) {
   const fmTable = fms.length ? `
     <div class="section">
       <h2 class="section__title">工程FMEAに登録済みの故障モード</h2>
-      <p class="section__lead">今回の事象が、同じ工程のFMEAに載っているかどうかです。載っていれば、次に見るのは「なぜ予防と検出をすり抜けたか」になります。</p>
+      <p class="section__lead">今回の事象に関連する故障モードが、同一工程のFMEAに登録されているかを確認します。登録がある場合は、予防・検出管理が機能しなかった条件を確認してください。</p>
       <div class="table-wrap">
         <table>
           <caption class="visually-hidden">関連する工程FMEAの行</caption>
@@ -232,7 +232,7 @@ function buildAnswer(qRaw) {
   const ecTable = ecs.length ? `
     <div class="section">
       <h2 class="section__title">関連する設計変更通知</h2>
-      <p class="section__lead">似た事象に、過去は設計変更で手を打っています。今回も設計まで戻すかどうかの材料にしてください。</p>
+      <p class="section__lead">類似事象に対して過去に実施した設計変更を表示します。今回も設計変更が必要かを検討する際の参考情報として利用してください。</p>
       <div class="table-wrap">
         <table>
           <caption class="visually-hidden">関連する設計変更通知</caption>
@@ -305,7 +305,7 @@ function buildAnswer(qRaw) {
     <div class="callout callout--warn">
       <div>
         <p class="callout__title">この回答を使うときの注意</p>
-        <p>並び順は文章が似ている順で、原因を当てたわけではありません。作業要領書と検査記録がまだ入っていないので、そのときの作業条件まで遡るには現場で確認が要ります。原因を決めるのも対策を決めるのも人です。</p>
+        <p>表示順は入力文と記録本文の類似度に基づくもので、原因を特定するものではありません。作業要領書および検査記録が未登録のため、当時の作業条件は現場での追加確認が必要です。原因および対策の最終判断は担当者が行ってください。</p>
       </div>
     </div>`;
 
@@ -349,7 +349,7 @@ function chatGreeting() {
   $('#chatLog').innerHTML = '';
   ctx = { proc: '', prod: '', ids: [], turns: 0 };
   addMsg('ai', `
-    <p>不具合の調査をお手伝いします。発生している事象を、普段の言葉で聞いてください。</p>
+    <p>不具合の調査をお手伝いします。発生している事象を、そのまま入力してください。</p>
     <div class="msg__sec">
       <h4>答えられること</h4>
       <ul style="margin:0;padding-left:1.2em;line-height:var(--line-height-body)">
@@ -415,7 +415,7 @@ function openTroublePanel(id) {
       <dt>発生日</dt><dd class="mono">${esc(t.date)}</dd>
       <dt>製品・発生工程</dt><dd>${esc(t.prod)}　／　${esc(procLabel(t.proc))}</dd>
       <dt>対象部位</dt><dd>${esc(t.part)}</dd>
-      <dt>影響度S ／ 発生度O ／ 検出度D</dt><dd class="mono">S${t.s}　O${t.o}　D${t.d}</dd>
+      <dt>重大度S ／ 発生度O ／ 検出度D</dt><dd class="mono">S${t.s}　O${t.o}　D${t.d}</dd>
       <dt>担当 ／ 状態</dt><dd>${esc(t.owner)}　／　${esc(t.status)}${t.leak ? '　／　顧客流出あり' : ''}</dd>
       <dt>関連する設計審査</dt><dd>${esc(t.dr)}</dd>
     </dl>
@@ -585,7 +585,7 @@ $('#qForm').addEventListener('submit', e => {
 
 $('#btnChatClear').addEventListener('click', () => {
   chatGreeting();
-  toast('会話をやり直しました', '前のやりとりの文脈は破棄しました。');
+  toast('検索条件をリセットしました', '検索履歴をリセットしました。');
 });
 
 chatGreeting();

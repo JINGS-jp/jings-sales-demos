@@ -1,4 +1,4 @@
-/* デモ7：変更影響・変化点管理
+/* デモ7：設計変更の影響・反映管理
    設計変更を起点に、反映すべき帳票・工程・他機種を洗い出して反映状態を追跡する。
    要点は3つ。
    ・「未反映」と「確認できず」を区別する（文書が未登録で追えないものを反映済みにしない）
@@ -139,7 +139,7 @@ function renderImpact() {
     ${(piggy.length || piggyFrom.length) ? `
     <div class="section">
       <h2 class="section__title">関連変更</h2>
-      <p class="section__lead">この変更に伴って一緒に変えるべき変更、またはこの変更を前提としている変更です。片方だけ進めると整合が取れなくなります。</p>
+      <p class="section__lead">この変更に関連して見直すべき変更、またはこの変更を前提としている変更です。片方だけ進めると整合が取れなくなります。</p>
       <div class="table-wrap">
         <table>
           <caption class="visually-hidden">関連変更</caption>
@@ -173,7 +173,7 @@ function renderImpact() {
 
     <div class="section">
       <h2 class="section__title">配布先</h2>
-      <p class="section__lead">この変更を知らせるべき部署です。反映作業の担当と、変更を知っておく必要がある部署を分けて考えてください。</p>
+      <p class="section__lead">この変更を連絡すべき部署です。反映作業の担当部署と、情報共有が必要な部署を区別して確認してください。</p>
       <div class="card">
         <div class="chip-row">${e.notify.map(n => `<span class="libchip">${esc(n)}</span>`).join('')}</div>
         ${tr ? `<p style="margin-top:var(--space-4)" class="cell-sub">この変更の発端となった不具合：<span class="mono">${esc(tr.id)}</span>（${esc(tr.date)}）${esc(tr.sym)}
@@ -181,7 +181,7 @@ function renderImpact() {
       </div>
       <div style="display:flex;gap:var(--space-3);margin-top:var(--space-4);flex-wrap:wrap">
         <button class="btn btn--primary" id="btnImpCsv">影響範囲をExcelで出力する</button>
-        <button class="btn btn--secondary" id="btnNotify">配布先へ変更連絡を作成する</button>
+        <button class="btn btn--secondary" id="btnNotify">変更連絡の対象部署へ連絡を作成する</button>
       </div>
     </div>
 
@@ -286,7 +286,7 @@ function renderMatrix() {
   $('#matNote').textContent =
     `確認できずを分母に含めると反映率は ${Math.round(done / all.length * 100)}%、除くと ${Math.round(done / (all.length - unk) * 100)}% になります。`
     + `同じ実態で数字が変わるため、反映率を管理指標にする場合は、確認できずの扱いを先に決めておく必要があります。`
-    + `作業要領書と検査記録を取り込めば、この差はなくなります。`;
+    + `未登録の作業要領書・検査記録を取り込むことで、「確認できず」の件数を減らせます。`;
 }
 
 /* ---- 参照文書 ---- */
@@ -346,7 +346,7 @@ DATA.ECNS.slice().sort((a, b) => (a.stage === '暫定' ? 0 : 1) - (b.stage === '
 
 /* ===== 変更の帳票／文章から、どの変更かを探す ==============
    番号を知らなくても始められるようにする。
-   帳票をアップロードするか、内容を文章で書くと、登録済みの変更から候補を出す。
+   帳票をアップロードするか、内容を変更内容を入力と、登録済みの変更から候補を出す。
    1件に絞れないときは決め打ちせず、候補を並べて人に選んでもらう。 */
 
 function icNorm(s) { return (s || '').toLowerCase().replace(/[\s　・、。（）()「」\.,\/]/g, ''); }
@@ -393,12 +393,12 @@ function pickEcn(e, score, how) {
   $('#ecnCands').innerHTML = `
     <div class="callout callout--info" style="margin-top:var(--space-3)">
       <div>
-        <p class="callout__title">この変更として扱います</p>
+        <p class="callout__title">対象の設計変更として選択しました</p>
         <dl class="meta-list" style="margin-top:var(--space-2)">
           <dt>変更通知</dt><dd class="mono">${esc(e.no)}</dd>
           <dt>内容</dt><dd>${esc(e.title)}</dd>
           <dt>段階</dt><dd>${esc(e.stage)}${e.stage === '暫定' ? '（暫定のまま止まっています）' : ''}</dd>
-          <dt>決め方</dt><dd>${esc(how)}${score != null ? `　文面の一致：${score >= 0.25 ? '高' : score >= 0.12 ? '中' : '低'}` : ''}</dd>
+          <dt>特定方法</dt><dd>${esc(how)}${score != null ? `　文面の一致：${score >= 0.25 ? '高' : score >= 0.12 ? '中' : '低'}` : ''}</dd>
         </dl>
         <p style="margin-top:var(--space-3);font-size:var(--font-caption)">
           違っていれば、下の「対象の設計変更」で選び直してください。
@@ -410,7 +410,7 @@ function pickEcn(e, score, how) {
 
 /* 候補を並べて人に選んでもらう */
 function askEcn(cands, lead) {
-  openModal('どの変更のことですか', lead,
+  openModal('対象の設計変更を選択してください', lead,
     cands.slice(0, 3).map((c, i) => ({
       label: `${c.e.no}　${c.e.title}`,
       desc: `${c.e.date}　${c.e.stage}　文面の一致：${c.score >= 0.25 ? '高' : c.score >= 0.12 ? '中' : '低'}`,
@@ -424,11 +424,11 @@ function readEcnText(text) {
   // 1位が弱い、または1位と2位が僅差のときは決め打ちしない
   if (a.score < 0.12) {
     askEcn(cands, '書かれた内容に近い変更を、登録済みのものから決められませんでした。'
-      + '取り違えると、この先の反映状況がすべて別の変更のものになります。近いものを選んでください。');
+      + '誤った変更を選択すると、その後の反映状況も誤って表示されます。該当する設計変更を選択してください。');
     return;
   }
   if (b && a.score - b.score < 0.05) {
-    askEcn(cands, '近い変更が複数あり、1件に絞れませんでした。どちらのことか選んでください。');
+    askEcn(cands, '類似する設計変更が複数あり、1件に特定できませんでした。該当する設計変更を選択してください。');
     return;
   }
   pickEcn(a.e, a.score, '文章から判定');
@@ -507,13 +507,13 @@ document.addEventListener('click', ev => {
   const tk = ev.target.closest('[data-task]');
   if (tk) {
     const r = curRows[Number(tk.dataset.task)];
-    toast('反映作業として起票しました', `${r.target}　担当と期限は仮置きです。反映後にこの画面の状態が変わります。`);
+    toast('反映作業の起票内容を作成しました', `${r.target}　担当と期限は仮置きです。デモのため実際には起票されません。`);
     return;
   }
   const nd = ev.target.closest('[data-need]');
   if (nd) {
     const r = curRows[Number(nd.dataset.need)];
-    toast('文書の登録を依頼しました', `${r.target}　登録されると、反映状態を「確認できず」から判定できるようになります。`, 'warn');
+    toast('文書登録依頼の下書きを作成しました', `${r.target}　登録されると、反映状態を「確認できず」から判定できるようになります。`, 'warn');
     return;
   }
 

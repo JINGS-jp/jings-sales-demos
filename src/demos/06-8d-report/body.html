@@ -4,7 +4,7 @@
   <div class="page-head">
     <div>
       <h1 class="page-title">報告書作成</h1>
-      <p class="page-lead">不具合記録から8D報告書の初稿を作ります。記録に書かれていないことは埋めません。空欄のまま残して、何が足りないかを出します。文章はこの画面で直せます。</p>
+      <p class="page-lead">不具合記録を基に8D報告書の初稿を作成します。記録にない内容は推測で補完せず、未記入として残し、追加で必要な情報を示します。初稿は画面上で編集できます。</p>
     </div>
   </div>
 
@@ -19,7 +19,7 @@
           <label class="btn btn--quiet btn--small" for="clFile">ファイルを選ぶ</label>
           <span class="filepick__name" id="clFileName">選択されていません</span>
         </div>
-          <p class="drop__hint">クレーム票から品番・現象・発生日を読み取り、該当する社内の不具合記録に突き合わせます。このデモでは、サンプルの読み取り結果を表示します。</p>
+          <p class="drop__hint">クレーム票から品番・現象・発生日を読み取り、対応する社内の不具合記録と照合します。このデモでは、サンプルの読み取り結果を表示します。</p>
           <button type="button" class="btn btn--quiet btn--small" id="btnClSample" style="margin-top:var(--space-2)">サンプルのクレーム票で試す</button>
         </div>
         <div id="clReadout" hidden style="margin-top:var(--space-3)"></div>
@@ -115,7 +115,7 @@
   <div class="page-head">
     <div>
       <h1 class="page-title">8D様式</h1>
-      <p class="page-lead">社内で使っている8D報告書の様式です。どの欄に何を入れるつもりかを並べています。</p>
+      <p class="page-lead">社内で使用している8D報告書の様式です。各欄に記入する内容と、AIが参照する情報を示します。</p>
     </div>
   </div>
   <div class="table-wrap">
@@ -130,8 +130,8 @@
   </div>
   <div class="callout callout--warn" style="margin-top:var(--space-5)">
     <div>
-      <p class="callout__title">AIが埋めない項目について</p>
-      <p>D1（チーム編成）とD8（承認）は、記録から自動で決められないため空欄のままにしています。担当者名や承認者を推測して埋めると、顧客提出物として誤った情報が残るためです。D6の効果検証も、実績が記録に無い場合は空欄にします。</p>
+      <p class="callout__title">AIが自動記入しない項目について</p>
+      <p>D1（チーム編成）とD8（承認）は、記録だけでは特定できないため自動記入しません。担当者名や承認者を推定すると誤情報につながるためです。D6の効果検証も、実績が記録にない場合は未記入とします。</p>
     </div>
   </div>
 </section>

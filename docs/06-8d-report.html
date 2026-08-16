@@ -423,7 +423,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
   <div class="page-head">
     <div>
       <h1 class="page-title">報告書作成</h1>
-      <p class="page-lead">不具合記録から8D報告書の初稿を作ります。記録に書かれていないことは埋めません。空欄のまま残して、何が足りないかを出します。文章はこの画面で直せます。</p>
+      <p class="page-lead">不具合記録を基に8D報告書の初稿を作成します。記録にない内容は推測で補完せず、未記入として残し、追加で必要な情報を示します。初稿は画面上で編集できます。</p>
     </div>
   </div>
 
@@ -438,7 +438,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
           <label class="btn btn--quiet btn--small" for="clFile">ファイルを選ぶ</label>
           <span class="filepick__name" id="clFileName">選択されていません</span>
         </div>
-          <p class="drop__hint">クレーム票から品番・現象・発生日を読み取り、該当する社内の不具合記録に突き合わせます。このデモでは、サンプルの読み取り結果を表示します。</p>
+          <p class="drop__hint">クレーム票から品番・現象・発生日を読み取り、対応する社内の不具合記録と照合します。このデモでは、サンプルの読み取り結果を表示します。</p>
           <button type="button" class="btn btn--quiet btn--small" id="btnClSample" style="margin-top:var(--space-2)">サンプルのクレーム票で試す</button>
         </div>
         <div id="clReadout" hidden style="margin-top:var(--space-3)"></div>
@@ -534,7 +534,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
   <div class="page-head">
     <div>
       <h1 class="page-title">8D様式</h1>
-      <p class="page-lead">社内で使っている8D報告書の様式です。どの欄に何を入れるつもりかを並べています。</p>
+      <p class="page-lead">社内で使用している8D報告書の様式です。各欄に記入する内容と、AIが参照する情報を示します。</p>
     </div>
   </div>
   <div class="table-wrap">
@@ -549,8 +549,8 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
   </div>
   <div class="callout callout--warn" style="margin-top:var(--space-5)">
     <div>
-      <p class="callout__title">AIが埋めない項目について</p>
-      <p>D1（チーム編成）とD8（承認）は、記録から自動で決められないため空欄のままにしています。担当者名や承認者を推測して埋めると、顧客提出物として誤った情報が残るためです。D6の効果検証も、実績が記録に無い場合は空欄にします。</p>
+      <p class="callout__title">AIが自動記入しない項目について</p>
+      <p>D1（チーム編成）とD8（承認）は、記録だけでは特定できないため自動記入しません。担当者名や承認者を推定すると誤情報につながるためです。D6の効果検証も、実績が記録にない場合は未記入とします。</p>
     </div>
   </div>
 </section>
@@ -785,7 +785,7 @@ const PFMEA = [
 
 /* 設計変更・DRBFM（ACT-230：ACT-220からの変更点） ----------
    DRBFMワークシートの様式に合わせる。要点は次の2つ。
-   ・「他に心配点はないか」「他に考えるべき要因はないか」＝掘り下げの列。AIが補助する所
+   ・「追加で考慮すべき心配点」「追加で考慮すべき要因」＝掘り下げの列。AIが補助する所
    ・対策は「設計／評価／製造」の3つへ振り分ける。ここまで出さないと現場が動けない */
 const DRBFM = [
   { cp: 'モータをブラシ付からブラシレスへ変更', prevPn: 'DCM-24-1800', why: '小型軽量化と寿命延長',
@@ -924,7 +924,7 @@ const DRBFM = [
 const SRC_KINDS = {
   past: { label: '過去実績', desc: '類似品番・過去帳票の実績検索から' },
   func: { label: '機能演繹', desc: '機能→要求→逸脱の演繹から（過去に実績がなくても出せる）' },
-  phys: { label: '物理推論', desc: '材料物性×ストレス条件の推論から' },
+  phys: { label: '物理特性に基づく推論', desc: '材料特性×使用条件の推論から' },
   env:  { label: '環境・一般知見', desc: '使用環境と車載分野の既知故障モードから' }
 };
 
@@ -988,7 +988,7 @@ const D8_STEPS = [
   { id: 'D5', name: '恒久対策の選定', hint: '再発を構造的に防ぐ対策' },
   { id: 'D6', name: '恒久対策の実施と検証', hint: '実施内容と効果の確認方法' },
   { id: 'D7', name: '再発防止（水平展開）', hint: '他工程・他機種への展開' },
-  { id: 'D8', name: 'チームの認識と完了', hint: '関係者の承認と記録' }
+  { id: 'D8', name: '完了確認・承認', hint: '関係者の承認と記録' }
 ];
 
 /* 設計審査（DR） ------------------------------------------- */
@@ -1135,9 +1135,9 @@ const DRAWINGS = [
 ];
 
 /* 設計変更通知（ECN） -------------------------------------
-   stage: 暫定 → 最終。暫定のまま止まっている変更が変化点管理の穴になる。
+   stage: 暫定 → 最終。暫定のまま止まっている変更が反映管理の穴になる。
    piggy: 関連変更（この変更に伴って見直すべき変更）。
-   notify: 配布先。変更を知らせるべき部署。 */
+   notify: 変更連絡の対象部署。 */
 const ECNS = [
   { no: 'ECN-2026-009', date: '2026-07-15', stage: '暫定',
     title: 'ACT-230 減速ギヤの歯面幅拡大および材質変更', prod: 'ACT-230',
@@ -1177,8 +1177,8 @@ const ECNS = [
     notify: ['技術部', '生産技術部', '品質保証部', '製造部', '営業部'] }
 ];
 
-/* 変更の反映状態（変化点管理の実態） ------------------------
-   kind: 反映先の種類 ／ status: 'done'=反映済み / 'open'=未反映 / 'unknown'=確認できず
+/* 変更の反映状態（反映管理の実態） ------------------------
+   kind: 反映先の種類 ／ status: 'done'=反映済み / 'open'=要対応 / 'pending'=確認待ち / 'unknown'=確認できず
    未反映と確認できずを区別することが重要。「確認できず」は文書が未登録で追えない状態。 */
 const CHANGE_REFLECT = {
   'ECN-2026-009': [
@@ -1806,9 +1806,9 @@ function buildDoc(t) {
     ref: '' });
 
   doc.push({ id: 'D2', name: '問題の記述',
-    text: `${t.date}、${t.prod}の${procLabel(t.proc)}において、${t.part}に関し「${t.sym}」が発生しました。`
-      + `影響度の評価はS${t.s}、発生度O${t.o}、検出度D${t.d}です。`
-      + (t.leak ? '本件は顧客への流出に至っています。' : '社内で検出し、顧客への流出はありません。'),
+    text: `${t.date}、${t.prod}の${procLabel(t.proc)}で、${t.part}に「${t.sym}」が発生しました。`
+      + `当該不具合の評価は、重大度S${t.s}、発生度O${t.o}、検出度D${t.d}です。`
+      + (t.leak ? '本件は顧客流出が確認されています。' : '社内で検出されており、顧客流出は確認されていません。'),
     ref: `不具合記録 ${t.id}` });
 
   doc.push({ id: 'D3', name: '暫定処置',
@@ -1820,7 +1820,7 @@ function buildDoc(t) {
   const detHint = fmeaRows.length ? fmeaRows[0].det : '';
   doc.push({ id: 'D4', name: '根本原因の特定',
     text: `【発生原因】${t.cause}\n【流出原因】`
-      + (detHint ? `（確認材料）現行の検出手段は「${detHint}」ですが、本件は検出できていません。` : ''),
+      + (detHint ? `（確認材料）現行の検出手段として「${detHint}」が登録されていますが、本件では検出できませんでした。未検出となった条件は調査中です。` : ''),
     missing: detHint
       ? '流出原因（なぜ検出できなかったか）は特定できていません。上の検出手段は確認材料であり、流出原因そのものではありません。検査記録を確認して記入してください。'
       : '流出原因（なぜ検出できなかったか）が不具合記録から特定できません。検査記録を確認して記入してください。',
@@ -1833,7 +1833,7 @@ function buildDoc(t) {
 
   doc.push({ id: 'D6', name: '恒久対策の実施と検証',
     text: t.status === '完了'
-      ? `対策を実施し、対応を完了しています。`
+      ? `恒久対策は実施済みです。効果検証結果は別途確認が必要です。`
       : '',
     missing: t.status === '完了'
       ? '効果の検証結果（対策後の発生件数・測定値）が記録にありません。検証データを追記してください。'
@@ -1850,7 +1850,7 @@ function buildDoc(t) {
       : '類似する不具合の記録がないため、水平展開の候補を機械的に抽出できません。対象機種・工程を検討して記入してください。',
     ref: similar.length ? `類似記録 ${similar.map(x => x.o.id).join('、')}` : '' });
 
-  doc.push({ id: 'D8', name: 'チームの認識と完了', text: '',
+  doc.push({ id: 'D8', name: '完了確認・承認', text: '',
     missing: '承認者と完了日は記録から特定できません。関係者の確認後に記入してください。',
     ref: '' });
 
@@ -1977,7 +1977,7 @@ function exportDoc() {
   ]);
   const empty = cells.filter(e => !e.textContent.trim()).length;
   if (empty) {
-    toast('報告書を出力しました', `未記入が ${empty} 項目あります。提出前に埋めてください。`, 'warn');
+    toast('報告書を出力しました', `未記入項目が ${empty} 件あります。提出前に内容を確認し、必要な情報を補完してください。`, 'warn');
   } else {
     toast('報告書を出力しました', '全項目が記入されています。提出前に品質保証部の承認を受けてください。');
   }
@@ -1999,7 +1999,7 @@ function renderList() {
       <td class="nowrap">${h.filled === 8
         ? '<span class="status status--done">記入済み</span>'
         : '<span class="status status--warn">未記入あり</span>'}</td>
-      <td class="nowrap"><button class="btn btn--quiet btn--small" data-reopen="${esc(h.tr)}">この不具合で作り直す</button></td>
+      <td class="nowrap"><button class="btn btn--quiet btn--small" data-reopen="${esc(h.tr)}">この不具合から再作成</button></td>
     </tr>`;
   }).join('');
 }

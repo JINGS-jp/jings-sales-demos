@@ -426,7 +426,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
   <div class="page-head">
     <div>
       <h1 class="page-title">検図</h1>
-      <p class="page-lead">出図する前の図面を、社内の検図ルールと過去不具合の対策に照らして見ます。出てくるのは候補なので、直すかどうかは設計が決めてください。</p>
+      <p class="page-lead">出図前の図面を、社内の検図ルールおよび過去不具合の対策内容と照合します。表示される内容は確認候補であり、修正の要否は設計担当者が判断してください。</p>
     </div>
   </div>
 
@@ -470,7 +470,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
         <div class="empty__body">
           <p>選択した図面に対して、次を確認します。</p>
           <ul>
-            <li>社内の検図ルール（寸法・公差・表記・整合）に対する不足</li>
+            <li>社内の検図ルール（寸法・公差・表記・整合）に対する不備候補</li>
             <li>過去に不具合が起きた箇所の対策が、この図面に反映されているか</li>
             <li>前機種の図面にあった指示が抜けていないか</li>
           </ul>
@@ -500,7 +500,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
   <div class="page-head">
     <div>
       <h1 class="page-title">類似図面検索</h1>
-      <p class="page-lead">部位や寸法の言葉で過去の図面を探せます。前の機種でどう指示していたかを見るのに使ってください。</p>
+      <p class="page-lead">部位や寸法の言葉で過去の図面を探せます。前機種の指示内容を確認する際に利用できます。</p>
     </div>
   </div>
   <div class="card" style="margin-bottom:var(--space-5);max-width:var(--reading-max-width)">
@@ -546,7 +546,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
   <div class="page-head">
     <div>
       <h1 class="page-title">検図ルール</h1>
-      <p class="page-lead">社内の図面チェック規程です。登録された検図ルールを基準に確認します。ルール外の観点は確認対象に含みません。</p>
+      <p class="page-lead">社内の図面チェック規程です。登録された検図ルールを基準に確認し、不足している可能性がある項目を提示します。ルール外の観点は確認対象に含みません。</p>
     </div>
   </div>
   <div class="table-wrap">
@@ -562,7 +562,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
   <div class="callout callout--warn" style="margin-top:var(--space-5)">
     <div>
       <p class="callout__title">図面の読み取りについて</p>
-      <p>ここでは、図面から読み取った寸法・注記・部品表をあらかじめ入れた状態で動かしています。実際に入れるときは、CADデータまたはPDF図面から寸法・公差・注記を抽出して同じ確認を行います。手書きの補足や写真での指示は読み取り対象外です。</p>
+      <p>このデモでは、図面から抽出済みの寸法・公差・注記・部品表のサンプルデータを使用しています。本番運用では、CADデータまたはPDF図面から対象情報を抽出し、同様の確認を行います。手書きの補足や写真での指示は読み取り対象外です。</p>
     </div>
   </div>
 </section>
@@ -797,7 +797,7 @@ const PFMEA = [
 
 /* 設計変更・DRBFM（ACT-230：ACT-220からの変更点） ----------
    DRBFMワークシートの様式に合わせる。要点は次の2つ。
-   ・「他に心配点はないか」「他に考えるべき要因はないか」＝掘り下げの列。AIが補助する所
+   ・「追加で考慮すべき心配点」「追加で考慮すべき要因」＝掘り下げの列。AIが補助する所
    ・対策は「設計／評価／製造」の3つへ振り分ける。ここまで出さないと現場が動けない */
 const DRBFM = [
   { cp: 'モータをブラシ付からブラシレスへ変更', prevPn: 'DCM-24-1800', why: '小型軽量化と寿命延長',
@@ -936,7 +936,7 @@ const DRBFM = [
 const SRC_KINDS = {
   past: { label: '過去実績', desc: '類似品番・過去帳票の実績検索から' },
   func: { label: '機能演繹', desc: '機能→要求→逸脱の演繹から（過去に実績がなくても出せる）' },
-  phys: { label: '物理推論', desc: '材料物性×ストレス条件の推論から' },
+  phys: { label: '物理特性に基づく推論', desc: '材料特性×使用条件の推論から' },
   env:  { label: '環境・一般知見', desc: '使用環境と車載分野の既知故障モードから' }
 };
 
@@ -1000,7 +1000,7 @@ const D8_STEPS = [
   { id: 'D5', name: '恒久対策の選定', hint: '再発を構造的に防ぐ対策' },
   { id: 'D6', name: '恒久対策の実施と検証', hint: '実施内容と効果の確認方法' },
   { id: 'D7', name: '再発防止（水平展開）', hint: '他工程・他機種への展開' },
-  { id: 'D8', name: 'チームの認識と完了', hint: '関係者の承認と記録' }
+  { id: 'D8', name: '完了確認・承認', hint: '関係者の承認と記録' }
 ];
 
 /* 設計審査（DR） ------------------------------------------- */
@@ -1147,9 +1147,9 @@ const DRAWINGS = [
 ];
 
 /* 設計変更通知（ECN） -------------------------------------
-   stage: 暫定 → 最終。暫定のまま止まっている変更が変化点管理の穴になる。
+   stage: 暫定 → 最終。暫定のまま止まっている変更が反映管理の穴になる。
    piggy: 関連変更（この変更に伴って見直すべき変更）。
-   notify: 配布先。変更を知らせるべき部署。 */
+   notify: 変更連絡の対象部署。 */
 const ECNS = [
   { no: 'ECN-2026-009', date: '2026-07-15', stage: '暫定',
     title: 'ACT-230 減速ギヤの歯面幅拡大および材質変更', prod: 'ACT-230',
@@ -1189,8 +1189,8 @@ const ECNS = [
     notify: ['技術部', '生産技術部', '品質保証部', '製造部', '営業部'] }
 ];
 
-/* 変更の反映状態（変化点管理の実態） ------------------------
-   kind: 反映先の種類 ／ status: 'done'=反映済み / 'open'=未反映 / 'unknown'=確認できず
+/* 変更の反映状態（反映管理の実態） ------------------------
+   kind: 反映先の種類 ／ status: 'done'=反映済み / 'open'=要対応 / 'pending'=確認待ち / 'unknown'=確認できず
    未反映と確認できずを区別することが重要。「確認できず」は文書が未登録で追えない状態。 */
 const CHANGE_REFLECT = {
   'ECN-2026-009': [
@@ -1795,7 +1795,7 @@ function dice(a, b) {
 
 const SEV_LABEL = {
   '重': '<span class="status status--risk">重要</span>',
-  '中': '<span class="status status--warn">中</span>',
+  '中': '<span class="status status--warn">中程度</span>',
   '軽': '<span class="status status--todo">軽微</span>'
 };
 
@@ -2153,8 +2153,8 @@ function renderCheck() {
   if (!curHits.length) {
     $('#ckResult').innerHTML = `
       <div class="card" style="border-left:4px solid var(--color-success)">
-        <span class="status status--done">確認完了</span>
-        <h2 style="font-size:var(--font-subsection-title);margin:var(--space-3) 0 var(--space-2)">検図ルールに対する不足は見つかりませんでした</h2>
+        <span class="status status--done">ルール照合完了</span>
+        <h2 style="font-size:var(--font-subsection-title);margin:var(--space-3) 0 var(--space-2)">登録済みの検図ルールに対する確認候補は見つかりませんでした</h2>
         <p>${esc(curNo)}（${esc(d.name)}）について、${DATA.DWG_RULES.length} 件の検図ルールと過去不具合の対策内容を確認しましたが、確認候補はありませんでした。</p>
         <p style="margin-top:var(--space-3);font-size:var(--font-caption)">
           ルールにない観点は確認していません。設計意図の妥当性は、この確認の対象外です。
@@ -2166,7 +2166,7 @@ function renderCheck() {
   $('#ckResult').innerHTML = `
     <div class="card" style="border-left:4px solid var(--color-primary)">
       <div style="display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap;margin-bottom:var(--space-3)">
-        <span class="status status--done">確認完了</span>
+        <span class="status status--done">ルール照合完了</span>
         <span class="cell-sub">${esc(curNo)}　${esc(d.name)}（${esc(d.rev)}版）　／　${today()}</span>
       </div>
       <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:var(--space-4);margin-bottom:var(--space-4)">
@@ -2228,7 +2228,7 @@ function renderCheck() {
     toast('確認候補を出力しました', `${curHits.length} 件を出力しました。`);
   });
   $('#btnCkReview').addEventListener('click', () => {
-    toast('確認を依頼しました', `${curNo} の確認候補 ${curHits.length} 件について、ここで設計担当者への確認依頼が作られます。デモのため実際には送信されません。`);
+    toast('確認依頼の下書きを作成しました', `${curNo} の確認候補 ${curHits.length} 件について、ここで設計担当者への確認依頼が作られます。デモのため実際には送信されません。`);
   });
 }
 
@@ -2288,7 +2288,7 @@ function renderSearch(q) {
       <div class="empty">
         <h2 class="empty__title">該当する図面が見つかりませんでした</h2>
         <div class="empty__body">
-          <p>追加で試せること:</p>
+          <p>追加で試せること</p>
           <ul>
             <li>部位名だけで検索する（ハウジング、ギヤ、ケースなど）</li>
             <li>寸法の表記（φ、公差など）で検索する</li>
@@ -2300,12 +2300,12 @@ function renderSearch(q) {
   }
 
   $('#sResult').innerHTML = `
-    <div class="table-meta">${hits.length} 件を関連度の高い順に表示しています（図面名・主要寸法・図番の文字一致による判定です）</div>
+    <div class="table-meta">${hits.length} 件を関連度の高い順に表示しています。図面名・主要寸法・図番の文字一致による判定で、形状の比較は行っていません</div>
     <div class="table-wrap">
       <table>
         <caption class="visually-hidden">類似図面の検索結果</caption>
         <thead><tr>
-          <th scope="col">関連度</th><th scope="col">図面番号</th><th scope="col">名称</th>
+          <th scope="col">関連度（文字一致）</th><th scope="col">図面番号</th><th scope="col">名称</th>
           <th scope="col">製品・版</th><th scope="col">主要寸法</th><th scope="col">設計変更</th><th scope="col">操作</th>
         </tr></thead>
         <tbody>${hits.map(x => `
@@ -2385,7 +2385,7 @@ wireDrop({
     { k: '読み取った注記', v: '5 件' },
     { k: '読み取った部品表', v: '3 行（員数と図中指示の不一致 1 件）' }
   ],
-  toast: '図面から寸法・公差・注記・部品表を読み取りました。検図を開始できます。',
+  toast: 'サンプル図面の抽出結果を読み込みました。検図を開始できます。',
   onRead: () => { $('#dwgSelect').value = 'ACT-230-300'; }
 });
 

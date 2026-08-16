@@ -245,7 +245,7 @@ function renderResult() {
   const reqSec = `
     <div class="section">
       <h2 class="section__title">② 図面・条件表・作業標準から要求事項を抽出</h2>
-      <p class="section__lead">工程が満たすべき「あるべき状態」です。資料に明記のない項目はAIによる推定として区別しています。推定した数値を確定した規格値として扱わないでください。</p>
+      <p class="section__lead">工程で満たすべき要求事項です。資料に明記のない項目はAIによる推定として区別しています。推定した数値を確定した規格値として扱わないでください。</p>
       <div class="table-wrap">
         <table>
           <caption class="visually-hidden">抽出した要求事項</caption>
@@ -521,9 +521,9 @@ function evRow(key) {
       </dl>
       <p style="margin-top:var(--space-3);font-size:var(--font-caption)">判定基準：${esc(DATA.SOD_CRITERIA.doc)}。引き当て元の行と同じ影響区分と仮定した候補値です。担当者による確認が必要です。</p>
       ${sheetShot('pfmea', '工程FMEA ACT-220 Ver.09（様式1）— 引き当て元の帳票',
-        '影響・原因・予防・検出は、この帳票の該当行から引き当てています。')}
+        '影響・原因・予防・検出は、この帳票の該当行を参照しています。')}
       ${b.src && TR_BY_ID[b.src] ? `
-        <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">引き当て元の登録契機となった不具合</h3>
+        <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">参照行の登録契機となった不具合</h3>
         <p><span class="mono">${esc(b.src)}</span>（${esc(TR_BY_ID[b.src].date)}）${esc(TR_BY_ID[b.src].sym)}</p>` : ''}
     ` : `
       <div class="callout callout--warn" style="margin-top:var(--space-4)">
@@ -724,7 +724,7 @@ document.addEventListener('click', e => {
       cause: r.cause, prev: r.prev, det: r.det, s: r.s, o: r.o, d: r.d,
       ref: r.req.src, src: 'AI提案' });
     renderDraft();
-    toast('工程FMEAドラフトへ追加しました', `${r.mode}　状態は未確定です。担当者の確認後に確定してください。`);
+    toast('工程FMEAドラフトへ追加しました', `${r.mode}　状態は「未確定」です。内容を確認のうえ、担当者が確定してください。`);
     return;
   }
   const ga = e.target.closest('[data-gapadopt]');

@@ -28,7 +28,7 @@ function dice(a, b) {
 
 const SEV_LABEL = {
   '重': '<span class="status status--risk">重要</span>',
-  '中': '<span class="status status--warn">中</span>',
+  '中': '<span class="status status--warn">中程度</span>',
   '軽': '<span class="status status--todo">軽微</span>'
 };
 
@@ -386,8 +386,8 @@ function renderCheck() {
   if (!curHits.length) {
     $('#ckResult').innerHTML = `
       <div class="card" style="border-left:4px solid var(--color-success)">
-        <span class="status status--done">確認完了</span>
-        <h2 style="font-size:var(--font-subsection-title);margin:var(--space-3) 0 var(--space-2)">検図ルールに対する不足は見つかりませんでした</h2>
+        <span class="status status--done">ルール照合完了</span>
+        <h2 style="font-size:var(--font-subsection-title);margin:var(--space-3) 0 var(--space-2)">登録済みの検図ルールに対する確認候補は見つかりませんでした</h2>
         <p>${esc(curNo)}（${esc(d.name)}）について、${DATA.DWG_RULES.length} 件の検図ルールと過去不具合の対策内容を確認しましたが、確認候補はありませんでした。</p>
         <p style="margin-top:var(--space-3);font-size:var(--font-caption)">
           ルールにない観点は確認していません。設計意図の妥当性は、この確認の対象外です。
@@ -399,7 +399,7 @@ function renderCheck() {
   $('#ckResult').innerHTML = `
     <div class="card" style="border-left:4px solid var(--color-primary)">
       <div style="display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap;margin-bottom:var(--space-3)">
-        <span class="status status--done">確認完了</span>
+        <span class="status status--done">ルール照合完了</span>
         <span class="cell-sub">${esc(curNo)}　${esc(d.name)}（${esc(d.rev)}版）　／　${today()}</span>
       </div>
       <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:var(--space-4);margin-bottom:var(--space-4)">
@@ -461,7 +461,7 @@ function renderCheck() {
     toast('確認候補を出力しました', `${curHits.length} 件を出力しました。`);
   });
   $('#btnCkReview').addEventListener('click', () => {
-    toast('確認を依頼しました', `${curNo} の確認候補 ${curHits.length} 件について、ここで設計担当者への確認依頼が作られます。デモのため実際には送信されません。`);
+    toast('確認依頼の下書きを作成しました', `${curNo} の確認候補 ${curHits.length} 件について、ここで設計担当者への確認依頼が作られます。デモのため実際には送信されません。`);
   });
 }
 
@@ -521,7 +521,7 @@ function renderSearch(q) {
       <div class="empty">
         <h2 class="empty__title">該当する図面が見つかりませんでした</h2>
         <div class="empty__body">
-          <p>追加で試せること:</p>
+          <p>追加で試せること</p>
           <ul>
             <li>部位名だけで検索する（ハウジング、ギヤ、ケースなど）</li>
             <li>寸法の表記（φ、公差など）で検索する</li>
@@ -533,12 +533,12 @@ function renderSearch(q) {
   }
 
   $('#sResult').innerHTML = `
-    <div class="table-meta">${hits.length} 件を関連度の高い順に表示しています（図面名・主要寸法・図番の文字一致による判定です）</div>
+    <div class="table-meta">${hits.length} 件を関連度の高い順に表示しています。図面名・主要寸法・図番の文字一致による判定で、形状の比較は行っていません</div>
     <div class="table-wrap">
       <table>
         <caption class="visually-hidden">類似図面の検索結果</caption>
         <thead><tr>
-          <th scope="col">関連度</th><th scope="col">図面番号</th><th scope="col">名称</th>
+          <th scope="col">関連度（文字一致）</th><th scope="col">図面番号</th><th scope="col">名称</th>
           <th scope="col">製品・版</th><th scope="col">主要寸法</th><th scope="col">設計変更</th><th scope="col">操作</th>
         </tr></thead>
         <tbody>${hits.map(x => `
@@ -618,7 +618,7 @@ wireDrop({
     { k: '読み取った注記', v: '5 件' },
     { k: '読み取った部品表', v: '3 行（員数と図中指示の不一致 1 件）' }
   ],
-  toast: '図面から寸法・公差・注記・部品表を読み取りました。検図を開始できます。',
+  toast: 'サンプル図面の抽出結果を読み込みました。検図を開始できます。',
   onRead: () => { $('#dwgSelect').value = 'ACT-230-300'; }
 });
 

@@ -4,7 +4,7 @@
   <div class="page-head">
     <div>
       <h1 class="page-title">レビュー観点の抽出</h1>
-      <p class="page-lead">やることは2つです。過去のDR記録を取り込んで、過去のDRで繰り返し指摘された観点を、再利用できるチェックリストとして整理する。そのあと今回の図面や変更発議書を取り込んで、そのチェックリストに沿った指摘を出す。</p>
+      <p class="page-lead">過去のDR記録から繰り返し指摘されたレビュー観点を抽出し、チェックリスト候補として整理します。次に、今回の図面や変更発議書をその観点と照合し、確認が必要な箇所を提示します。</p>
     </div>
   </div>
 
@@ -34,8 +34,8 @@
           <div class="empty__body">
             <p>議事録の発言をそのまま読んで、次を出します。</p>
             <ul>
-              <li>同じ観点が繰り返し出ているもの（何回・どの機種で出たか）</li>
-              <li>その観点をチェックリストの項目に書き直した文</li>
+              <li>繰り返し指摘された観点（指摘回数・対象機種）</li>
+              <li>レビュー観点を標準化したチェックリスト文</li>
               <li>出現が1回のため、まとめずに確認候補として残したもの</li>
             </ul>
           </div>
@@ -57,8 +57,8 @@
 
   <!-- ステップ2 -->
   <div class="section" id="sec2" hidden>
-    <h2 class="section__title">2. 今回の帳票を取り込んで、指摘を出す</h2>
-    <p class="section__lead">上で起こしたチェックリストに沿って、図面や変更発議書の記載を見ます。書いてあるが足りないもの、そもそも記載がないものを分けて出します。</p>
+    <h2 class="section__title">2. 今回の帳票を取り込み、確認候補を提示する</h2>
+    <p class="section__lead">上で起こしたチェックリストに沿って、図面や変更発議書の記載を見ます。記載はあるものの情報が不足している項目と、対象帳票内で記載を確認できない項目を分けて表示します。</p>
     <div class="grid split-grid" style="grid-template-columns:380px 1fr;align-items:start">
       <div class="card">
         <div class="field">
@@ -82,8 +82,8 @@
             <p>チェックリストの各項目について、次を判断します。</p>
             <ul>
               <li>帳票のどこに、何と書いてあるか</li>
-              <li>その記載でこの項目に答えられているか</li>
-              <li>足りない場合、DRで何を求めるか</li>
+              <li>その記載がチェック項目を満たしているか</li>
+              <li>情報が不足している場合に、DRで確認すべき事項</li>
             </ul>
             <p style="margin-top:var(--space-3)">記載が見つからない項目は「なし」ではなく「見つけられなかった」として残します。文書が未登録なだけかもしれないためです。</p>
           </div>
@@ -183,8 +183,8 @@
         <label class="check-row"><input type="checkbox" id="mxChange" checked> 今回の変更点（DRBFM）</label>
         <label class="check-row"><input type="checkbox" id="mxTrouble" checked> 過去不具合の記録</label>
         <label class="check-row"><input type="checkbox" id="mxPrev" checked> 前回までのDR指摘</label>
-        <label class="check-row"><input type="checkbox" id="mxDone" checked> 完了扱いの指摘（完了後の設計変更を確認）</label>
-        <p class="field__hint">外すと結果が変わります。完了扱いを外すと、完了後に設計変更が入った指摘を拾わなくなります。</p>
+        <label class="check-row"><input type="checkbox" id="mxDone" checked> 完了済みとされた指摘（完了後の設計変更を確認）</label>
+        <p class="field__hint">選択を外した情報は照合対象から除外されます。完了扱いを外すと、完了後に設計変更が入った指摘を拾わなくなります。</p>
       </div>
       <button class="btn btn--primary" type="submit" style="width:100%">確認すべき項目を絞り込む</button>
     </form>
@@ -212,7 +212,7 @@
           <li class="step" data-state="todo"><span class="step__mark">2</span><span class="step__text">今回の変更点と突き合わせています</span></li>
           <li class="step" data-state="todo"><span class="step__mark">3</span><span class="step__text">過去不具合の記録と突き合わせています</span></li>
           <li class="step" data-state="todo"><span class="step__mark">4</span><span class="step__text">前回までのDR指摘の未完了を確認しています</span></li>
-          <li class="step" data-state="todo"><span class="step__mark">5</span><span class="step__text">完了扱いの指摘に、完了後の設計変更がないかを確認しています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">5</span><span class="step__text">完了済みとされた指摘に、完了後の設計変更がないかを確認しています</span></li>
           <li class="step" data-state="todo"><span class="step__mark">6</span><span class="step__text">確認区分をまとめています</span></li>
         </ol>
       </div>
@@ -257,7 +257,7 @@
   <div class="empty" id="findEmpty" hidden>
     <h2 class="empty__title">該当する指摘が見つかりませんでした</h2>
     <div class="empty__body">
-      <p>追加で試せること:</p>
+      <p>追加で試せること</p>
       <ul>
         <li>絞り込み条件を「すべて」に戻す</li>
         <li>別のゲートで絞り込む</li>

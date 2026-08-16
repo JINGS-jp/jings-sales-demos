@@ -4,7 +4,7 @@
   <div class="page-head">
     <div>
       <h1 class="page-title">変更影響分析</h1>
-      <p class="page-lead">変更の帳票をアップロードするか、内容を文章で書くと、どの変更のことかを探します。そのうえで、登録済みの関連情報と各帳票の記載から、確認すべき反映先と関連変更を提示します。未知の影響まで自動で見つけるものではありません。漏れかどうかを決めるのは人です。</p>
+      <p class="page-lead">変更の帳票をアップロードするか、内容を変更内容を入力と、どの変更のことかを探します。そのうえで、登録済みの関連情報と各帳票の記載から、確認すべき反映先と関連変更を提示します。未知の影響まで自動で見つけるものではありません。漏れかどうかを最終判断は担当者が行います。</p>
     </div>
   </div>
 
@@ -22,9 +22,9 @@
       </div>
 
       <div class="field">
-        <label class="field__label" for="ecnText">文章で書く</label>
+        <label class="field__label" for="ecnText">変更内容を入力</label>
         <textarea class="textarea" id="ecnText" rows="3" placeholder=""></textarea>
-        <p class="field__hint">帳票がなくても、変更の内容を書けば探せます。</p>
+        <p class="field__hint">帳票がない場合は、変更内容を入力して登録済みの設計変更を検索できます。</p>
         <div style="display:flex;gap:var(--space-2);flex-wrap:wrap;margin-top:var(--space-3)">
           <button class="btn btn--secondary btn--small" type="button" id="btnEcnRead">この文章から探す</button>
           <button class="btn btn--quiet btn--small" type="button" id="btnEcnTextSample">書き方の例を入れる</button>
@@ -40,7 +40,7 @@
           <option value="">上で読み取るか、番号で選んでください</option>
         </select>
         <p class="field__error" id="ecnError" hidden>対象の設計変更が選択されていません。変更を選んでから分析を開始してください。</p>
-        <p class="field__hint">読み取った結果がここに入ります。違っていれば選び直してください。暫定のまま止まっている変更を先頭に並べています。</p>
+        <p class="field__hint">読み取った結果がここに入ります。違っていれば選び直してください。暫定状態の変更を優先して表示しています。</p>
       </div>
       <div class="field">
         <span class="field__label">追跡する反映先</span>
@@ -62,7 +62,7 @@
             <li>影響する工程と、その工程に登録済みの故障モード</li>
             <li>他機種へ同じ検討が必要かどうか</li>
             <li>この変更に伴って一緒に変えるべき変更（関連変更）</li>
-            <li>変更を知らせるべき配布先</li>
+            <li>変更連絡の対象部署</li>
           </ul>
           <p style="margin-top:var(--space-3)">「要対応」「確認待ち」「確認できず」を分けて表示します。反映されていないことが確認できたものと、人の確認が要るもの、文書が未登録で追えないものは意味が違うためです。文書が未登録のものを反映済みとして扱うことはしません。</p>
         </div>
@@ -92,7 +92,7 @@
   <div class="page-head">
     <div>
       <h1 class="page-title">変更一覧</h1>
-      <p class="page-lead">いま入っている設計変更通知です。暫定状態のまま滞留している変更を優先的に確認できます。</p>
+      <p class="page-lead">現在登録されている設計変更通知です。暫定状態のまま滞留している変更を優先して確認できます。</p>
     </div>
     <div class="page-head__actions">
       <button class="btn btn--quiet" id="btnListCsv">一覧をExcelで出力する</button>
@@ -121,7 +121,7 @@
   <div class="page-head">
     <div>
       <h1 class="page-title">反映状況マトリクス</h1>
-      <p class="page-lead">変更と反映先を掛け合わせた表です。「確認できず」が縦に並んでいる列は、文書が入っていなくて追えていないところです。</p>
+      <p class="page-lead">設計変更と反映先を一覧化した表です。「確認できず」が多い文書種別は、参照文書が未登録で反映状況を追跡できていない領域です。</p>
     </div>
     <div class="page-head__actions">
       <button class="btn btn--quiet" id="btnMatCsv">マトリクスをExcelで出力する</button>
@@ -149,7 +149,7 @@
   <div class="page-head">
     <div>
       <h1 class="page-title">参照文書</h1>
-      <p class="page-lead">変更を追うのに使っている文書です。入っていない文書がある間は、そこは「確認できず」のままにします。</p>
+      <p class="page-lead">変更反映の追跡に使用している文書です。未登録の文書は反映状況を確認できないため、「確認できず」と表示します。</p>
     </div>
   </div>
   <div class="table-wrap">

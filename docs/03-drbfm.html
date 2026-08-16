@@ -427,7 +427,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
   <div class="page-head">
     <div>
       <h1 class="page-title">DRBFM生成</h1>
-      <p class="page-lead">変更発議書から始めて、変更点ごとの心配点・故障モード・影響・対策の初版を作ります。過去に例のない変更でも、その部品が何をするものかと材料の性質から候補を立てます。リスク評価はAIでは確定しません。最終判断は設計担当者が行います。</p>
+      <p class="page-lead">変更発議書を起点に、変更点ごとの心配点・故障モード・影響・対策候補の初版を作成します。過去実績のない変更についても、部品の機能や材料特性に基づいて候補を提示します。リスク評価の最終判断は設計担当者が行います。</p>
     </div>
   </div>
 
@@ -466,7 +466,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
           <ul>
             <li>その変更で何が心配か（心配点）</li>
             <li>心配点が現実になったときの故障モードと影響</li>
-            <li>取るべき対策の候補と、確認すべき試験</li>
+            <li>対策候補と、確認が必要な試験・解析</li>
             <li>候補ごとの生成根拠（過去実績・機能演繹・物理特性推論・環境知見のどれか）</li>
           </ul>
           <p style="margin-top:var(--space-3)">手元にファイルがない場合は「サンプルの発議書で試す」を押してください。</p>
@@ -497,7 +497,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
   <div class="page-head">
     <div>
       <h1 class="page-title">変更点一覧</h1>
-      <p class="page-lead">ACT-220からACT-230で変えた点です。変更点ごとに、いくつ心配点が出ているかを並べています。</p>
+      <p class="page-lead">ACT-220からACT-230への変更点です。変更点ごとに、いくつ心配点が出ているかを並べています。</p>
     </div>
   </div>
   <div class="table-meta" id="chMeta"></div>
@@ -519,7 +519,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
   <div class="page-head">
     <div>
       <h1 class="page-title">登録済みDRBFM</h1>
-      <p class="page-lead">人が見終わった行と、AIが出したまま手つかずの行を分けています。</p>
+      <p class="page-lead">担当者が確認済みの行と、AI提案のまま未確認の行を区別して表示します。</p>
     </div>
     <div class="page-head__actions">
       <button class="btn btn--quiet" id="btnExCsv">一覧をExcelで出力する</button>
@@ -544,12 +544,12 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
   <div class="page-head">
     <div>
       <h1 class="page-title">参照文書</h1>
-      <p class="page-lead">心配点をどこから引っぱってきたかです。系統ごとに、もとにした情報を並べています。</p>
+      <p class="page-lead">各心配点の生成根拠を示します。系統ごとに、もとにした情報を並べています。</p>
     </div>
   </div>
   <div class="section">
     <h2 class="section__title">生成の4系統</h2>
-    <p class="section__lead">行ごとにどの系統から生成したかを表示しています。過去実績のない新規領域は、機能演繹と物理推論で候補を出します。</p>
+    <p class="section__lead">心配点の生成根拠を4つの系統に分類して表示します。過去実績のない領域では、機能・要求および物理特性に基づく推論から候補を提示します。</p>
     <div class="table-wrap">
       <table>
         <caption class="visually-hidden">生成の4系統</caption>
@@ -800,7 +800,7 @@ const PFMEA = [
 
 /* 設計変更・DRBFM（ACT-230：ACT-220からの変更点） ----------
    DRBFMワークシートの様式に合わせる。要点は次の2つ。
-   ・「他に心配点はないか」「他に考えるべき要因はないか」＝掘り下げの列。AIが補助する所
+   ・「追加で考慮すべき心配点」「追加で考慮すべき要因」＝掘り下げの列。AIが補助する所
    ・対策は「設計／評価／製造」の3つへ振り分ける。ここまで出さないと現場が動けない */
 const DRBFM = [
   { cp: 'モータをブラシ付からブラシレスへ変更', prevPn: 'DCM-24-1800', why: '小型軽量化と寿命延長',
@@ -939,7 +939,7 @@ const DRBFM = [
 const SRC_KINDS = {
   past: { label: '過去実績', desc: '類似品番・過去帳票の実績検索から' },
   func: { label: '機能演繹', desc: '機能→要求→逸脱の演繹から（過去に実績がなくても出せる）' },
-  phys: { label: '物理推論', desc: '材料物性×ストレス条件の推論から' },
+  phys: { label: '物理特性に基づく推論', desc: '材料特性×使用条件の推論から' },
   env:  { label: '環境・一般知見', desc: '使用環境と車載分野の既知故障モードから' }
 };
 
@@ -1003,7 +1003,7 @@ const D8_STEPS = [
   { id: 'D5', name: '恒久対策の選定', hint: '再発を構造的に防ぐ対策' },
   { id: 'D6', name: '恒久対策の実施と検証', hint: '実施内容と効果の確認方法' },
   { id: 'D7', name: '再発防止（水平展開）', hint: '他工程・他機種への展開' },
-  { id: 'D8', name: 'チームの認識と完了', hint: '関係者の承認と記録' }
+  { id: 'D8', name: '完了確認・承認', hint: '関係者の承認と記録' }
 ];
 
 /* 設計審査（DR） ------------------------------------------- */
@@ -1150,9 +1150,9 @@ const DRAWINGS = [
 ];
 
 /* 設計変更通知（ECN） -------------------------------------
-   stage: 暫定 → 最終。暫定のまま止まっている変更が変化点管理の穴になる。
+   stage: 暫定 → 最終。暫定のまま止まっている変更が反映管理の穴になる。
    piggy: 関連変更（この変更に伴って見直すべき変更）。
-   notify: 配布先。変更を知らせるべき部署。 */
+   notify: 変更連絡の対象部署。 */
 const ECNS = [
   { no: 'ECN-2026-009', date: '2026-07-15', stage: '暫定',
     title: 'ACT-230 減速ギヤの歯面幅拡大および材質変更', prod: 'ACT-230',
@@ -1192,8 +1192,8 @@ const ECNS = [
     notify: ['技術部', '生産技術部', '品質保証部', '製造部', '営業部'] }
 ];
 
-/* 変更の反映状態（変化点管理の実態） ------------------------
-   kind: 反映先の種類 ／ status: 'done'=反映済み / 'open'=未反映 / 'unknown'=確認できず
+/* 変更の反映状態（反映管理の実態） ------------------------
+   kind: 反映先の種類 ／ status: 'done'=反映済み / 'open'=要対応 / 'pending'=確認待ち / 'unknown'=確認できず
    未反映と確認できずを区別することが重要。「確認できず」は文書が未登録で追えない状態。 */
 const CHANGE_REFLECT = {
   'ECN-2026-009': [
@@ -1856,7 +1856,7 @@ function renderResult() {
       <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:var(--space-4);margin-bottom:var(--space-4)">
         <div><p class="kpi__label">変更点</p><p class="kpi__value" style="font-size:var(--font-section-title)">${byCp.length}<span class="kpi__unit"> 件</span></p></div>
         <div><p class="kpi__label">生成した心配点</p><p class="kpi__value" style="font-size:var(--font-section-title)">${curRows.length}<span class="kpi__unit"> 件</span></p></div>
-        <div><p class="kpi__label">過去実績のない領域</p><p class="kpi__value" style="font-size:var(--font-section-title)">${newArea}<span class="kpi__unit"> 件</span></p><p class="kpi__note">機能演繹・物理推論で生成</p></div>
+        <div><p class="kpi__label">過去実績のない領域</p><p class="kpi__value" style="font-size:var(--font-section-title)">${newArea}<span class="kpi__unit"> 件</span></p><p class="kpi__note">機能・物理特性に基づく推論で生成</p></div>
       </div>
       <p style="line-height:var(--line-height-body)">
         変更発議書から ${byCp.length} 件の変更点を整理し、変更点ごとに心配点を生成しました。
@@ -1878,10 +1878,10 @@ function renderResult() {
           <thead><tr>
             <th scope="col">機能</th>
             <th scope="col">変更に関わる心配点<div class="cell-sub" style="font-weight:400">（故障モード）</div></th>
-            <th scope="col">他に心配点はないか</th>
+            <th scope="col">追加で考慮すべき心配点</th>
             <th scope="col">要因・原因</th>
-            <th scope="col">他に考えるべき要因はないか</th>
-            <th scope="col">お客様への影響</th>
+            <th scope="col">追加で考慮すべき要因</th>
+            <th scope="col">顧客への影響</th>
             <th scope="col">S・O・D候補</th>
             <th scope="col">系統</th><th scope="col">状態</th><th scope="col">根拠</th>
           </tr></thead>
@@ -1965,16 +1965,16 @@ function renderResult() {
   });
   $('#btnCsv').addEventListener('click', exportCsv);
   $('#btnReview').addEventListener('click', () => {
-    toast('設計審査へ提出しました', `${curRows.length} 行を ここでDR3の審査資料として登録されます。デモのため実際には登録されません。`);
+    toast('設計審査への提出内容を作成しました', `${curRows.length} 行をDR3の審査資料として整理しました。デモのため実際には登録されません。`);
   });
 }
 
 function exportCsv() {
   downloadXlsx(`DRBFM_ACT-230_${today()}.xlsx`, [
     ['No.', '部品名／変更点とその目的', '変更前品番', '機能',
-     '変更に関わる心配点（故障モード）', '他に心配点はないか',
-     '心配点はどんな場合に生じるか（要因・原因）', '他に考えるべき要因はないか',
-     'お客様への影響',
+     '変更に関わる心配点（故障モード）', '追加で考慮すべき心配点',
+     '心配点はどんな場合に生じるか（要因・原因）', '追加で考慮すべき要因',
+     '顧客への影響',
      '設計へ反映すべき項目', '評価へ反映すべき項目', '製造へ反映すべき項目', '担当', '期限',
      '重大度S', '発生度O', '検出度D', 'RPN', '生成系統', '生成根拠', '確認状態', '再評価要否'],
     ...curRows.map((r, i) => {
@@ -2007,9 +2007,9 @@ function openEv(key) {
       <p style="margin-top:var(--space-3)"><strong>心配点</strong><br><mark>${esc(r.worry)}</mark></p>
       <p style="margin-top:var(--space-3)"><strong>故障モード</strong><br>${esc(r.mode)}</p>
       <p style="margin-top:var(--space-3)"><strong>影響</strong><br>${esc(r.eff)}</p>
-      <p style="margin-top:var(--space-3)"><strong>他に心配点はないか</strong><br>${esc(r.otherWorry)}</p>
+      <p style="margin-top:var(--space-3)"><strong>追加で考慮すべき心配点</strong><br>${esc(r.otherWorry)}</p>
       <p style="margin-top:var(--space-3)"><strong>要因・原因</strong><br>${esc(r.cause)}</p>
-      <p style="margin-top:var(--space-3)"><strong>他に考えるべき要因はないか</strong><br>${esc(r.otherCause)}</p>
+      <p style="margin-top:var(--space-3)"><strong>追加で考慮すべき要因</strong><br>${esc(r.otherCause)}</p>
     </div>
     <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">反映すべき項目</h3>
     <dl class="meta-list">
@@ -2203,8 +2203,8 @@ document.addEventListener('click', e => {
 
 $('#btnExCsv').addEventListener('click', () => {
   downloadXlsx(`登録済みDRBFM_${today()}.xlsx`, [
-    ['変更点', '変更理由', '機能', '心配点', '故障モード', '他に心配点はないか',
-     '要因・原因', '他に考えるべき要因はないか', 'お客様への影響',
+    ['変更点', '変更理由', '機能', '心配点', '故障モード', '追加で考慮すべき心配点',
+     '要因・原因', '追加で考慮すべき要因', '顧客への影響',
      '設計へ', '評価へ', '製造へ', '担当', '期限', 'S', 'O', 'D', 'RPN', '生成系統', '確認状態'],
     ...DATA.DRBFM.map(r => [r.cp, r.why, r.func, r.worry, r.mode, r.otherWorry,
       r.cause, r.otherCause, r.eff, r.actDesign, r.actEval, r.actMfg, r.owner, r.due,

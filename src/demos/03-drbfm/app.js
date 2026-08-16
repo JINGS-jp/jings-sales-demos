@@ -86,7 +86,7 @@ function renderResult() {
       <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:var(--space-4);margin-bottom:var(--space-4)">
         <div><p class="kpi__label">変更点</p><p class="kpi__value" style="font-size:var(--font-section-title)">${byCp.length}<span class="kpi__unit"> 件</span></p></div>
         <div><p class="kpi__label">生成した心配点</p><p class="kpi__value" style="font-size:var(--font-section-title)">${curRows.length}<span class="kpi__unit"> 件</span></p></div>
-        <div><p class="kpi__label">過去実績のない領域</p><p class="kpi__value" style="font-size:var(--font-section-title)">${newArea}<span class="kpi__unit"> 件</span></p><p class="kpi__note">機能演繹・物理推論で生成</p></div>
+        <div><p class="kpi__label">過去実績のない領域</p><p class="kpi__value" style="font-size:var(--font-section-title)">${newArea}<span class="kpi__unit"> 件</span></p><p class="kpi__note">機能・物理特性に基づく推論で生成</p></div>
       </div>
       <p style="line-height:var(--line-height-body)">
         変更発議書から ${byCp.length} 件の変更点を整理し、変更点ごとに心配点を生成しました。
@@ -108,10 +108,10 @@ function renderResult() {
           <thead><tr>
             <th scope="col">機能</th>
             <th scope="col">変更に関わる心配点<div class="cell-sub" style="font-weight:400">（故障モード）</div></th>
-            <th scope="col">他に心配点はないか</th>
+            <th scope="col">追加で考慮すべき心配点</th>
             <th scope="col">要因・原因</th>
-            <th scope="col">他に考えるべき要因はないか</th>
-            <th scope="col">お客様への影響</th>
+            <th scope="col">追加で考慮すべき要因</th>
+            <th scope="col">顧客への影響</th>
             <th scope="col">S・O・D候補</th>
             <th scope="col">系統</th><th scope="col">状態</th><th scope="col">根拠</th>
           </tr></thead>
@@ -195,16 +195,16 @@ function renderResult() {
   });
   $('#btnCsv').addEventListener('click', exportCsv);
   $('#btnReview').addEventListener('click', () => {
-    toast('設計審査へ提出しました', `${curRows.length} 行を ここでDR3の審査資料として登録されます。デモのため実際には登録されません。`);
+    toast('設計審査への提出内容を作成しました', `${curRows.length} 行をDR3の審査資料として整理しました。デモのため実際には登録されません。`);
   });
 }
 
 function exportCsv() {
   downloadXlsx(`DRBFM_ACT-230_${today()}.xlsx`, [
     ['No.', '部品名／変更点とその目的', '変更前品番', '機能',
-     '変更に関わる心配点（故障モード）', '他に心配点はないか',
-     '心配点はどんな場合に生じるか（要因・原因）', '他に考えるべき要因はないか',
-     'お客様への影響',
+     '変更に関わる心配点（故障モード）', '追加で考慮すべき心配点',
+     '心配点はどんな場合に生じるか（要因・原因）', '追加で考慮すべき要因',
+     '顧客への影響',
      '設計へ反映すべき項目', '評価へ反映すべき項目', '製造へ反映すべき項目', '担当', '期限',
      '重大度S', '発生度O', '検出度D', 'RPN', '生成系統', '生成根拠', '確認状態', '再評価要否'],
     ...curRows.map((r, i) => {
@@ -237,9 +237,9 @@ function openEv(key) {
       <p style="margin-top:var(--space-3)"><strong>心配点</strong><br><mark>${esc(r.worry)}</mark></p>
       <p style="margin-top:var(--space-3)"><strong>故障モード</strong><br>${esc(r.mode)}</p>
       <p style="margin-top:var(--space-3)"><strong>影響</strong><br>${esc(r.eff)}</p>
-      <p style="margin-top:var(--space-3)"><strong>他に心配点はないか</strong><br>${esc(r.otherWorry)}</p>
+      <p style="margin-top:var(--space-3)"><strong>追加で考慮すべき心配点</strong><br>${esc(r.otherWorry)}</p>
       <p style="margin-top:var(--space-3)"><strong>要因・原因</strong><br>${esc(r.cause)}</p>
-      <p style="margin-top:var(--space-3)"><strong>他に考えるべき要因はないか</strong><br>${esc(r.otherCause)}</p>
+      <p style="margin-top:var(--space-3)"><strong>追加で考慮すべき要因</strong><br>${esc(r.otherCause)}</p>
     </div>
     <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">反映すべき項目</h3>
     <dl class="meta-list">
@@ -433,8 +433,8 @@ document.addEventListener('click', e => {
 
 $('#btnExCsv').addEventListener('click', () => {
   downloadXlsx(`登録済みDRBFM_${today()}.xlsx`, [
-    ['変更点', '変更理由', '機能', '心配点', '故障モード', '他に心配点はないか',
-     '要因・原因', '他に考えるべき要因はないか', 'お客様への影響',
+    ['変更点', '変更理由', '機能', '心配点', '故障モード', '追加で考慮すべき心配点',
+     '要因・原因', '追加で考慮すべき要因', '顧客への影響',
      '設計へ', '評価へ', '製造へ', '担当', '期限', 'S', 'O', 'D', 'RPN', '生成系統', '確認状態'],
     ...DATA.DRBFM.map(r => [r.cp, r.why, r.func, r.worry, r.mode, r.otherWorry,
       r.cause, r.otherCause, r.eff, r.actDesign, r.actEval, r.actMfg, r.owner, r.due,

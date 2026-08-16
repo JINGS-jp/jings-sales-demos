@@ -27,7 +27,7 @@ function dice(a, b) {
 let findings = DATA.DR_FINDINGS.map(f => ({ ...f }));
 let curPrep = [];
 
-/* ---- 完了扱いの指摘の見落とし検出 ----
+/* ---- 完了済みとされた指摘の見落とし検出 ----
    完了にした指摘は、以後の確認対象から外れる。ここが設計審査の穴になる。
    完了の判断より後に設計変更が入っていれば、その判断は変更前の条件で出したものになる。
    完了指摘 → 根拠となった不具合 → 同じ不具合を理由とする設計変更 の順にたどり、
@@ -67,18 +67,18 @@ function renderMissed() {
   missed = detectMissed();
   const n = missed.out.length;
   if (missed.off) {
-    $('#missMeta').textContent = '審査準備の画面で「完了扱いの指摘」の突き合わせを外しているため、確認していません。';
+    $('#missMeta').textContent = '審査準備の画面で「完了済みとされた指摘」の突き合わせを外しているため、確認していません。';
     $('#missCards').innerHTML = `
       <div class="empty">
-        <h2 class="empty__title">完了扱いの指摘は確認していません</h2>
-        <div class="empty__body"><p>審査準備の画面で突き合わせる情報に「完了扱いの指摘」を含めると、ここに結果が出ます。</p></div>
+        <h2 class="empty__title">完了済みとされた指摘は確認していません</h2>
+        <div class="empty__body"><p>審査準備の画面で突き合わせる情報に「完了済みとされた指摘」を含めると、ここに結果が出ます。</p></div>
       </div>`;
     return;
   }
   $('#missMeta').innerHTML = n
-    ? `完了扱いの指摘 ${missed.checked} 件をたどり、<strong>${n} 件</strong>について、完了と判断した後に設計変更が入っていることを確認しました。`
+    ? `完了済みとされた指摘 ${missed.checked} 件をたどり、<strong>${n} 件</strong>について、完了と判断した後に設計変更が入っていることを確認しました。`
       + `完了扱いのままだとDR3の確認対象から外れます。`
-    : `完了扱いの指摘 ${missed.checked} 件をたどりましたが、完了の判断より後に入った設計変更はありませんでした。`;
+    : `完了済みとされた指摘 ${missed.checked} 件をたどりましたが、完了の判断より後に入った設計変更はありませんでした。`;
 
   $('#missCards').innerHTML = n ? missed.out.map((m, i) => `
     <div class="kcard" data-misscard="${i}" style="border-left:4px solid var(--color-error)">
@@ -104,7 +104,7 @@ function renderMissed() {
     <div class="empty">
       <h2 class="empty__title">再確認が必要な指摘はありません</h2>
       <div class="empty__body">
-        <p>完了扱いの指摘について、完了と判断した後に入った設計変更はありませんでした。</p>
+        <p>完了済みとされた指摘について、完了と判断した後に入った設計変更はありませんでした。</p>
       </div>
     </div>`;
 }
@@ -186,7 +186,7 @@ function renderPrep(gate) {
 
     ${missed.out.length ? `
     <div class="section">
-      <h2 class="section__title">完了扱いの指摘に、再確認が必要なものがあります</h2>
+      <h2 class="section__title">完了済みとされた指摘に、再確認が必要なものがあります</h2>
       <p class="section__lead">完了にした指摘は確認対象から外れます。完了と判断した後に設計変更が入っているものを ${missed.out.length} 件見つけました。</p>
       ${missed.out.map((m, i) => `
         <div class="callout callout--error">
@@ -217,7 +217,7 @@ function renderPrep(gate) {
               <td class="col-text">${esc(p.item.item)}</td>
               <td class="col-text">${p.hits.length
                 ? p.hits.map(h => `<div style="margin-bottom:var(--space-1)"><span class="libchip">${esc(KIND_LABEL[h.kind])}</span> ${esc(h.why)}</div>`).join('')
-                : '<span class="cell-sub">突き合わせの結果は付きませんでした。標準項目として確認してください。</span>'}</td>
+                : '<span class="cell-sub">関連情報との一致は確認できませんでした。標準項目として確認してください。</span>'}</td>
               <td class="nowrap">
                 ${p.hits.length ? `<button class="btn btn--quiet btn--small" data-ev="${i}">根拠を確認する</button>` : ''}
                 <button class="btn btn--quiet btn--small" data-raise="${i}">指摘として起票する</button>
@@ -243,7 +243,7 @@ function renderPrep(gate) {
       ['確認区分', '項目番号', '区分', '確認項目', '今回確認が必要な理由', '突き合わせ元'],
       ...missed.out.map(m => ['再確認が必要', m.item.id, m.f.cat, m.item.item,
         `${m.f.id} を ${m.f.due} で完了としているが、${m.ecn.date} に ${m.ecn.no}（${m.ecn.title}）が発行されている`,
-        '完了扱いの指摘']),
+        '完了済みとされた指摘']),
       ...curPrep.map(p => [
         p.level === 'high' ? '重点確認' : p.level === 'mid' ? '確認' : '標準項目',
         p.item.id, p.item.cat, p.item.item,
@@ -495,7 +495,7 @@ document.addEventListener('click', e => {
     const m = missed.out[Number(me.dataset.missev)];
     if (!m) return;
     openPanel('たどった経路：' + m.f.id, `
-      <p style="line-height:var(--line-height-body)">完了扱いの指摘から、根拠となった不具合記録、その不具合を理由とする設計変更の順にたどりました。日付の前後関係だけで判定しています。</p>
+      <p style="line-height:var(--line-height-body)">完了済みとされた指摘から、根拠となった不具合記録、その不具合を理由とする設計変更の順にたどりました。日付の前後関係だけで判定しています。</p>
       <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">1. 完了にした指摘</h3>
       <div class="quote">
         <p><strong><span class="mono">${esc(m.f.id)}</span>（${esc(m.f.gate)}　${esc(m.f.cat)}）</strong></p>
@@ -513,7 +513,7 @@ document.addEventListener('click', e => {
         <p><strong><span class="mono">${esc(m.ecn.no)}</span>（発行 ${esc(m.ecn.date)}・${esc(m.ecn.stage)}版・${esc(m.ecn.status)}）</strong></p>
         <p style="margin-top:var(--space-2)">${esc(m.ecn.title)}</p>
         <p style="margin-top:var(--space-2)"><strong>変更理由</strong><br>${esc(m.ecn.reason)}</p>
-        ${m.piggy.length ? `<p style="margin-top:var(--space-2)"><strong>共連れ変更</strong><br>${m.piggy.map(x => `<span class="mono">${esc(x.no)}</span>　${esc(x.title)}`).join('<br>')}</p>` : ''}
+        ${m.piggy.length ? `<p style="margin-top:var(--space-2)"><strong>関連変更変更</strong><br>${m.piggy.map(x => `<span class="mono">${esc(x.no)}</span>　${esc(x.title)}`).join('<br>')}</p>` : ''}
       </div>
       <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">4. 判定</h3>
       <div class="quote">
@@ -636,7 +636,7 @@ function runPast() {
     $('#pastResult').hidden = false;
     checklistMade = true;
     $('#sec2').hidden = false;
-    toast('チェックリストを作りました', `${groupPast().groups.length} 項目を起こしました。`);
+    toast('チェックリスト候補を作成しました', `${groupPast().groups.length} 項目を起こしました。`);
   });
 }
 
@@ -711,7 +711,7 @@ function renderPast() {
     <div class="callout callout--warn" style="margin-top:var(--space-5)">
       <div>
         <p class="callout__title">この結果の見方</p>
-        <p>繰り返し指摘されている観点は、標準的な確認項目として有効な可能性があります。指摘回数だけで重要度を判断せず、採用可否は担当者が確認してください。項目の文はAIが書き直したものなので、社内の言い方に合わせてから使ってください。</p>
+        <p>繰り返し指摘されている観点は、標準的な確認項目として有効な可能性があります。指摘回数だけで重要度を判断せず、採用可否は担当者が確認してください。チェックリスト文はAIが標準化した案です。社内用語や表現に合わせて確認・修正してください。</p>
       </div>
     </div>
 
@@ -738,7 +738,7 @@ function runDoc() {
 }
 
 const SEV_LABEL = {
-  high: '<span class="status status--risk">DRで必ず確認</span>',
+  high: '<span class="status status--risk">重点確認候補</span>',
   mid: '<span class="status status--warn">確認</span>',
   open: '<span class="status status--todo">確認できず</span>'
 };
@@ -849,7 +849,7 @@ document.addEventListener('click', e => {
   const dr = e.target.closest('#pastResult [data-drop]');
   if (dr) {
     dr.closest('.card').style.opacity = '.5';
-    dr.textContent = '使いません';
+    dr.textContent = '今回は採用しない';
     dr.disabled = true;
     return;
   }
@@ -884,7 +884,7 @@ document.addEventListener('click', e => {
     downloadXlsx(`DR指摘_${today()}.xlsx`, [
       ['重み', '区分', 'チェック項目', '帳票', '該当欄', '帳票の記載', '足りない理由', 'DRで求めること'],
       ...DATA.DR_INTAKE_HITS.map(h => [
-        h.sev === 'high' ? 'DRで必ず確認' : h.sev === 'mid' ? '確認' : '確認できず',
+        h.sev === 'high' ? '重点確認候補' : h.sev === 'mid' ? '確認' : '確認できず',
         TH[h.theme].cat, TH[h.theme].item, h.doc, h.where, h.found, h.ng, h.ask])
     ]);
     toast('Excelを出力しました', `${DATA.DR_INTAKE_HITS.length} 件を出力しました。`);

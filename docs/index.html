@@ -435,7 +435,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
       <div class="flow__col">
         <p class="flow__when">変える前に確かめる</p>
         <ol class="flow__steps">
-          <li>変更点から心配点を洗う（DRBFM）</li>
+          <li>変更点から心配点を洗い出す（DRBFM）</li>
           <li>工程への影響を故障モードにする（工程FMEA）</li>
           <li>設計レビューで観点を確認する</li>
           <li>出図前に図面を照合する</li>
@@ -475,7 +475,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
         <span class="demo-card__main">
           <span class="demo-card__title">不具合ナレッジ横断検索AI</span>
           <span class="demo-card__role">類似不具合を横断検索し、根拠となる出典まで確認</span>
-          <span class="demo-card__desc">「似た不具合が過去になかったか」を普段の言葉で聞けます。過去トラ・工程FMEA・設計変更をまたいで探し、答えには必ず出典を付けます。</span>
+          <span class="demo-card__desc">発生している事象を普段使っている言葉で入力し、類似する過去不具合を検索できます。過去トラ・工程FMEA・設計変更を横断して検索し、結果には必ず出典を付けます。</span>
           
           <span class="demo-card__meta">想定業務：品質保証部 ／ 不具合対応・原因調査　／　所要 4分</span>
         </span>
@@ -488,7 +488,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
         <span class="demo-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9 16H3z"/><path d="M12 9v5M12 17h.01"/></svg></span>
         <span class="demo-card__main">
           <span class="demo-card__title">FTA（故障の木）作成支援AI</span>
-          <span class="demo-card__role">故障の木を組み立て、掘れていない観点を出す</span>
+          <span class="demo-card__role">故障の木を組み立て、検討が不足している観点を提示</span>
           <span class="demo-card__desc">起きている事象を入力すると、登録済みの類似事象を特定し、頂上事象→中間事象→基本事象の故障の木を組み立てます。基本事象は5M1Eで分類し、候補が出なかった分類も残します。</span>
           <span class="demo-card__also">技術部での活用例：重大事象の原因分析</span>
           <span class="demo-card__meta">想定業務：品質保証部・技術部 ／ 重大事象の原因の掘り下げ　／　所要 5分</span>
@@ -503,7 +503,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
         <span class="demo-card__main">
           <span class="demo-card__title">品質報告書（8D）作成支援AI</span>
           <span class="demo-card__role">不具合記録から8D報告書の初稿を作成</span>
-          <span class="demo-card__desc">不具合記録から8D報告書のD1〜D8の初稿を作ります。記録に書かれていないことは埋めず、空欄のまま「情報が足りない」と出します。</span>
+          <span class="demo-card__desc">不具合記録からD1〜D8の初稿を作成します。記録にない内容は推測で補完せず、未記入として残し、追加で必要な情報を示します。</span>
           
           <span class="demo-card__meta">想定業務：品質保証部 ／ 顧客提出用の是正処置報告書　／　所要 4分</span>
         </span>
@@ -538,8 +538,8 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
         <span class="demo-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4v6h6M20 20v-6h-6"/><path d="M20 9a8 8 0 0 0-14.3-3M4 15a8 8 0 0 0 14.3 3"/></svg></span>
         <span class="demo-card__main">
           <span class="demo-card__title">設計変更の影響・反映管理AI</span>
-          <span class="demo-card__role">変更の反映漏れと関連影響を洗い出す</span>
-          <span class="demo-card__desc">変更の帳票をアップロードするか内容を書くと、直すべき帳票と工程を洗い出して、直せているかを並べます。関連して見直すべき工程・帳票・条件も提示します。</span>
+          <span class="demo-card__role">変更の反映漏れと関連変更を確認</span>
+          <span class="demo-card__desc">変更帳票をアップロードするか変更内容を入力すると、反映が必要な帳票・工程を抽出し、それぞれの反映状況を確認します。関連して見直すべき変更も提示します。</span>
           <span class="demo-card__also">品質保証部での活用例：反映漏れの追跡</span>
           <span class="demo-card__meta">想定業務：技術部・品質保証部 ／ 設計変更の影響追跡　／　所要 5分</span>
         </span>
@@ -561,7 +561,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
         <span class="demo-card__main">
           <span class="demo-card__title">変更点起点の設計品質AI（DRBFM）</span>
           <span class="demo-card__role">変更発議書から心配点・故障モード・対策の初版を生成</span>
-          <span class="demo-card__desc">変更発議書をアップロードすると、変更点ごとの心配点・故障モード・対策の初版ができます。過去に例のない変更でも、部品の役割と材料の性質から候補を立てます。</span>
+          <span class="demo-card__desc">変更発議書をアップロードすると、変更点ごとの心配点・故障モード・対策候補の初版を作成します。過去実績のない変更でも、部品の機能と材料特性から候補を提示します。</span>
           
           <span class="demo-card__meta">想定業務：技術部 ／ 設計変更時のリスク検討　／　所要 5分</span>
         </span>
@@ -575,7 +575,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
         <span class="demo-card__main">
           <span class="demo-card__title">図面検索・検図支援AI</span>
           <span class="demo-card__role">出図前の図面を検図ルールと過去不具合に照合</span>
-          <span class="demo-card__desc">出図する前の図面を、社内の検図ルールと過去不具合の対策に照らして見ます。前の機種でどう指示していたかも、類似図面から引けます。</span>
+          <span class="demo-card__desc">出図前の図面を、社内の検図ルールおよび過去不具合の対策内容と照合します。前機種の指示内容も、類似図面から参照できます。</span>
           
           <span class="demo-card__meta">想定業務：設計部 ／ 出図前の検図と類似図面の参照　／　所要 4分</span>
         </span>
@@ -609,7 +609,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
         <span class="demo-card__main">
           <span class="demo-card__title">不具合ナレッジ横断検索AI</span>
           <span class="demo-card__role">類似不具合を横断検索し、根拠となる出典まで確認</span>
-          <span class="demo-card__desc">「似た不具合が過去になかったか」を普段の言葉で聞けます。過去トラ・工程FMEA・設計変更をまたいで探し、答えには必ず出典を付けます。</span>
+          <span class="demo-card__desc">発生している事象を普段使っている言葉で入力し、類似する過去不具合を検索できます。過去トラ・工程FMEA・設計変更を横断して検索し、結果には必ず出典を付けます。</span>
           
           <span class="demo-card__meta">想定業務：品質保証部 ／ 不具合対応・原因調査　／　所要 4分</span>
         </span>
@@ -637,7 +637,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
         <span class="demo-card__main">
           <span class="demo-card__title">変更点起点の設計品質AI（DRBFM）</span>
           <span class="demo-card__role">変更発議書から心配点・故障モード・対策の初版を生成</span>
-          <span class="demo-card__desc">変更発議書をアップロードすると、変更点ごとの心配点・故障モード・対策の初版ができます。過去に例のない変更でも、部品の役割と材料の性質から候補を立てます。</span>
+          <span class="demo-card__desc">変更発議書をアップロードすると、変更点ごとの心配点・故障モード・対策候補の初版を作成します。過去実績のない変更でも、部品の機能と材料特性から候補を提示します。</span>
           
           <span class="demo-card__meta">想定業務：技術部 ／ 設計変更時のリスク検討　／　所要 5分</span>
         </span>
@@ -665,7 +665,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
         <span class="demo-card__main">
           <span class="demo-card__title">図面検索・検図支援AI</span>
           <span class="demo-card__role">出図前の図面を検図ルールと過去不具合に照合</span>
-          <span class="demo-card__desc">出図する前の図面を、社内の検図ルールと過去不具合の対策に照らして見ます。前の機種でどう指示していたかも、類似図面から引けます。</span>
+          <span class="demo-card__desc">出図前の図面を、社内の検図ルールおよび過去不具合の対策内容と照合します。前機種の指示内容も、類似図面から参照できます。</span>
           
           <span class="demo-card__meta">想定業務：設計部 ／ 出図前の検図と類似図面の参照　／　所要 4分</span>
         </span>
@@ -679,7 +679,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
         <span class="demo-card__main">
           <span class="demo-card__title">品質報告書（8D）作成支援AI</span>
           <span class="demo-card__role">不具合記録から8D報告書の初稿を作成</span>
-          <span class="demo-card__desc">不具合記録から8D報告書のD1〜D8の初稿を作ります。記録に書かれていないことは埋めず、空欄のまま「情報が足りない」と出します。</span>
+          <span class="demo-card__desc">不具合記録からD1〜D8の初稿を作成します。記録にない内容は推測で補完せず、未記入として残し、追加で必要な情報を示します。</span>
           
           <span class="demo-card__meta">想定業務：品質保証部 ／ 顧客提出用の是正処置報告書　／　所要 4分</span>
         </span>
@@ -692,8 +692,8 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
         <span class="demo-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4v6h6M20 20v-6h-6"/><path d="M20 9a8 8 0 0 0-14.3-3M4 15a8 8 0 0 0 14.3 3"/></svg></span>
         <span class="demo-card__main">
           <span class="demo-card__title">設計変更の影響・反映管理AI</span>
-          <span class="demo-card__role">変更の反映漏れと関連影響を洗い出す</span>
-          <span class="demo-card__desc">変更の帳票をアップロードするか内容を書くと、直すべき帳票と工程を洗い出して、直せているかを並べます。関連して見直すべき工程・帳票・条件も提示します。</span>
+          <span class="demo-card__role">変更の反映漏れと関連変更を確認</span>
+          <span class="demo-card__desc">変更帳票をアップロードするか変更内容を入力すると、反映が必要な帳票・工程を抽出し、それぞれの反映状況を確認します。関連して見直すべき変更も提示します。</span>
           <span class="demo-card__also">品質保証部での活用例：反映漏れの追跡</span>
           <span class="demo-card__meta">想定業務：技術部・品質保証部 ／ 設計変更の影響追跡　／　所要 5分</span>
         </span>
@@ -706,7 +706,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
         <span class="demo-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9 16H3z"/><path d="M12 9v5M12 17h.01"/></svg></span>
         <span class="demo-card__main">
           <span class="demo-card__title">FTA（故障の木）作成支援AI</span>
-          <span class="demo-card__role">故障の木を組み立て、掘れていない観点を出す</span>
+          <span class="demo-card__role">故障の木を組み立て、検討が不足している観点を提示</span>
           <span class="demo-card__desc">起きている事象を入力すると、登録済みの類似事象を特定し、頂上事象→中間事象→基本事象の故障の木を組み立てます。基本事象は5M1Eで分類し、候補が出なかった分類も残します。</span>
           <span class="demo-card__also">技術部での活用例：重大事象の原因分析</span>
           <span class="demo-card__meta">想定業務：品質保証部・技術部 ／ 重大事象の原因の掘り下げ　／　所要 5分</span>
@@ -721,11 +721,11 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
   <details class="lp__note">
     <summary>社内向けメモ（商談中は開かないこと）</summary>
     <ul>
-      <li>データは全部架空です。実顧客のものは一切入っていないので、どこに見せても差し支えありません。</li>
-      <li>「根拠」ボタンは必ず押してください。出典が出せることが商談でいちばん効きます。押すと帳票の実物が出ます。</li>
-      <li>S・O・Dやリスクの点数を、AIが勝手に確定しない作りにしてあります。製造業では「決めるのは人」と言い切れるかどうかで話が変わります。</li>
-      <li>帳票の実ファイルは <span class="mono">帳票サンプル</span> フォルダにあります。Excelで開いて並べて見せると効きます。</li>
-      <li>顧客のデータを使ったデモがいるときは、三上さんに相談してください。</li>
+      <li>本デモのデータはすべて架空であり、実在する顧客の情報は含まれていません。</li>
+      <li>「根拠」ボタンから、回答の出典となる帳票を確認できます。</li>
+      <li>S・O・Dおよびリスク評価はAIが確定せず、最終判断は担当者が行う設計です。</li>
+      <li>帳票の実ファイルは <span class="mono">帳票サンプル</span> フォルダにあります。Excelで開いて並べて表示できます。</li>
+      <li>顧客データを用いたデモが必要な場合は、社内担当者へ相談してください。</li>
     </ul>
   </details>
 
