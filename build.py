@@ -2,7 +2,7 @@
 """JINGS 営業標準デモ ビルダー
 
 src/common/（共通CSS・共通JS・共通データ）と src/demos/<id>/（画面・ロジック）を
-結合し、dist/ に外部依存のない単一HTMLを出力する。
+結合し、docs/ に外部依存のない単一HTMLを出力する。
 ヘッダー・サイドナビ・根拠パネル・通知は本スクリプトが生成するため、
 7本すべてで構造とUIが一致する。
 
@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parent
 SRC = ROOT / "src"
 COMMON = SRC / "common"
 DEMOS = SRC / "demos"
-DIST = ROOT / "dist"
+DIST = ROOT / "docs"
 
 # --- アイコン（インラインSVG・線幅統一のアウトライン。絵文字は使わない） ---
 ICONS = {
@@ -337,7 +337,7 @@ def main() -> int:
         dst.mkdir(exist_ok=True)
         for f in src_sheets.glob("*.xlsx"):
             shutil.copy2(f, dst / f.name)
-        print(f"  帳票サンプル {len(list(dst.glob('*.xlsx')))} 件を dist/帳票サンプル/ に配置")
+        print(f"  帳票サンプル {len(list(dst.glob('*.xlsx')))} 件を docs/帳票サンプル/ に配置")
 
     if not only:
         out = build_index(css, metas)

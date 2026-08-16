@@ -15,7 +15,7 @@ from pathlib import Path
 
 from playwright.async_api import async_playwright
 
-DIST = Path(__file__).resolve().parent / "dist"
+DIST = Path(__file__).resolve().parent / "docs"
 
 
 def flat(s: str) -> str:
