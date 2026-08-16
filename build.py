@@ -123,10 +123,10 @@ def build_demo(demo_dir: Path, css: str, shell_js: str, data_js: str,
   </div>
   <div class="nav-note">
     <p class="nav-note__role">{meta.get("role", meta["pitch"])}</p>
-    <p class="nav-note__time">通しで見ると 約{meta["minutes"]}分</p>
+    <p class="nav-note__time">ひととおり見て {meta["minutes"]}分</p>
   </div>
   <div class="sb-foot">
-    <span class="env-badge">デモ環境・架空データ</span>
+    <span class="env-badge">データはすべて架空</span>
     <a class="nav-back" href="index.html">
       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
       デモ一覧へ戻る
