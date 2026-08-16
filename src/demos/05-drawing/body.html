@@ -11,15 +11,15 @@
   <div class="grid split-grid" style="grid-template-columns:340px 1fr;align-items:start">
     <form class="card" id="ckForm" novalidate style="position:sticky;top:calc(var(--header-height) + var(--space-5))">
       <div class="field">
-        <span class="field__label">検図する図面をどこから取るか</span>
+        <span class="field__label">対象図面の選択</span>
         <div class="drop">
-          <label class="field__label" for="dwgFile" style="font-size:var(--font-caption)">出図前の図面を投げ込む</label>
+          <label class="field__label" for="dwgFile" style="font-size:var(--font-caption)">出図前の図面をアップロードする</label>
           <input type="file" id="dwgFile" accept=".pdf,.dwg,.dxf,.xlsx" class="filepick__input">
         <div class="filepick">
           <label class="btn btn--quiet btn--small" for="dwgFile">ファイルを選ぶ</label>
           <span class="filepick__name" id="dwgFileName">選択されていません</span>
         </div>
-          <p class="drop__hint">まだ登録していない図面でも、投げ込めば検図できます。寸法・公差・注記・部品表を読み取ります。</p>
+          <p class="drop__hint">まだ登録していない図面も対象にできます。寸法・公差・注記・部品表を読み取ります。このデモでは、抽出済みのサンプルデータを使用します。</p>
           <button type="button" class="btn btn--quiet btn--small" id="btnDwgSample" style="margin-top:var(--space-2)">サンプルの図面で試す</button>
         </div>
         <div id="dwgReadout" hidden style="margin-top:var(--space-3)"></div>
@@ -124,7 +124,7 @@
   <div class="page-head">
     <div>
       <h1 class="page-title">検図ルール</h1>
-      <p class="page-lead">社内の図面チェック規程です。AIが出すのは、このルールに対して足りない点だけです。ルールにないことは言いません。</p>
+      <p class="page-lead">社内の図面チェック規程です。登録された検図ルールを基準に確認します。ルール外の観点は確認対象に含みません。</p>
     </div>
   </div>
   <div class="table-wrap">

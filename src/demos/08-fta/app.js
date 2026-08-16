@@ -252,7 +252,7 @@ function emptyHint(key) {
 }
 
 function exportTree() {
-  downloadCsv(`FTA_5M1E_${curTree.id}_${today()}.csv`, [
+  downloadXlsx(`FTA_5M1E_${curTree.id}_${today()}.xlsx`, [
     ['現象ID', '現象', '対象製品', '範囲', '起点の記録'],
     [curTree.id, curTree.top, curTree.prod, curTree.scope, curTree.seed || ''],
     [],
@@ -297,7 +297,7 @@ function openCause(i) {
       <div class="callout callout--warn" style="margin-top:var(--space-4)">
         <div>
           <p class="callout__title">紐づく過去不具合はありません</p>
-          <p>この原因は実際に起きた記録がないので、発生度は推定です。構造上まず起きないのか、たまたままだ起きていないだけなのかは、見て判断してください。</p>
+          <p>この原因は実際に起きた記録がないので、発生度は推定です。構造上まず起きないのか、たまたままだ起きていないだけなのかは、担当者が判断してください。</p>
         </div>
       </div>`}
     ${fmeaRows.length ? `
@@ -629,12 +629,12 @@ $('#ftForm').addEventListener('submit', e => {
 
 $('#btnBasicCsv').addEventListener('click', () => {
   const rows = renderBasic();
-  downloadCsv(`FTA原因一覧_${today()}.csv`, [
+  downloadXlsx(`FTA原因一覧_${today()}.xlsx`, [
     ['現象', '分類', '原因', '補足', '発生度O', '発生度の根拠', '過去不具合', '工程FMEA'],
     ...rows.map(({ tree, c }) => [tree.top, M_BY_KEY[c.m].label, c.label, c.note, c.o,
       c.tr ? '過去実績あり' : '推定', c.tr || '', c.fmea ? procLabel(c.fmea) : '登録なし'])
   ]);
-  toast('CSVを出力しました', `${rows.length} 件の原因を出力しました。`);
+  toast('Excelを出力しました', `${rows.length} 件の原因を出力しました。`);
 });
 
 document.addEventListener('click', e => {

@@ -4,7 +4,7 @@
   <div class="page-head">
     <div>
       <h1 class="page-title">変更影響分析</h1>
-      <p class="page-lead">変更の帳票を投げ込むか、内容を文章で書くと、どの変更のことかを探します。そのうえで、直すべき帳票・工程・他機種を洗い出し、直せているかを並べます。一緒に変えるべき変更（共連れ）も出します。漏れかどうかを決めるのは人です。</p>
+      <p class="page-lead">変更の帳票をアップロードするか、内容を文章で書くと、どの変更のことかを探します。そのうえで、直すべき帳票・工程・他機種を洗い出し、直せているかを並べます。一緒に変えるべき変更（共連れ）も出します。漏れかどうかを最終判断は担当者が行います。</p>
     </div>
   </div>
 
@@ -54,7 +54,7 @@
 
     <div>
       <div class="empty" id="impIdle">
-        <h2 class="empty__title">変更の帳票を投げ込むか、内容を書いてください</h2>
+        <h2 class="empty__title">変更の帳票をアップロードするか、内容を書いてください</h2>
         <div class="empty__body">
           <p>どの変更かが決まると、次を洗い出します。</p>
           <ul>
@@ -95,7 +95,7 @@
       <p class="page-lead">いま入っている設計変更通知です。段階が「暫定」のまま直せていないものが、いちばん危ないところです。</p>
     </div>
     <div class="page-head__actions">
-      <button class="btn btn--quiet" id="btnListCsv">一覧をCSVで出力する</button>
+      <button class="btn btn--quiet" id="btnListCsv">一覧をExcelで出力する</button>
     </div>
   </div>
   <div class="section">
@@ -124,7 +124,7 @@
       <p class="page-lead">変更と反映先を掛け合わせた表です。「確認できず」が縦に並んでいる列は、文書が入っていなくて追えていないところです。</p>
     </div>
     <div class="page-head__actions">
-      <button class="btn btn--quiet" id="btnMatCsv">マトリクスをCSVで出力する</button>
+      <button class="btn btn--quiet" id="btnMatCsv">マトリクスをExcelで出力する</button>
     </div>
   </div>
   <div class="table-meta" id="matMeta"></div>

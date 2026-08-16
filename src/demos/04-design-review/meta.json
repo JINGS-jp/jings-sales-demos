@@ -1,6 +1,6 @@
 {
   "id": "04-design-review",
-  "title": "DR",
+  "title": "設計レビュー支援AI",
   "context": "技術部・品質保証部 ／ 設計審査の準備と指摘管理",
   "icon": "gate",
   "designScope": true,
@@ -39,6 +39,6 @@
   ],
   "dept": "設計",
   "order": 3,
-  "role": "過去のDRから勘所を拾って指摘を出す",
-  "alsoFor": "品質保証部にも効きます（指摘の追跡）"
+  "role": "過去のDRからレビュー観点を抽出し、今回の設計を確認",
+  "alsoFor": "品質保証部での活用例：指摘事項の追跡"
 }

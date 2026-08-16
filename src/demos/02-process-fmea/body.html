@@ -4,7 +4,7 @@
   <div class="page-head">
     <div>
       <h1 class="page-title">FMEAドラフト生成</h1>
-      <p class="page-lead">工程を選ぶと、その工程が何をする工程かを工程フローから拾い、図面・条件表・作業標準から「守るべきこと」を抜き出します。それを満たせない状態を並べて、故障モードの候補にします。S・O・Dは勝手に確定しません。決めるのは人です。</p>
+      <p class="page-lead">工程を選ぶと、その工程が何をする工程かを工程フローから拾い、図面・条件表・作業標準から「守るべきこと」を抜き出します。それを満たせない状態を並べて、故障モードの候補にします。S・O・Dは勝手に確定しません。最終判断は担当者が行います。</p>
     </div>
   </div>
 
@@ -13,13 +13,13 @@
       <div class="field">
         <span class="field__label">工程の情報をどこから取るか</span>
         <div class="drop">
-          <label class="field__label" for="flowFile" style="font-size:var(--font-caption)">工程フロー表を投げ込む</label>
+          <label class="field__label" for="flowFile" style="font-size:var(--font-caption)">工程フロー表をアップロードする</label>
           <input type="file" id="flowFile" accept=".xlsx,.xls,.pdf" class="filepick__input">
         <div class="filepick">
           <label class="btn btn--quiet btn--small" for="flowFile">ファイルを選ぶ</label>
           <span class="filepick__name" id="flowFileName">選択されていません</span>
         </div>
-          <p class="drop__hint">投げ込むと工程の一覧を読み取り、下の対象工程に反映します。</p>
+          <p class="drop__hint">アップロードすると工程の一覧を読み取り、下の対象工程に反映します。</p>
           <button type="button" class="btn btn--quiet btn--small" id="btnFlowSample" style="margin-top:var(--space-2)">サンプルの工程フロー表で試す</button>
         </div>
         <div id="flowReadout" hidden style="margin-top:var(--space-3)"></div>
@@ -68,7 +68,7 @@
           <ul>
             <li>工程 → 機能 → 要求事項 → 逸脱 → 故障モードの順に、画面上で追跡できます</li>
             <li>要求事項は出典の文書名と該当箇所を表示します</li>
-            <li>S・O・Dは社内基準に当てた候補の数字です。決めるのは人です</li>
+            <li>S・O・Dは社内基準に当てた候補の数字です。最終判断は担当者が行います</li>
           </ul>
         </div>
       </div>
@@ -123,7 +123,7 @@
       <p class="page-lead">いま入っている工程FMEAです。下書きを作るときは、ここと重ならない候補だけを出します。</p>
     </div>
     <div class="page-head__actions">
-      <button class="btn btn--quiet" id="btnExCsv">一覧をCSVで出力する</button>
+      <button class="btn btn--quiet" id="btnExCsv">一覧をExcelで出力する</button>
     </div>
   </div>
   <div class="card" style="margin-bottom:var(--space-5)">

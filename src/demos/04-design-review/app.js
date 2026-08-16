@@ -239,7 +239,7 @@ function renderPrep(gate) {
     </div>`;
 
   $('#btnPrepCsv').addEventListener('click', () => {
-    downloadCsv(`DR審査シート_${gate}_${today()}.csv`, [
+    downloadXlsx(`DR審査シート_${gate}_${today()}.xlsx`, [
       ['優先度', '項目番号', '区分', '確認項目', '今回確認が必要な理由', '突き合わせ元'],
       ...missed.out.map(m => ['再確認が必要', m.item.id, m.f.cat, m.item.item,
         `${m.f.id} を ${m.f.due} で完了としているが、${m.ecn.date} に ${m.ecn.no}（${m.ecn.title}）が発行されている`,
@@ -456,11 +456,11 @@ $('#prepForm').addEventListener('submit', e => {
 
 $('#btnFindCsv').addEventListener('click', () => {
   const rows = renderFindings();
-  downloadCsv(`DR指摘事項_${today()}.csv`, [
+  downloadXlsx(`DR指摘事項_${today()}.xlsx`, [
     ['指摘番号', 'ゲート', '区分', '指摘内容', '担当', '期限', '状態', '関連記録'],
     ...rows.map(f => [f.id, f.gate, f.cat, f.item, f.by, f.due, f.status, f.link || ''])
   ]);
-  toast('CSVを出力しました', `${rows.length} 件の指摘を出力しました。`);
+  toast('Excelを出力しました', `${rows.length} 件の指摘を出力しました。`);
 });
 
 document.addEventListener('click', e => {
@@ -689,7 +689,7 @@ function renderPast() {
 
     <div class="section">
       <h2 class="section__title">項目にしなかった発言</h2>
-      <p class="section__lead">1回しか出ていないため、まとめていません。重要かどうかは人が見て判断してください。</p>
+      <p class="section__lead">1回しか出ていないため、まとめていません。重要かどうかは人が担当者が判断してください。</p>
       <div class="table-wrap">
         <table>
           <caption class="visually-hidden">項目にしなかった発言</caption>
@@ -716,7 +716,7 @@ function renderPast() {
     </div>
 
     <div style="margin-top:var(--space-5);display:flex;gap:var(--space-3);flex-wrap:wrap">
-      <button class="btn btn--primary" id="btnChkCsv">チェックリストをCSVで出力する</button>
+      <button class="btn btn--primary" id="btnChkCsv">チェックリストをExcelで出力する</button>
       <button class="btn btn--quiet" data-goto="prep">審査準備に進む</button>
     </div>`;
 }
@@ -816,7 +816,7 @@ function renderDoc() {
     </div>
 
     <div style="margin-top:var(--space-5)">
-      <button class="btn btn--primary" id="btnHitCsv">指摘をCSVで出力する</button>
+      <button class="btn btn--primary" id="btnHitCsv">指摘をExcelで出力する</button>
     </div>`;
 }
 
@@ -872,21 +872,21 @@ document.addEventListener('click', e => {
   }
   if (e.target.id === 'btnChkCsv') {
     const { groups } = groupPast();
-    downloadCsv(`DRチェックリスト_${today()}.csv`, [
+    downloadXlsx(`DRチェックリスト_${today()}.xlsx`, [
       ['区分', 'チェック項目', '過去の指摘回数', '対象機種', '起こしたもとの記録'],
       ...groups.map(g => [g.t.cat, g.t.item, g.says.length,
         [...new Set(g.says.map(s => s.prod))].join('・'), g.says.map(s => s.id).join(' ')])
     ]);
-    toast('CSVを出力しました', `${groups.length} 項目を出力しました。`);
+    toast('Excelを出力しました', `${groups.length} 項目を出力しました。`);
   }
   if (e.target.id === 'btnHitCsv') {
     const TH = {}; DATA.DR_THEMES.forEach(t => TH[t.key] = t);
-    downloadCsv(`DR指摘_${today()}.csv`, [
+    downloadXlsx(`DR指摘_${today()}.xlsx`, [
       ['重み', '区分', 'チェック項目', '帳票', '該当欄', '帳票の記載', '足りない理由', 'DRで求めること'],
       ...DATA.DR_INTAKE_HITS.map(h => [
         h.sev === 'high' ? 'DRで必ず確認' : h.sev === 'mid' ? '確認' : '確認できず',
         TH[h.theme].cat, TH[h.theme].item, h.doc, h.where, h.found, h.ng, h.ask])
     ]);
-    toast('CSVを出力しました', `${DATA.DR_INTAKE_HITS.length} 件を出力しました。`);
+    toast('Excelを出力しました', `${DATA.DR_INTAKE_HITS.length} 件を出力しました。`);
   }
 });

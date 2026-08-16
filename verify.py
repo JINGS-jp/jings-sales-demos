@@ -18,6 +18,24 @@ from playwright.async_api import async_playwright
 DIST = Path(__file__).resolve().parent / "docs"
 
 
+def xlsx_rows(path):
+    """出力されたExcelを読む。Excelで開けることの確認も兼ねている。"""
+    import openpyxl, io
+    wb = openpyxl.load_workbook(io.BytesIO(Path(path).read_bytes()))
+    ws = wb.active
+    return [["" if c.value is None else str(c.value) for c in row] for row in ws.iter_rows()]
+
+
+def xlsx_head(path):
+    rows = xlsx_rows(path)
+    assert rows, "Excelが空"
+    return ",".join(rows[0])
+
+
+def xlsx_text(path):
+    return "\n".join(",".join(r) for r in xlsx_rows(path))
+
+
 def flat(s: str) -> str:
     """inner_text は要素境界で改行を挟むため、空白を潰して比較する。"""
     return re.sub(r"\s+", "", s)
@@ -116,13 +134,13 @@ async def check_01(pg, errors):
     async with pg.expect_download() as dl:
         await pg.click("#btnListCsv")
     d = await dl.value
-    head = open(await d.path(), encoding="utf-8-sig").readline()
+    head = xlsx_head(await d.path())
     assert "管理番号" in head and "恒久対策" in head, f"CSVヘッダが不正: {head[:80]}"
     # 文書
     await pg.click('[data-view="docs"]')
     docs = await pg.inner_text("#docsBody")
     assert "未登録" in docs, "未登録文書が明示されていない"
-    return "デモ1：チャットで対話（文脈引き継ぎ・続けて聞く・やり直し）・根拠パネル・帳票実物・空状態・CSV"
+    return "デモ1：チャットで対話（文脈引き継ぎ・続けて聞く・やり直し）・根拠パネル・帳票実物・空状態・Excel出力"
 
 
 async def check_02(pg, errors):
@@ -184,7 +202,7 @@ async def check_02(pg, errors):
     async with pg.expect_download() as dl:
         await pg.click("#btnDraftCsv")
     d = await dl.value
-    head = open(await d.path(), encoding="utf-8-sig").readline().rstrip("\r\n")
+    head = xlsx_head(await d.path())
     cols = head.split(",")
     assert len(cols) == 20, f"出力列数が20でない: {len(cols)}"
     assert "AI提案／人による確定の区分" in head and "逸脱の型" in head, f"CSV列が不足: {head[:120]}"
@@ -238,7 +256,7 @@ async def check_02(pg, errors):
     await pg.click('[data-view="docs"]')
     dc = await pg.inner_text('section[data-view="docs"]')
     assert "QS-014" in dc and "未登録" in dc, "参照文書に評価基準・未登録の明示がない"
-    return "デモ2：工程起点・機能→要求事項→逸脱→故障モードの連鎖・出典根拠・S/O/D候補の非確定・抜け漏れ候補の手動採用・20列CSV"
+    return "デモ2：工程起点・機能→要求事項→逸脱→故障モードの連鎖・出典根拠・S/O/D候補の非確定・抜け漏れ候補の手動採用・20列Excel"
 
 
 async def check_03(pg, errors):
@@ -267,7 +285,7 @@ async def check_03(pg, errors):
     await pg.click('.modal__opt[data-opt="1"]')
     await pg.wait_for_selector("#genResult:not([hidden])", timeout=12000)
     r = await pg.inner_text("#genResult")
-    assert "条件付きで引き継ぐ" in r, "選んだ判定が結果に反映されていない"
+    assert "再評価付きで適用" in r, "選んだ判定が結果に反映されていない"
     assert "要再評価" in r, "条件付き引き継ぎの要再評価が付いていない"
     # 4系統バッジ（過去実績だけでないことを示す）
     for kind in ["過去実績", "機能演繹", "物理推論"]:
@@ -290,7 +308,7 @@ async def check_03(pg, errors):
     async with pg.expect_download() as dl:
         await pg.click("#btnCsv")
     d = await dl.value
-    head = open(await d.path(), encoding="utf-8-sig").readline()
+    head = xlsx_head(await d.path())
     assert "生成系統" in head and "心配点" in head, f"CSV列が不足: {head[:100]}"
     # 別部材として扱うと過去実績由来の行が除外される
     await pg.click("#btnGen")
@@ -298,7 +316,7 @@ async def check_03(pg, errors):
     await pg.click('.modal__opt[data-opt="2"]')
     await pg.wait_for_selector("#genResult:not([hidden])", timeout=12000)
     r2 = await pg.inner_text("#genResult")
-    assert "別部材として扱う" in r2, "判定が反映されていない"
+    assert "直接適用せず" in r2, "判定が反映されていない"
     past_badges = await pg.eval_on_selector_all("#genResult .src--past", "e=>e.length")
     assert past_badges == 0, f"別部材扱いでも過去実績由来の行が残っている: {past_badges}件"
     deduced = await pg.eval_on_selector_all("#genResult .src--func, #genResult .src--phys", "e=>e.length")
@@ -307,7 +325,7 @@ async def check_03(pg, errors):
     await pg.click('[data-view="docs"]')
     dc = await pg.inner_text('section[data-view="docs"]')
     assert "機能演繹" in dc and "未登録" in dc, "参照文書に系統説明・未登録の明示がない"
-    return "デモ3：発議書起点・読み取り前は生成不可・類似判定を人に確認・4系統バッジ・要再評価付与・インライン編集・CSV"
+    return "デモ3：発議書起点・読み取り前は生成不可・類似判定を人に確認・4系統バッジ・要再評価付与・インライン編集・Excel出力"
 
 
 async def check_04(pg, errors):
@@ -388,7 +406,7 @@ async def check_04(pg, errors):
     async with pg.expect_download() as dl:
         await pg.click("#btnFindCsv")
     d = await dl.value
-    head = open(await d.path(), encoding="utf-8-sig").readline()
+    head = xlsx_head(await d.path())
     assert "指摘番号" in head, f"CSV列が不正: {head[:80]}"
     # 完了扱いの突き合わせを外すと結果が変わる（飾りのチェックボックスでないこと）
     await pg.click('[data-view="prep"]')
@@ -455,7 +473,7 @@ async def check_05(pg, errors):
     async with pg.expect_download() as dl:
         await pg.click("#btnCkCsv")
     d = await dl.value
-    head = open(await d.path(), encoding="utf-8-sig").readline()
+    head = xlsx_head(await d.path())
     assert "検図ルール番号" in head, f"CSV列が不正: {head[:80]}"
     # 類似図面検索
     await pg.click('[data-view="search"]')
@@ -476,7 +494,7 @@ async def check_05(pg, errors):
     await pg.click('[data-view="rules"]')
     ru = await pg.inner_text('section[data-view="rules"]')
     assert "R-01" in ru and "読み取り対象外" in ru, "ルール画面の説明が不足"
-    return "デモ5：検図ルール起点・ルール原文と過去不具合の根拠・簡易図面・類似検索と空状態・CSV"
+    return "デモ5：検図ルール起点・ルール原文と過去不具合の根拠・簡易図面・類似検索と空状態・Excel出力"
 
 
 async def check_06(pg, errors):
@@ -514,7 +532,7 @@ async def check_06(pg, errors):
     async with pg.expect_download() as dl:
         await pg.click("#btnCsv")
     d = await dl.value
-    body = open(await d.path(), encoding="utf-8-sig").read()
+    body = xlsx_text(await d.path())
     assert "D1" in body and "未記入" in body, "CSVに未記入の状態が出ていない"
     # 出典に苦情報告書の実物が出る
     assert "この初稿の出典" in r, "出典セクションがない"
@@ -575,7 +593,7 @@ async def check_07(pg, errors):
     async with pg.expect_download() as dl:
         await pg.click("#btnImpCsv")
     d = await dl.value
-    body = open(await d.path(), encoding="utf-8-sig").read()
+    body = xlsx_text(await d.path())
     assert "共連れ変更" in body and "確認できず" in body, "CSVに共連れ・確認できずがない"
     # 変更一覧：暫定が先頭
     await pg.click('[data-view="list"]')
@@ -597,7 +615,7 @@ async def check_07(pg, errors):
     await pg.click('[data-view="docs"]')
     dc = await pg.inner_text("#docsBody")
     assert "未登録" in dc and "追跡できません" in dc, "未登録文書の影響が明示されていない"
-    return "デモ7：段階（暫定/最終）・未反映と確認できずの区別・共連れ変更の双方向・反映率の分母問題・マトリクス・CSV"
+    return "デモ7：段階（暫定/最終）・未反映と確認できずの区別・共連れ変更の双方向・反映率の分母問題・マトリクス・Excel出力"
 
 
 async def check_08(pg, errors):
@@ -649,7 +667,7 @@ async def check_08(pg, errors):
     async with pg.expect_download() as dl:
         await pg.click("#btnFtCsv")
     d = await dl.value
-    body = open(await d.path(), encoding="utf-8-sig").read()
+    body = xlsx_text(await d.path())
     assert "候補が挙がっていない分類" in body and "推定" in body, "CSVに候補なし・推定がない"
     # 原因一覧
     await pg.click('[data-view="basic"]')
@@ -669,7 +687,7 @@ async def check_08(pg, errors):
     await pg.click('[data-view="docs"]')
     dc = await pg.inner_text("#docsBody")
     assert "未登録" in dc, "未登録文書が明示されていない"
-    return "デモ8：現象起点・5M1Eの6分類・候補なしの分類を残す・実績と推定の区別・FMEAとの向きの違い・CSV"
+    return "デモ8：現象起点・5M1Eの6分類・候補なしの分類を残す・実績と推定の区別・FMEAとの向きの違い・Excel出力"
 
 
 CHECKS = {"index": check_index, "01-knowledge": check_01, "02-process-fmea": check_02,

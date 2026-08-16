@@ -168,7 +168,7 @@ function buildAnswer(qRaw) {
   const trTable = trs.length ? `
     <div class="section">
       <h2 class="section__title">類似する不具合記録</h2>
-      <p class="section__lead">関連度は文章の重なり具合です。順番はあくまで目安なので、使えるかどうかは中身を見て決めてください。</p>
+      <p class="section__lead">関連度は文章の重なり具合です。順番はあくまで目安なので、採否は担当者が判断してください。</p>
       <div class="table-wrap">
         <table>
           <caption class="visually-hidden">類似する不具合記録</caption>
@@ -288,7 +288,7 @@ function buildAnswer(qRaw) {
 
     <div class="section">
       <h2 class="section__title">今回確認すべき項目</h2>
-      <p class="section__lead">過去の対策とFMEAの記載から拾った項目です。やるかどうかは見て決めてください。</p>
+      <p class="section__lead">過去の対策実績とFMEAの記載から抽出した確認候補です。実施の要否は担当者が判断してください。</p>
       <div class="card">
         <ol style="margin:0;padding-left:1.3em;line-height:var(--line-height-body)">
           ${checks.map(c => `<li style="margin-bottom:var(--space-2)">${esc(c)}</li>`).join('')}
@@ -559,11 +559,11 @@ renderList();
 
 $('#btnListCsv').addEventListener('click', () => {
   const rows = renderList();
-  downloadCsv(`不具合記録一覧_${today()}.csv`, [
+  downloadXlsx(`不具合記録一覧_${today()}.xlsx`, [
     ['管理番号', '発生日', '製品', '発生工程', '対象部位', '現象', '原因', '暫定対策', '恒久対策', 'S', 'O', 'D', '担当', '状態', '顧客流出'],
     ...rows.map(t => [t.id, t.date, t.prod, procLabel(t.proc), t.part, t.sym, t.cause, t.tmp, t.perm, t.s, t.o, t.d, t.owner, t.status, t.leak ? 'あり' : 'なし'])
   ]);
-  toast('CSVを出力しました', `${rows.length} 件を出力しました。Excelでそのまま開けます。`);
+  toast('Excelを出力しました', `${rows.length} 件を出力しました。Excelでそのまま開けます。`);
 });
 
 $('#qForm').addEventListener('submit', e => {

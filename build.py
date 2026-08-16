@@ -38,6 +38,14 @@ ICONS = {
 }
 
 
+# 画面ごとのログインユーザー。そのデモを実際に使う部署の人にしておく。
+USERS = {
+    "品証": ("山田 太一", "品質保証部"),
+    "生技": ("藤本 健", "生産技術部"),
+    "設計": ("森 直人", "技術部"),
+}
+
+
 def icon_svg(name: str, cls: str = "") -> str:
     body = ICONS.get(name, ICONS["doc"])
     c = f' class="{cls}"' if cls else ""
@@ -115,8 +123,8 @@ def build_demo(demo_dir: Path, css: str, shell_js: str, data_js: str,
 <nav class="app-sidebar" id="sidebar" aria-label="メインメニュー">
   <a class="sb-brand" href="index.html" aria-label="デモ一覧へ戻る">{BRAND_ICON}</a>
   <div class="sb-user">
-    <span class="sb-user__ava" aria-hidden="true">山</span>
-    <span class="sb-user__name">山田 太一<em>品質保証部</em></span>
+    <span class="sb-user__ava" aria-hidden="true">{USERS[meta.get("dept", "品証")][0][0]}</span>
+    <span class="sb-user__name">{USERS[meta.get("dept", "品証")][0]}<em>{USERS[meta.get("dept", "品証")][1]}</em></span>
   </div>
   <div class="sb-nav">
 {nav}
@@ -218,7 +226,7 @@ def build_index(css: str, metas: list) -> Path:
     <section class="dept">
       <h2 class="dept__title">{title}</h2>
       <p class="dept__lead">{lead}</p>
-      <p class="dept__order">見せる順：{' → '.join(m['title'] for m in mine)}
+      <p class="dept__order">この順に見ると流れがつながります：{' → '.join(m['title'] for m in mine)}
         <span class="dept__time">（合計 {sum(m['minutes'] for m in mine)}分）</span></p>
       <div class="demo-list">{''.join(card(m, i + 1) for i, m in enumerate(mine))}
       </div>
@@ -264,6 +272,16 @@ def build_index(css: str, metas: list) -> Path:
 .lp__note{{margin-top:var(--space-8);padding:var(--space-5);background:var(--color-background);border:1px solid var(--color-border-light);border-left:3px solid var(--color-warning);border-radius:var(--radius-medium)}}
 .lp__note h2{{font-size:var(--font-body-large);margin-bottom:var(--space-3)}}
 .lp__note ul{{margin:0;padding-left:1.2em;font-size:var(--font-caption);line-height:var(--line-height-body)}}
+.lp__lead{{margin-top:var(--space-3);font-size:var(--font-body-large);line-height:var(--line-height-body);color:var(--color-text-secondary);max-width:62ch}}
+.flow{{margin-bottom:var(--space-8);padding:var(--space-5);background:var(--color-background);border:1px solid var(--color-border-light);border-radius:var(--radius-large)}}
+.flow__title{{font-size:var(--font-body-large);margin-bottom:var(--space-4)}}
+.flow__grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:var(--space-5)}}
+.flow__when{{font-size:var(--font-caption);font-weight:700;color:var(--color-primary);padding-bottom:var(--space-2);border-bottom:1px solid var(--color-border-light);margin-bottom:var(--space-3)}}
+.flow__steps{{margin:0;padding-left:1.3em;font-size:var(--font-caption);line-height:var(--line-height-body);color:var(--color-text-secondary)}}
+.flow__steps li + li{{margin-top:var(--space-2)}}
+.flow__note{{margin-top:var(--space-5);padding-top:var(--space-4);border-top:1px solid var(--color-border-light);font-size:var(--font-caption);line-height:var(--line-height-body);color:var(--color-text-secondary)}}
+.lp__note summary{{font-weight:700;cursor:pointer;color:var(--color-text-secondary)}}
+.lp__note ul{{margin-top:var(--space-4)}}
 .lp__foot{{margin-top:var(--space-7);font-size:var(--font-caption);color:var(--color-text-tertiary)}}
 @media (max-width:768px){{
   .demo-card{{flex-wrap:wrap}}
@@ -277,7 +295,42 @@ def build_index(css: str, metas: list) -> Path:
   <header class="lp__head">
     <p class="lp__brand">{BRAND_ICON}</p>
     <h1 class="lp__title">製造業向けAIデモ</h1>
+    <p class="lp__lead">設計・製造・品質保証に散らばった過去の知見を、日々の判断に使える形でつなぐAIです。
+      どのデモも同じ製品・同じ工程・同じ不具合記録の上で動いています。</p>
   </header>
+
+  <section class="flow">
+    <h2 class="flow__title">3つの場面がつながっています</h2>
+    <div class="flow__grid">
+      <div class="flow__col">
+        <p class="flow__when">変える前に確かめる</p>
+        <ol class="flow__steps">
+          <li>変更点から心配点を洗う（DRBFM）</li>
+          <li>工程への影響を故障モードにする（工程FMEA）</li>
+          <li>設計レビューで観点を確認する</li>
+          <li>出図前に図面を照合する</li>
+        </ol>
+      </div>
+      <div class="flow__col">
+        <p class="flow__when">変えたあとを追う</p>
+        <ol class="flow__steps">
+          <li>変更が及ぶ帳票と工程を洗い出す</li>
+          <li>直せているかを追跡する</li>
+          <li>関連して見直すべき箇所を出す</li>
+        </ol>
+      </div>
+      <div class="flow__col">
+        <p class="flow__when">起きてしまったあと</p>
+        <ol class="flow__steps">
+          <li>似た事例を横断検索する</li>
+          <li>原因を5M1Eに展開する（FTA）</li>
+          <li>8D報告書にまとめる</li>
+        </ol>
+      </div>
+    </div>
+    <p class="flow__note">ここで確定した原因と対策は、次の工程FMEAと設計レビューの観点として戻ります。
+      個別のAIを並べたものではなく、同じ品質情報の上で前後がつながる形にしてあります。</p>
+  </section>
 
 {groups}
 
@@ -287,8 +340,8 @@ def build_index(css: str, metas: list) -> Path:
     </div>
   </details>
 
-  <section class="lp__note">
-    <h2>見せるときのコツ</h2>
+  <details class="lp__note">
+    <summary>社内向けメモ（商談中は開かないこと）</summary>
     <ul>
       <li>データは全部架空です。実顧客のものは一切入っていないので、どこに見せても差し支えありません。</li>
       <li>「根拠」ボタンは必ず押してください。出典が出せることが商談でいちばん効きます。押すと帳票の実物が出ます。</li>
@@ -296,7 +349,7 @@ def build_index(css: str, metas: list) -> Path:
       <li>帳票の実ファイルは <span class="mono">帳票サンプル</span> フォルダにあります。Excelで開いて並べて見せると効きます。</li>
       <li>顧客のデータを使ったデモがいるときは、三上さんに相談してください。</li>
     </ul>
-  </section>
+  </details>
 
   <p class="lp__foot">株式会社JINGS 社内限り／データはすべて架空です</p>
 </main>

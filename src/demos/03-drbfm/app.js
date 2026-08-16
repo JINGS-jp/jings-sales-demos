@@ -1,6 +1,6 @@
 /* デモ3：変更点起点の設計品質AI（DRBFM）
    起点は帳票のプルダウンではなく「変更発議書の投げ込み」。帳票は生成物であって起点ではない。
-   生成行ごとに源泉系統（過去実績・機能演繹・物理推論・環境知見）を表示し、
+   生成行ごとに源泉系統（過去実績・機能演繹・物理特性推論・環境知見）を表示し、
    「過去データを検索しているだけ」という疑問に先回りする。 */
 
 const TR_BY_ID = {};
@@ -52,7 +52,7 @@ function selectedKinds() {
 function buildRows() {
   const k = selectedKinds();
   return DATA.DRBFM.filter(r => k[r.srcKind]).map((r, i) => {
-    // 「条件付きで引き継ぐ」を選んだ場合、過去実績由来の行に再評価の注記を付ける
+    // 「過去実績を再評価付きで適用する」を選んだ場合、過去実績由来の行に再評価の注記を付ける
     const recheck = carryMode === 'cond' && r.srcKind === 'past';
     const drop = carryMode === 'sep' && r.srcKind === 'past';
     return { ...r, key: 'r' + i, recheck, drop };
@@ -75,7 +75,7 @@ function renderResult() {
   curRows.forEach(r => counts[r.srcKind] = (counts[r.srcKind] || 0) + 1);
   const newArea = curRows.filter(r => r.srcKind === 'func' || r.srcKind === 'phys').length;
 
-  const carryLabel = { keep: '同一視して実績を引き継ぐ', cond: '条件付きで引き継ぐ', sep: '別部材として扱う' }[carryMode];
+  const carryLabel = { keep: '過去実績をそのまま適用する', cond: '過去実績を再評価付きで適用する', sep: '過去実績を直接適用せず、参考情報として表示する' }[carryMode];
 
   const summary = `
     <div class="card" style="border-left:4px solid var(--color-primary)">
@@ -185,7 +185,7 @@ function renderResult() {
     <div class="callout callout--warn">
       <div>
         <p class="callout__title">この結果を使うときの注意</p>
-        <p>S・O・Dは候補の数字です。決めるのは設計です。過去の実績がない範囲は、機能と物理から立てた推測です。だから成立するかどうかは試験または解析での確認が必要です。類似部材の判定結果は記録され、以後の判定に反映されます。</p>
+        <p>S・O・Dは参考値として提示しています。最終評価は設計担当者が行ってください。過去実績のない領域は、機能および物理特性に基づく推定を含むため、成立するかどうかは試験または解析での確認が必要です。類似部材の判定結果は記録され、以後の判定に反映されます。</p>
       </div>
     </div>`;
 
@@ -200,7 +200,7 @@ function renderResult() {
 }
 
 function exportCsv() {
-  downloadCsv(`DRBFM_ACT-230_${today()}.csv`, [
+  downloadXlsx(`DRBFM_ACT-230_${today()}.xlsx`, [
     ['No.', '部品名／変更点とその目的', '変更前品番', '機能',
      '変更に関わる心配点（故障モード）', '他に心配点はないか',
      '心配点はどんな場合に生じるか（要因・原因）', '他に考えるべき要因はないか',
@@ -272,7 +272,7 @@ function openEv(key) {
       <div class="callout callout--warn" style="margin-top:var(--space-4)">
         <div>
           <p class="callout__title">要再評価</p>
-          <p>類似部材の判定で「条件付きで引き継ぐ」を選択したため、この行は過去実績をそのまま適用できません。変更後の条件で再評価してください。</p>
+          <p>類似部材の判定で「過去実績を再評価付きで適用する」を選択したため、この行は過去実績をそのまま適用できません。変更後の条件で再評価してください。</p>
         </div>
       </div>` : ''}`);
 }
@@ -396,15 +396,15 @@ $('#genForm').addEventListener('submit', e => {
       + '形状は同一ですが材質が異なるため、ACT-220の過去実績をそのまま引き継いでよいかの判断が必要です。'
       + 'この判断で、生成する心配点の範囲が変わります。',
       [
-        { label: '同一視して実績を引き継ぐ', rec: false,
-          desc: '形状が同じであることを重視し、ACT-220の過去実績をそのまま適用します。材質差による違いは考慮されません。',
-          onPick: () => { carryMode = 'keep'; toast('判定を記録しました', '同一視して実績を引き継ぐ、として生成します。'); resume(); } },
-        { label: '条件付きで引き継ぐ', rec: true,
+        { label: '過去実績をそのまま適用する', rec: false,
+          desc: '形状が同じであることを重視し、ACT-220の過去実績をそのまま適用します。材質差による違いは反映されません。',
+          onPick: () => { carryMode = 'keep'; toast('判定を記録しました', '過去実績をそのまま適用する、として生成します。'); resume(); } },
+        { label: '過去実績を再評価付きで適用する', rec: true,
           desc: '過去実績は引き継ぎつつ、該当する行に「要再評価」を付けます。材質差の影響を後で確認できます。',
-          onPick: () => { carryMode = 'cond'; toast('判定を記録しました', '条件付きで引き継ぐ、として生成します。該当行に要再評価を付けます。', 'warn'); resume(); } },
-        { label: '別部材として扱う', rec: false,
-          desc: '過去実績は使わず、機能演繹と物理推論のみで心配点を生成します。過去の知見は引き継がれません。',
-          onPick: () => { carryMode = 'sep'; toast('判定を記録しました', '別部材として扱う、として生成します。過去実績由来の行は除外されます。', 'warn'); resume(); } }
+          onPick: () => { carryMode = 'cond'; toast('判定を記録しました', '過去実績を再評価付きで適用する、として生成します。該当行に要再評価を付けます。', 'warn'); resume(); } },
+        { label: '過去実績を直接適用せず、参考情報として表示する', rec: false,
+          desc: '過去実績は評価に直接使わず、機能演繹と物理特性推論で心配点を生成します。過去の知見は参考情報として併記します。',
+          onPick: () => { carryMode = 'sep'; toast('判定を記録しました', '過去実績を直接適用せず、参考情報として表示する、として生成します。過去実績由来の行は除外されます。', 'warn'); resume(); } }
       ]);
   });
 });
@@ -432,7 +432,7 @@ document.addEventListener('click', e => {
 });
 
 $('#btnExCsv').addEventListener('click', () => {
-  downloadCsv(`登録済みDRBFM_${today()}.csv`, [
+  downloadXlsx(`登録済みDRBFM_${today()}.xlsx`, [
     ['変更点', '変更理由', '機能', '心配点', '故障モード', '他に心配点はないか',
      '要因・原因', '他に考えるべき要因はないか', 'お客様への影響',
      '設計へ', '評価へ', '製造へ', '担当', '期限', 'S', 'O', 'D', 'RPN', '生成系統', '確認状態'],
@@ -441,5 +441,5 @@ $('#btnExCsv').addEventListener('click', () => {
       r.s, r.o, r.d, r.s * r.o * r.d,
       DATA.SRC_KINDS[r.srcKind] ? DATA.SRC_KINDS[r.srcKind].label : r.srcKind, r.status])
   ]);
-  toast('CSVを出力しました', `${DATA.DRBFM.length} 行を出力しました。`);
+  toast('Excelを出力しました', `${DATA.DRBFM.length} 行を出力しました。`);
 });

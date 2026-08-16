@@ -47,10 +47,10 @@
   <div class="page-head">
     <div>
       <h1 class="page-title">ナレッジ検索</h1>
-      <p class="page-lead">起きたことを普段の言葉で聞いてください。過去の不具合記録・工程FMEA・設計変更通知をまたいで答えます。続けて聞けば、前のやりとりを踏まえて絞り込みます。答えを使うかどうかは人が決めてください。</p>
+      <p class="page-lead">発生している事象を、そのまま入力してください。過去の不具合記録・工程FMEA・設計変更通知をまたいで答えます。続けて聞けば、前のやりとりを踏まえて絞り込みます。答えを使うかどうかは人が決めてください。</p>
     </div>
     <div class="page-head__actions">
-      <button class="btn btn--quiet" id="btnChatClear">会話をやり直す</button>
+      <button class="btn btn--quiet" id="btnChatClear">検索条件をリセット</button>
     </div>
   </div>
 
@@ -66,7 +66,7 @@
             <textarea class="textarea" id="q" rows="2" aria-describedby="qHint"
               placeholder=""></textarea>
           </div>
-          <button class="btn btn--primary" type="submit" id="btnSend">送信する</button>
+          <button class="btn btn--primary" type="submit" id="btnSend">ナレッジを検索する</button>
         </div>
         <p class="field__hint" id="qHint">製品名・工程名・現象を含めると精度が上がります。Enterで改行、送信はボタンです。</p>
         <div class="chip-row" style="margin-top:var(--space-2)">
@@ -88,7 +88,7 @@
       <p class="page-lead">登録済みの不具合記録です。製品・工程・状態で絞り込めます。</p>
     </div>
     <div class="page-head__actions">
-      <button class="btn btn--quiet" id="btnListCsv">一覧をCSVで出力する</button>
+      <button class="btn btn--quiet" id="btnListCsv">一覧をExcelで出力する</button>
     </div>
   </div>
 

@@ -188,7 +188,7 @@ function renderDoc() {
 
 function exportDoc() {
   const cells = $$('#genResult .editcell');
-  downloadCsv(`8D報告書_${curTr.id}_${today()}.csv`, [
+  downloadXlsx(`8D報告書_${curTr.id}_${today()}.xlsx`, [
     ['項目', '名称', '内容', '出典', '状態'],
     ...curDoc.map((d, i) => {
       const txt = cells[i] ? cells[i].textContent.trim() : d.text;

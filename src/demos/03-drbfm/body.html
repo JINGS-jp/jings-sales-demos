@@ -4,7 +4,7 @@
   <div class="page-head">
     <div>
       <h1 class="page-title">DRBFM生成</h1>
-      <p class="page-lead">変更発議書から始めて、変更点ごとの心配点・故障モード・影響・対策の初版を作ります。過去に例のない変更でも、その部品が何をするものかと材料の性質から候補を立てます。リスクの評価は勝手に確定しません。決めるのは設計です。</p>
+      <p class="page-lead">変更発議書から始めて、変更点ごとの心配点・故障モード・影響・対策の初版を作ります。過去に例のない変更でも、その部品が何をするものかと材料の性質から候補を立てます。リスク評価はAIでは確定しません。最終判断は設計担当者が行います。</p>
     </div>
   </div>
 
@@ -17,7 +17,7 @@
           <label class="btn btn--quiet btn--small" for="triggerFile">ファイルを選ぶ</label>
           <span class="filepick__name" id="triggerFileName">選択されていません</span>
         </div>
-        <p class="field__hint">投げ込めば中身を読みます。ここではサンプルを表示しているので、実物のファイルは要りません。</p>
+        <p class="field__hint">アップロードすれば中身を読みます。ここではサンプルを表示しているので、実物のファイルは要りません。</p>
         <button type="button" class="btn btn--quiet btn--small" id="btnSample" style="margin-top:var(--space-2)">サンプルの発議書で試す</button>
         <div id="readout" hidden style="margin-top:var(--space-4)"></div>
       </div>
@@ -26,7 +26,7 @@
         <span class="field__label">生成範囲</span>
         <label class="check-row"><input type="checkbox" id="scPast" checked> 過去実績（類似品番・過去帳票）</label>
         <label class="check-row"><input type="checkbox" id="scFunc" checked> 機能演繹（機能→要求→逸脱）</label>
-        <label class="check-row"><input type="checkbox" id="scPhys" checked> 物理推論（材料物性×ストレス）</label>
+        <label class="check-row"><input type="checkbox" id="scPhys" checked> 物理特性に基づく推論（材料特性×使用条件）</label>
         <label class="check-row"><input type="checkbox" id="scEnv" checked> 環境・一般知見（車載の既知故障モード）</label>
         <p class="field__hint">系統ごとに生成の根拠が変わります。結果には行ごとに系統を表示します。</p>
       </div>
@@ -37,14 +37,14 @@
 
     <div>
       <div class="empty" id="genIdle">
-        <h2 class="empty__title">変更発議書を投げ込んでください</h2>
+        <h2 class="empty__title">変更発議書をアップロードしてください</h2>
         <div class="empty__body">
           <p>発議書から変更点・変更理由・対象品番を読み取り、変更点ごとに次を生成します。</p>
           <ul>
             <li>その変更で何が心配か（心配点）</li>
             <li>心配点が現実になったときの故障モードと影響</li>
             <li>取るべき対策の候補と、確認すべき試験</li>
-            <li>候補ごとの生成根拠（過去実績・機能演繹・物理推論・環境知見のどれか）</li>
+            <li>候補ごとの生成根拠（過去実績・機能演繹・物理特性推論・環境知見のどれか）</li>
           </ul>
           <p style="margin-top:var(--space-3)">手元にファイルがない場合は「サンプルの発議書で試す」を押してください。</p>
         </div>
@@ -99,7 +99,7 @@
       <p class="page-lead">人が見終わった行と、AIが出したまま手つかずの行を分けています。</p>
     </div>
     <div class="page-head__actions">
-      <button class="btn btn--quiet" id="btnExCsv">一覧をCSVで出力する</button>
+      <button class="btn btn--quiet" id="btnExCsv">一覧をExcelで出力する</button>
     </div>
   </div>
   <div class="table-meta" id="exMeta"></div>
@@ -126,7 +126,7 @@
   </div>
   <div class="section">
     <h2 class="section__title">生成の4系統</h2>
-    <p class="section__lead">「過去データを検索しているだけではないか」という疑問に答えるため、行ごとにどの系統から生成したかを表示しています。過去実績のない新規領域は、機能演繹と物理推論で候補を出します。</p>
+    <p class="section__lead">行ごとにどの系統から生成したかを表示しています。過去実績のない新規領域は、機能演繹と物理推論で候補を出します。</p>
     <div class="table-wrap">
       <table>
         <caption class="visually-hidden">生成の4系統</caption>

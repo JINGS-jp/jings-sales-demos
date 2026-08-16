@@ -432,7 +432,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
       <div class="field">
         <span class="field__label">起点をどこから取るか</span>
         <div class="drop">
-          <label class="field__label" for="clFile" style="font-size:var(--font-caption)">顧客から届いたクレーム票を投げ込む</label>
+          <label class="field__label" for="clFile" style="font-size:var(--font-caption)">顧客から届いたクレーム票をアップロードする</label>
           <input type="file" id="clFile" accept=".xlsx,.xls,.pdf" class="filepick__input">
         <div class="filepick">
           <label class="btn btn--quiet btn--small" for="clFile">ファイルを選ぶ</label>
@@ -963,19 +963,19 @@ const DWG_RULES = [
 /* 図面ごとの検図結果（AIの指摘候補）。src は根拠となる過去記録。 */
 const DWG_FINDINGS = {
   'ACT-230-300': [
-    { rule: 'R-03', sev: '重', where: '合わせ面 ガスケット溝', found: 'ガスケット溝深さ 1.5±0.05 に対し、相手部品ACT-230-100の合わせ面公差が未指定です', why: '嵌合部の公差が片側しか指定されておらず、面圧が成立するか判断できません', src: 'QT-2024-0209' },
-    { rule: 'R-06', sev: '重', where: '部品表 項目8', found: '部品表はM3×6本ですが、図中の締結指示は4箇所しか記入されていません', why: '員数と図中指示が一致していません', src: 'QT-2025-0378' },
-    { rule: 'R-07', sev: '重', where: '注記欄', found: '締付順序の指示が図面にありません。ACT-220では過去に順序誤りで不具合が発生しています', why: '過去不具合QT-2025-0378の対策（順序の明示）が新機種図面に反映されていません', src: 'QT-2025-0378' },
-    { rule: 'R-04', sev: '中', where: '表題欄', found: '特性記号の指定がありません。ACT-220の同等部位は○C（重要機能特性）です', why: '同等部位の特性記号が引き継がれていません', src: '' },
-    { rule: 'R-08', sev: '軽', where: '改訂履歴欄', found: 'Rev.Aの改訂理由が空欄です', why: '変更理由の記載がありません', src: '' }
+    { rule: 'R-03', where: '合わせ面 ガスケット溝', found: 'ガスケット溝深さ 1.5±0.05 に対し、相手部品ACT-230-100の合わせ面公差が未指定です', why: '嵌合部の公差が片側しか指定されておらず、面圧が成立するか判断できません', src: 'QT-2024-0209' },
+    { rule: 'R-06', where: '部品表 項目8', found: '部品表はM3×6本ですが、図中の締結指示は4箇所しか記入されていません', why: '員数と図中指示が一致していません', src: 'QT-2025-0378' },
+    { rule: 'R-07', where: '注記欄', found: '締付順序の指示が図面にありません。ACT-220では過去に順序誤りで不具合が発生しています', why: '過去不具合QT-2025-0378の対策（順序の明示）が新機種図面に反映されていません', src: 'QT-2025-0378' },
+    { rule: 'R-04', where: '表題欄', found: '特性記号の指定がありません。ACT-220の同等部位は○C（重要機能特性）です', why: '同等部位の特性記号が引き継がれていません', src: '' },
+    { rule: 'R-08', where: '改訂履歴欄', found: 'Rev.Aの改訂理由が空欄です', why: '変更理由の記載がありません', src: '' }
   ],
   'ACT-230-200': [
-    { rule: 'R-01', sev: '重', where: '歯面幅 寸法', found: '歯面幅 8.5 に公差の指定がありません', why: '減速比変更で面圧が増えた機能寸法であり、公差指定が必要です', src: 'QT-2025-0344' },
-    { rule: 'R-05', sev: '中', where: '歯面', found: '歯面の表面粗さ指定がありません', why: '摩耗に影響する面ですが粗さの指示がありません', src: 'QT-2025-0344' }
+    { rule: 'R-01', where: '歯面幅 寸法', found: '歯面幅 8.5 に公差の指定がありません', why: '減速比変更で面圧が増えた機能寸法であり、公差指定が必要です', src: 'QT-2025-0344' },
+    { rule: 'R-05', where: '歯面', found: '歯面の表面粗さ指定がありません', why: '摩耗に影響する面ですが粗さの指示がありません', src: 'QT-2025-0344' }
   ],
   'ACT-230-100': [
-    { rule: 'R-03', sev: '重', where: '軸受穴 φ11.0', found: '軸受穴 φ11.0 +0.02/0 に対し、相手のモータ軸径の指定が図面上で確認できません', why: '嵌合の相手側寸法が特定できず、はめあいが成立するか判断できません', src: 'QT-2026-0084' },
-    { rule: 'R-07', sev: '中', where: '配線経路部', found: '配線ガイド形状の指示がありません。ACT-220ではECN-2025-007で追加された形状です', why: '過去不具合QT-2025-0077の対策が新機種に反映されていません', src: 'QT-2025-0077' }
+    { rule: 'R-03', where: '軸受穴 φ11.0', found: '軸受穴 φ11.0 +0.02/0 に対し、相手のモータ軸径の指定が図面上で確認できません', why: '嵌合の相手側寸法が特定できず、はめあいが成立するか判断できません', src: 'QT-2026-0084' },
+    { rule: 'R-07', where: '配線経路部', found: '配線ガイド形状の指示がありません。ACT-220ではECN-2025-007で追加された形状です', why: '過去不具合QT-2025-0077の対策が新機種に反映されていません', src: 'QT-2025-0077' }
   ]
 };
 
@@ -1437,7 +1437,7 @@ function runSteps(stepperSel, doneFn, perStep) {
   tick();
 }
 
-/* ---- CSV出力（Excelで開ける BOM 付き） ---- */
+/* ---- CSV出力（BOM付き。いまはExcel出力を使うので予備） ---- */
 function downloadCsv(filename, rows) {
   const body = rows.map(r => r.map(c => {
     const v = String(c == null ? '' : c);
@@ -1500,6 +1500,167 @@ function wireDrop(opt) {
     if (f) show(f.name);
   });
   $(opt.sample).addEventListener('click', () => show(opt.sampleName));
+}
+
+/* ---- Excel出力 ------------------------------------------
+   「Excelで出力」と書いてある以上、本物の .xlsx を出す。
+   外部ライブラリは読み込まない方針なので、zip（無圧縮）を自前で組み立てる。
+   xlsx の実体は zip なので、必要な XML を数枚入れれば Excel が開ける。 */
+const CRC_TABLE = (() => {
+  const t = new Uint32Array(256);
+  for (let i = 0; i < 256; i++) {
+    let c = i;
+    for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+    t[i] = c >>> 0;
+  }
+  return t;
+})();
+function crc32(u8) {
+  let c = 0xFFFFFFFF;
+  for (let i = 0; i < u8.length; i++) c = CRC_TABLE[(c ^ u8[i]) & 0xFF] ^ (c >>> 8);
+  return (c ^ 0xFFFFFFFF) >>> 0;
+}
+const enc = new TextEncoder();
+
+/* 無圧縮zipを組み立てる。files は {name, data:Uint8Array} の配列。 */
+function zipStore(files) {
+  const now = new Date();
+  const dosTime = ((now.getHours() << 11) | (now.getMinutes() << 5) | (now.getSeconds() >> 1)) & 0xFFFF;
+  const dosDate = (((now.getFullYear() - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate()) & 0xFFFF;
+  const chunks = [], central = [];
+  let offset = 0;
+
+  const u16 = v => [v & 0xFF, (v >>> 8) & 0xFF];
+  const u32 = v => [v & 0xFF, (v >>> 8) & 0xFF, (v >>> 16) & 0xFF, (v >>> 24) & 0xFF];
+
+  files.forEach(f => {
+    const nameBytes = enc.encode(f.name);
+    const crc = crc32(f.data);
+    const head = [0x50, 0x4B, 0x03, 0x04, ...u16(20), ...u16(0x0800), ...u16(0),
+      ...u16(dosTime), ...u16(dosDate), ...u32(crc), ...u32(f.data.length), ...u32(f.data.length),
+      ...u16(nameBytes.length), ...u16(0)];
+    chunks.push(new Uint8Array(head), nameBytes, f.data);
+    central.push([[0x50, 0x4B, 0x01, 0x02, ...u16(20), ...u16(20), ...u16(0x0800), ...u16(0),
+      ...u16(dosTime), ...u16(dosDate), ...u32(crc), ...u32(f.data.length), ...u32(f.data.length),
+      ...u16(nameBytes.length), ...u16(0), ...u16(0), ...u16(0), ...u16(0), ...u32(0), ...u32(offset)],
+      nameBytes]);
+    offset += head.length + nameBytes.length + f.data.length;
+  });
+
+  const cdParts = [];
+  let cdLen = 0;
+  central.forEach(([arr, nameBytes]) => {
+    cdParts.push(new Uint8Array(arr), nameBytes);
+    cdLen += arr.length + nameBytes.length;
+  });
+  const eocd = new Uint8Array([0x50, 0x4B, 0x05, 0x06, ...u16(0), ...u16(0),
+    ...u16(files.length), ...u16(files.length), ...u32(cdLen), ...u32(offset), ...u16(0)]);
+
+  const all = [...chunks, ...cdParts, eocd];
+  const total = all.reduce((a, x) => a + x.length, 0);
+  const out = new Uint8Array(total);
+  let p = 0;
+  all.forEach(x => { out.set(x, p); p += x.length; });
+  return out;
+}
+
+function xmlEsc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/\x00-\x08\x0B\x0C\x0E-\x1F/g, '');
+}
+
+/* 表をExcelブックにして保存する。1行目は見出しとして固定＆太字にする。 */
+function downloadXlsx(filename, rows, sheetName) {
+  const name = (sheetName || 'Sheet1').slice(0, 28);
+  const colCount = Math.max(...rows.map(r => r.length));
+  // 列幅は中身の長さから決める（全角を2文字ぶんで数える）
+  const width = i => {
+    const w = Math.max(...rows.map(r => {
+      const v = String(r[i] == null ? '' : r[i]);
+      return v.replace(/[^\x01-\x7E]/g, '..').length;
+    }));
+    return Math.min(60, Math.max(9, w + 2));
+  };
+  const cols = '<cols>' + Array.from({ length: colCount }, (_, i) =>
+    `<col min="${i + 1}" max="${i + 1}" width="${width(i)}" customWidth="1"/>`).join('') + '</cols>';
+
+  const colName = n => {
+    let s = '';
+    n += 1;
+    while (n > 0) { const m = (n - 1) % 26; s = String.fromCharCode(65 + m) + s; n = (n - m - 1) / 26; }
+    return s;
+  };
+  const sheetRows = rows.map((r, ri) => {
+    const cells = r.map((v, ci) => {
+      const ref = colName(ci) + (ri + 1);
+      const st = ri === 0 ? ' s="1"' : '';
+      if (typeof v === 'number' && isFinite(v)) return `<c r="${ref}"${st}><v>${v}</v></c>`;
+      const t = xmlEsc(v);
+      if (t === '') return `<c r="${ref}"${st}/>`;
+      return `<c r="${ref}"${st} t="inlineStr"><is><t xml:space="preserve">${t}</t></is></c>`;
+    }).join('');
+    return `<row r="${ri + 1}">${cells}</row>`;
+  }).join('');
+
+  const F = (n, s) => ({ name: n, data: enc.encode(s) });
+  const files = [
+    F('[Content_Types].xml',
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+      + '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+      + '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
+      + '<Default Extension="xml" ContentType="application/xml"/>'
+      + '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'
+      + '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'
+      + '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'
+      + '</Types>'),
+    F('_rels/.rels',
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+      + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+      + '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>'
+      + '</Relationships>'),
+    F('xl/workbook.xml',
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+      + '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"'
+      + ' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
+      + `<sheets><sheet name="${xmlEsc(name)}" sheetId="1" r:id="rId1"/></sheets></workbook>`),
+    F('xl/_rels/workbook.xml.rels',
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+      + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+      + '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>'
+      + '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>'
+      + '</Relationships>'),
+    F('xl/styles.xml',
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+      + '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+      + '<fonts count="2"><font><sz val="11"/><name val="Yu Gothic"/></font>'
+      + '<font><b/><sz val="11"/><name val="Yu Gothic"/></font></fonts>'
+      + '<fills count="3"><fill><patternFill patternType="none"/></fill>'
+      + '<fill><patternFill patternType="gray125"/></fill>'
+      + '<fill><patternFill patternType="solid"><fgColor rgb="FFEEF0F4"/><bgColor indexed="64"/></patternFill></fill></fills>'
+      + '<borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border>'
+      + '<border><left style="thin"><color rgb="FFC8CCD4"/></left><right style="thin"><color rgb="FFC8CCD4"/></right>'
+      + '<top style="thin"><color rgb="FFC8CCD4"/></top><bottom style="thin"><color rgb="FFC8CCD4"/></bottom><diagonal/></border></borders>'
+      + '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
+      + '<cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf>'
+      + '<xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1">'
+      + '<alignment vertical="center" wrapText="1"/></xf></cellXfs>'
+      + '<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>'),
+    F('xl/worksheets/sheet1.xml',
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+      + '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+      + '<sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>'
+      + '<sheetFormatPr defaultRowHeight="18"/>'
+      + cols + '<sheetData>' + sheetRows + '</sheetData></worksheet>')
+  ];
+
+  const blob = new Blob([zipStore(files)],
+    { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
 
 /* ---- 確認モーダル（生成を止めて人に判断を仰ぐ） ----
@@ -1769,7 +1930,7 @@ function renderDoc() {
 
 function exportDoc() {
   const cells = $$('#genResult .editcell');
-  downloadCsv(`8D報告書_${curTr.id}_${today()}.csv`, [
+  downloadXlsx(`8D報告書_${curTr.id}_${today()}.xlsx`, [
     ['項目', '名称', '内容', '出典', '状態'],
     ...curDoc.map((d, i) => {
       const txt = cells[i] ? cells[i].textContent.trim() : d.text;

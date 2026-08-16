@@ -145,8 +145,9 @@ function bodyFront(kind, hits) {
       <line class="ctr" x1="${cx - 145}" y1="${cy}" x2="${cx + 145}" y2="${cy}"/>
       <line class="ctr" x1="${cx}" y1="${cy - 104}" x2="${cx}" y2="${cy + 104}"/>`;
   }
-  // ケース：M3×6本締結。6本の位置がこのデモの主題なので、位置を明示する。
-  const bolts = [[-96, -60], [0, -60], [96, -60], [-96, 60], [0, 60], [96, 60]];
+  // ケース：部品表はM3×6本だが、図中の締結指示は4箇所しかない。
+  // この食い違いが検図の指摘（R-06）そのものなので、図面にもそのまま描く。
+  const bolts = [[-96, -60], [96, -60], [-96, 60], [96, 60]];
   return `
     <rect class="outline" x="${cx - 124}" y="${cy - 84}" width="248" height="168" rx="8"/>
     <rect class="inner" x="${cx - 108}" y="${cy - 68}" width="216" height="136" rx="5"/>
@@ -194,6 +195,36 @@ function bodySection(kind) {
     ${dimH(x - 62, x - 46, y + 100, '8.0', 16)}`;
 }
 
+/* 部品表。ケース図のみ。員数と図中の指示が合っていないことを、図面上で見えるようにする。 */
+function partsList() {
+  const x = 550, y = 372, w = 320;
+  const rows = [
+    ['1', 'ケース', 'PPS（GF40）', '1'],
+    ['2', 'ガスケット', 'NBR', '1'],
+    ['3', 'M3×8 六角穴付ボルト', 'SUS304', '6']
+  ];
+  const cw = [30, 150, 100, 40];
+  const line = (i) => {
+    let cx0 = x;
+    return rows[i].map((v, c) => {
+      const cell = `<rect class="tb" x="${cx0}" y="${y + 18 + i * 18}" width="${cw[c]}" height="18"/>`
+        + `<text class="dimtxt" x="${cx0 + (c === 3 ? cw[c] / 2 : 4)}" y="${y + 31 + i * 18}"`
+        + `${c === 3 ? ' text-anchor="middle"' : ''}>${esc(v)}</text>`;
+      cx0 += cw[c];
+      return cell;
+    }).join('');
+  };
+  let hx = x;
+  const head = ['番号', '部品名', '材質', '員数'].map((h, c) => {
+    const cell = `<rect class="tb" x="${hx}" y="${y}" width="${cw[c]}" height="18"/>`
+      + `<text class="tb-lbl" font-size="9" x="${hx + (c === 3 ? cw[c] / 2 : 4)}" y="${y + 12}"`
+      + `${c === 3 ? ' text-anchor="middle"' : ''}>${esc(h)}</text>`;
+    hx += cw[c];
+    return cell;
+  }).join('');
+  return `<g>${head}${rows.map((_, i) => line(i)).join('')}</g>`;
+}
+
 /* 表題欄 */
 function titleBlock(d, kind) {
   const x = 550, y = 468, w = 320, h = 116;
@@ -228,9 +259,9 @@ function drawSvg(no, hits) {
   // 並びは 印のx／印のy／印の半径／番号のx／番号のy。
   // 番号は部位のすぐ外に置いて、引き出し線が図を横切らないようにする。
   const SPOT = {
-    case: [[cx - 96, cy - 60, 14, cx - 150, cy - 96], [cx, cy - 60, 14, cx, cy - 104],
-           [cx + 96, cy - 60, 14, cx + 150, cy - 96], [cx, cy, 46, cx + 152, cy + 34],
-           [cx - 96, cy + 60, 14, cx - 150, cy + 96]],
+    case: [[cx, cy, 46, cx + 152, cy + 34], [cx - 96, cy - 60, 14, cx - 150, cy - 96],
+           [cx + 96, cy - 60, 14, cx + 150, cy - 96], [cx - 96, cy + 60, 14, cx - 150, cy + 96],
+           [cx + 96, cy + 60, 14, cx + 150, cy + 96]],
     housing: [[cx, cy, 52, cx + 172, cy + 40], [cx - 92, cy - 52, 14, cx - 152, cy - 88],
               [cx + 92, cy - 52, 14, cx + 152, cy - 88], [cx - 92, cy + 52, 14, cx - 152, cy + 88],
               [cx + 92, cy + 52, 14, cx + 152, cy + 88]],
@@ -261,7 +292,7 @@ function drawSvg(no, hits) {
 
   const DIMS = {
     case: dimH(cx - 124, cx + 124, 348, '124.0', 84) + dimV(cy - 84, cy + 84, 408, '84.0')
-      + leader(cx + 96, cy - 60, cx + 150, cy - 142, 'M3 深さ6　6箇所')
+      + leader(cx + 96, cy - 60, cx + 150, cy - 142, 'M3 深さ6　4箇所')
       + leader(cx - 40, cy + 34, cx - 60, cy + 152, 'シール溝 1.5±0.05')
       + gtol(60, 396, '⏥', '0.05', 'A'),
     housing: dimH(cx - 120, cx + 120, 348, '120.0', 84) + dimV(cy - 78, cy + 76, 408, '78.0')
@@ -315,6 +346,7 @@ function drawSvg(no, hits) {
       <text class="note" font-size="10" x="60" y="484">3. バリ・カエリなきこと</text>
       <text class="note" font-size="10" x="60" y="498">4. 表面粗さ 指示なき箇所 Ra6.3</text>
 
+      ${kind === 'case' ? partsList() : ''}
       ${titleBlock(d, kind)}
       ${marks}
 
@@ -327,6 +359,12 @@ function drawSvg(no, hits) {
 
 /* ---- 検図 ---- */
 let curNo = '', curHits = [];
+
+/* 重要度は検図ルールが持つ。指摘側では持たせない（二重管理にすると必ずずれる）。 */
+function sevOf(h) {
+  const r = RULE_BY_ID[h.rule];
+  return r ? r.sev : '中';
+}
 
 function buildHits(no) {
   const useRule = $('#ckRule').checked, usePast = $('#ckPast').checked, usePrev = $('#ckPrev').checked;
@@ -343,7 +381,7 @@ function buildHits(no) {
 function renderCheck() {
   const d = DWG_BY_NO[curNo];
   const prev = prevDrawing(curNo);
-  const heavy = curHits.filter(h => h.sev === '重');
+  const heavy = curHits.filter(h => sevOf(h) === '重');
 
   if (!curHits.length) {
     $('#ckResult').innerHTML = `
@@ -392,7 +430,7 @@ function renderCheck() {
           </tr></thead>
           <tbody>${curHits.map((h, i) => `
             <tr>
-              <td class="nowrap">${SEV_LABEL[h.sev]}</td>
+              <td class="nowrap">${SEV_LABEL[sevOf(h)]}</td>
               <td class="nowrap">${esc(h.where)}</td>
               <td class="col-text"><strong>${esc(h.found)}</strong><div class="cell-sub">${esc(h.why)}</div></td>
               <td class="nowrap mono">${esc(h.rule)}<div class="cell-sub">${esc(RULE_BY_ID[h.rule] ? RULE_BY_ID[h.rule].cat : '')}</div></td>
@@ -415,9 +453,9 @@ function renderCheck() {
     </div>`;
 
   $('#btnCkCsv').addEventListener('click', () => {
-    downloadCsv(`検図結果_${curNo}_${today()}.csv`, [
+    downloadXlsx(`検図結果_${curNo}_${today()}.xlsx`, [
       ['図面番号', '版', '重要度', '該当箇所', '確認候補', '理由', '検図ルール番号', 'ルール内容', '根拠となる過去記録'],
-      ...curHits.map(h => [curNo, d.rev, h.sev, h.where, h.found, h.why, h.rule,
+      ...curHits.map(h => [curNo, d.rev, sevOf(h), h.where, h.found, h.why, h.rule,
         RULE_BY_ID[h.rule] ? RULE_BY_ID[h.rule].rule : '', h.src || ''])
     ]);
     toast('確認候補を出力しました', `${curHits.length} 件を出力しました。`);
@@ -437,7 +475,7 @@ function openEv(i) {
     <dl class="meta-list">
       <dt>対象図面</dt><dd class="mono">${esc(curNo)}　${esc(DWG_BY_NO[curNo].name)}</dd>
       <dt>該当箇所</dt><dd>${esc(h.where)}</dd>
-      <dt>重要度</dt><dd>${esc(h.sev)}</dd>
+      <dt>重要度</dt><dd>${esc(sevOf(h))}（検図ルール ${esc(h.rule)} で定義）</dd>
     </dl>
     <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">照合した検図ルール</h3>
     <div class="quote">

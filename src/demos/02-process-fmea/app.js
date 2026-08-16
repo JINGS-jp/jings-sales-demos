@@ -271,7 +271,7 @@ function renderResult() {
   const modeSec = `
     <div class="section">
       <h2 class="section__title">③ 要求事項からの逸脱として故障モードを生成</h2>
-      <p class="section__lead">要求を満たせていない状態そのものを故障モードにしています。原因や影響とは分けています。影響とS・O・Dは既存のFMEAの行から持ってきた候補です。決めるのは人です。</p>
+      <p class="section__lead">要求を満たせていない状態そのものを故障モードにしています。原因や影響とは分けています。影響とS・O・Dは既存のFMEAの行から持ってきた候補です。最終判断は担当者が行います。</p>
       <div class="table-meta">新規候補 ${newRows.length} 件　／　既に登録済み ${coveredRows.length} 件　／　${esc(DATA.SOD_CRITERIA.doc)} に照らした候補値</div>
       <div class="table-wrap">
         <table>
@@ -304,7 +304,7 @@ function renderResult() {
   const gapSec = (wide && curGaps.length) ? `
     <div class="section">
       <h2 class="section__title">さらに、類似工程の実績から確認すべき候補</h2>
-      <p class="section__lead">他の工程には登録があって、この工程でも起こりうるのに書かれていない型です。工程をまたいだ抜けを拾うための候補なので、使うかどうかは見て決めてください。</p>
+      <p class="section__lead">他工程には登録があり、本工程でも成立しうるにもかかわらず登録がない型です。工程横断で抽出した確認候補であり、本工程への適用要否は担当者が判断してください。</p>
       <div class="table-wrap">
         <table>
           <caption class="visually-hidden">類似工程からの抜け漏れ候補</caption>
@@ -358,7 +358,7 @@ function renderResult() {
     <div class="callout callout--warn">
       <div>
         <p class="callout__title">この結果を使うときの注意</p>
-        <p>S・O・Dは ${esc(DATA.SOD_CRITERIA.doc)} に当てた候補で、既存のFMEAの行から持ってきています。持ってくる先がない行は「未評価」のまま置きます。AIが点数をでっち上げることはしません。資料に書かれていない要求は、AIの推測として分けてあります。使うかどうか、点数をいくつにするかは人が決めてください。</p>
+        <p>S・O・Dは、${esc(DATA.SOD_CRITERIA.doc)} および既存の工程FMEAを参照した候補値です。参照できる行がない場合は「未評価」として表示し、点数を推定で埋めることはしません。資料に明記のない要求事項は、AIの推定として区別しています。採否および最終評価は担当者が判断してください。</p>
       </div>
     </div>`;
 
@@ -423,7 +423,7 @@ function exportDraft() {
     toast('出力できる行がありません', 'ドラフトへ採用した行がないため、出力する内容がありません。', 'warn');
     return;
   }
-  downloadCsv(`製造FMEAドラフト_工程${curProc}_${today()}.csv`, [
+  downloadXlsx(`製造FMEAドラフト_工程${curProc}_${today()}.xlsx`, [
     ['工程番号', '工程名', '工程機能', '要求事項', '規格値・条件', '逸脱の型', '故障モード', '故障影響',
      '重大度S', '故障原因', '発生度O', '現在の予防管理', '現在の検出管理', '検出度D', 'RPN',
      '推奨対応', '担当者', '参照資料', 'AI提案／人による確定の区分', '確認状態'],
@@ -552,7 +552,7 @@ function evGap(i) {
       <p style="margin-top:var(--space-3)"><strong>現行の予防 ／ 検出</strong><br>${esc(r.prev)} ／ ${esc(r.det)}</p>
       <p style="margin-top:var(--space-3)"><strong>評価</strong><br><span class="mono">S${r.s}　O${r.o}　D${r.d}　RPN ${r.s * r.o * r.d}</span></p>
     </div>
-    <p style="margin-top:var(--space-4);font-size:var(--font-caption)">拾った理由：この工程の要求「${esc(g.relReq.req)}」に対しても「${esc(g.dev)}」は起こりうるのに、この工程のFMEAに同じ型の行がありません。本当に起こりうるかは見て判断してください。</p>`);
+    <p style="margin-top:var(--space-4);font-size:var(--font-caption)">拾った理由：この工程の要求「${esc(g.relReq.req)}」に対しても「${esc(g.dev)}」は起こりうるのに、この工程のFMEAに同じ型の行がありません。本当に起こりうるかは担当者が判断してください。</p>`);
 }
 
 /* ---- 工程フロー画面 ---- */
@@ -654,11 +654,11 @@ wireDrop({
 $('#exProc').addEventListener('change', renderExisting);
 $('#btnExCsv').addEventListener('click', () => {
   const rows = renderExisting();
-  downloadCsv(`既存工程FMEA_${today()}.csv`, [
+  downloadXlsx(`既存工程FMEA_${today()}.xlsx`, [
     ['工程番号', '工程名', '故障モード', '故障影響', '故障原因', '現在の予防管理', '現在の検出管理', 'S', 'O', 'D', 'RPN', '登録契機の不具合'],
     ...rows.map(r => [r.proc, PROC_BY_NO[r.proc].name, r.mode, r.eff, r.cause, r.prev, r.det, r.s, r.o, r.d, r.s * r.o * r.d, r.src || ''])
   ]);
-  toast('CSVを出力しました', `${rows.length} 行を出力しました。`);
+  toast('Excelを出力しました', `${rows.length} 行を出力しました。`);
 });
 
 $('#wideNote').textContent =

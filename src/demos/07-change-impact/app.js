@@ -197,7 +197,7 @@ function renderImpact() {
 
 function exportImpact() {
   const e = ECN_BY_NO[curNo];
-  downloadCsv(`変更影響_${curNo}_${today()}.csv`, [
+  downloadXlsx(`変更影響_${curNo}_${today()}.xlsx`, [
     ['通知番号', '発行日', '段階', '内容', '発行理由', '対象品番', '配布先', '共連れ変更'],
     [e.no, e.date, e.stage, e.title, e.reason, e.prod, e.notify.join('・'), (e.piggy || []).join('・')],
     [],
@@ -341,7 +341,7 @@ DATA.ECNS.slice().sort((a, b) => (a.stage === '暫定' ? 0 : 1) - (b.stage === '
 
 /* ===== 変更の帳票／文章から、どの変更かを探す ==============
    番号を知らなくても始められるようにする。
-   帳票を投げ込むか、内容を文章で書くと、登録済みの変更から候補を出す。
+   帳票をアップロードするか、内容を文章で書くと、登録済みの変更から候補を出す。
    1件に絞れないときは決め打ちせず、候補を並べて人に選んでもらう。 */
 
 function icNorm(s) { return (s || '').toLowerCase().replace(/[\s　・、。（）()「」\.,\/]/g, ''); }
@@ -468,18 +468,18 @@ $('#impForm').addEventListener('submit', ev => {
 
 $('#btnListCsv').addEventListener('click', () => {
   const rows = renderList();
-  downloadCsv(`設計変更一覧_${today()}.csv`, [
+  downloadXlsx(`設計変更一覧_${today()}.xlsx`, [
     ['通知番号', '発行日', '段階', '内容', '発行理由', '対象品番', '状態',
      '未反映', '確認できず', '共連れ変更', '配布先'],
     ...rows.map(e => [e.no, e.date, e.stage, e.title, e.reason, e.prod, e.status,
       openCount(e.no), unknownCount(e.no), (e.piggy || []).join('・'), e.notify.join('・')])
   ]);
-  toast('CSVを出力しました', `${rows.length} 件の変更通知を出力しました。`);
+  toast('Excelを出力しました', `${rows.length} 件の変更通知を出力しました。`);
 });
 
 $('#btnMatCsv').addEventListener('click', () => {
   const kinds = Array.from(new Set(Object.values(DATA.CHANGE_REFLECT).flat().map(r => r.kind)));
-  downloadCsv(`反映状況マトリクス_${today()}.csv`, [
+  downloadXlsx(`反映状況マトリクス_${today()}.xlsx`, [
     ['通知番号', '段階', ...kinds],
     ...DATA.ECNS.map(e => {
       const rs = reflectOf(e.no);
