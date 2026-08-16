@@ -546,7 +546,7 @@ function showReadout(best, scored, conds, decided) {
         <dl class="meta-list" style="margin-top:var(--space-2)">
           <dt>頂上に置く現象</dt><dd>${esc(best.t.top)}</dd>
           <dt>対象</dt><dd>${esc(best.t.prod)}</dd>
-          <dt>近さ</dt><dd>${Math.round(best.score * 100)}%${decided ? '（人が選択）' : ''}</dd>
+          <dt>文面の一致</dt><dd>${best.score >= 0.25 ? '高' : best.score >= 0.12 ? '中' : '低'}${decided ? '（現象は人が選択）' : ''}</dd>
         </dl>
         ${conds.length ? `
           <p style="margin-top:var(--space-3);font-size:var(--font-caption)">
@@ -582,7 +582,7 @@ function applyRead(text) {
       + 'AIが勝手に決めると、木の頂上が実際とずれます。近いものを選んでください。',
       scored.slice(0, 3).map((x, i) => ({
         label: x.t.top,
-        desc: `${x.t.prod}　文章との近さ ${Math.round(x.score * 100)}%`,
+        desc: `${x.t.prod}　文面の一致：${x.score >= 0.25 ? '高' : x.score >= 0.12 ? '中' : '低'}`,
         rec: i === 0,
         onPick: () => go(x, true)
       })));

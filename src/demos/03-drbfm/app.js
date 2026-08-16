@@ -1,5 +1,5 @@
 /* デモ3：変更点起点の設計品質AI（DRBFM）
-   起点は帳票のプルダウンではなく「変更発議書の投げ込み」。帳票は生成物であって起点ではない。
+   起点は帳票のプルダウンではなく「変更発議書のアップロード」。帳票は生成物であって起点ではない。
    生成行ごとに源泉系統（過去実績・機能演繹・物理特性推論・環境知見）を表示し、
    「過去データを検索しているだけ」という疑問に先回りする。 */
 
@@ -32,7 +32,7 @@ function showReadout(fileName) {
           <dt>変更理由</dt><dd>小型軽量化と応答速度の向上、および耐熱性の確保</dd>
         </dl>
         <p style="margin-top:var(--space-3);font-size:var(--font-caption)">
-          ここではサンプルを表示しています。実際に入れるときは、投げ込んだファイルの中身をそのまま読みます。
+          ここではサンプルを表示しています。実際に入れるときは、アップロードしたファイルの中身をそのまま読みます。
         </p>
       </div>
     </div>`;
@@ -175,7 +175,7 @@ function renderResult() {
     <div class="section">
       <div style="display:flex;gap:var(--space-3);flex-wrap:wrap">
         <button class="btn btn--primary" id="btnCsv">DRBFMをExcelで出力する</button>
-        <button class="btn btn--secondary" id="btnReview">設計審査へ提出する</button>
+        <button class="btn btn--secondary" id="btnReview">設計審査への提出イメージを見る</button>
       </div>
       <p style="margin-top:var(--space-3);font-size:var(--font-caption)" id="editNote">
         設計・評価・製造の各欄は画面上で直接編集できます。編集した行は「担当者修正済み」として記録されます。
@@ -195,7 +195,7 @@ function renderResult() {
   });
   $('#btnCsv').addEventListener('click', exportCsv);
   $('#btnReview').addEventListener('click', () => {
-    toast('設計審査へ提出しました', `${curRows.length} 行を DR3（詳細設計審査）の審査資料として登録しました。`);
+    toast('設計審査へ提出しました', `${curRows.length} 行を ここでDR3の審査資料として登録されます。デモのため実際には登録されません。`);
   });
 }
 

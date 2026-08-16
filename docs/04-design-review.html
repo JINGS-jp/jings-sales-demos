@@ -315,7 +315,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
 .shot-zoom img{display:block;width:auto;min-width:1400px;max-width:none;margin:0 auto;background:#fff}
 .shot-zoom__close{position:fixed;top:var(--space-5);right:var(--space-5);z-index:71}
 
-/* 投げ込み（ファイル起点） */
+/* ファイル起点 */
 .filepick__input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
 .filepick{display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap}
 .filepick label{cursor:pointer}
@@ -385,7 +385,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
   </div>
   <div class="sb-nav">
   <button class="nav-item" data-view="intake" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>
-    帳票の取り込み
+    レビュー観点の抽出
   </button>
   <button class="nav-item" data-view="gates"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21V7l9-4 9 4v14"/><path d="M9 21v-6h6v6M3 11h18"/></svg>
     審査ゲート
@@ -424,20 +424,20 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
 </header>
 
 <main class="app-main" id="main">
-<!-- ========== 帳票の取り込み（中核） ========== -->
+<!-- ========== レビュー観点の抽出（中核） ========== -->
 <section class="view" data-view="intake">
-  <p class="breadcrumb">帳票の取り込み</p>
+  <p class="breadcrumb">レビュー観点の抽出</p>
   <div class="page-head">
     <div>
-      <h1 class="page-title">帳票の取り込み</h1>
-      <p class="page-lead">やることは2つです。過去のDR記録を取り込んで、ベテランが毎回言っていたことをチェックリストに起こす。そのあと今回の図面や変更発議書を取り込んで、チェックリストに沿った指摘を出す。</p>
+      <h1 class="page-title">レビュー観点の抽出</h1>
+      <p class="page-lead">やることは2つです。過去のDR記録を取り込んで、過去のDRで繰り返し指摘された観点を、再利用できるチェックリストとして整理する。そのあと今回の図面や変更発議書を取り込んで、そのチェックリストに沿った指摘を出す。</p>
     </div>
   </div>
 
   <!-- ステップ1 -->
   <div class="section">
-    <h2 class="section__title">1. 過去のDR記録から、確認すべき観点を起こす</h2>
-    <p class="section__lead">これまでのDR議事録をアップロードすると、同じ観点が何度も出ているものを束ねて項目にします。1回しか出ていないものは項目にしません。</p>
+    <h2 class="section__title">1. 過去のDR記録から、確認すべきレビュー観点を抽出する</h2>
+    <p class="section__lead">これまでのDR議事録をアップロードすると、繰り返し指摘されている観点をチェックリスト候補として整理します。単発の指摘も除外せず、確認候補として残します。</p>
     <div class="grid split-grid" style="grid-template-columns:380px 1fr;align-items:start">
       <div class="card">
         <div class="field">
@@ -447,11 +447,11 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
             <input type="file" id="pastFile" accept=".xlsx,.xls,.csv,.pdf,.docx" multiple hidden>
             <span class="filepick__name" id="pastFileName">選ばれていません</span>
           </div>
-          <p class="field__hint">Excel・Word・PDFのどれでも構いません。議事録の形式が揃っていなくても読みます。</p>
+          <p class="field__hint">Excel・Word・PDFなど、複数形式の議事録を対象にできます。</p>
           <button class="btn btn--quiet btn--small" type="button" id="btnPastSample" style="margin-top:var(--space-3)">手元にない場合はこちら（見本を使う）</button>
         </div>
         <div id="pastReadout" hidden></div>
-        <button class="btn btn--primary" type="button" id="btnPastRun" style="width:100%;margin-top:var(--space-4)" disabled>観点を起こす</button>
+        <button class="btn btn--primary" type="button" id="btnPastRun" style="width:100%;margin-top:var(--space-4)" disabled>レビュー観点を抽出する</button>
       </div>
 
       <div>
@@ -462,7 +462,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
             <ul>
               <li>同じ観点が繰り返し出ているもの（何回・どの機種で出たか）</li>
               <li>その観点をチェックリストの項目に書き直した文</li>
-              <li>1回しか出ていないため、項目にしなかったもの</li>
+              <li>出現が1回のため、まとめずに確認候補として残したもの</li>
             </ul>
           </div>
         </div>
@@ -590,7 +590,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
   <div class="page-head">
     <div>
       <h1 class="page-title">審査準備</h1>
-      <p class="page-lead">標準の確認項目に、今回の変更点・過去不具合・前回DRの指摘を突き合わせて、このDRで特に確認すべき項目を絞り込みます。項目を落とすかどうかは主査が判断します。</p>
+      <p class="page-lead">標準の確認項目に、今回の変更点・過去不具合・前回DRの指摘を突き合わせて、このDRで特に確認すべき項目を絞り込みます。項目を除外するかどうかは主査が判断します。</p>
     </div>
   </div>
 
@@ -639,7 +639,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
           <li class="step" data-state="todo"><span class="step__mark">3</span><span class="step__text">過去不具合の記録と突き合わせています</span></li>
           <li class="step" data-state="todo"><span class="step__mark">4</span><span class="step__text">前回までのDR指摘の未完了を確認しています</span></li>
           <li class="step" data-state="todo"><span class="step__mark">5</span><span class="step__text">完了扱いの指摘に、完了後の設計変更がないかを確認しています</span></li>
-          <li class="step" data-state="todo"><span class="step__mark">6</span><span class="step__text">確認すべき項目の優先度をまとめています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">6</span><span class="step__text">確認区分をまとめています</span></li>
         </ol>
       </div>
 
@@ -1224,7 +1224,7 @@ const DR_PAST = [
 
 /* 過去議事録から起こす、チェックリストの候補 --------------
    min は「何回出たら項目にするか」のしきい値。デモでは2回。
-   1回しか出ていない観点は項目にせず、保留として見せる（作りすぎない）。 */
+   出現が1回の観点は項目にまとめず、確認候補として残す（除外はしない）。 */
 const DR_THEMES = [
   { key: 'tool', cat: '製造性', item: '締結部の工具アクセス性と作業姿勢が、実際の設備で成立することを確認したか',
     why: '「工具が入らない」「手が届かない」という指摘が、機種を変えて繰り返し出ている。設計側が図面上で成立と判断し、組む側の条件を見ていないときに起きる。' },
@@ -1620,9 +1620,9 @@ function wireShell() {
   });
 }
 
-/* ---- 投げ込み起点（ファイルを渡せば動くことを見せる） ----
+/* ---- ファイル起点（1ファイル渡せば動くことを見せる） ----
    プルダウンだけだと「うちのデータを全部入れないと使えないのか」と受け取られる。
-   1ファイルから始められることを、投げ込みの動作で示す。
+   1ファイルから始められることを、アップロードの動作で示す。
    opt: { file, sample, readout, target, onRead } */
 function wireDrop(opt) {
   const nameEl = $(opt.file + 'Name');
@@ -1638,7 +1638,7 @@ function wireDrop(opt) {
             ${opt.rows.map(r => `<dt>${esc(r.k)}</dt><dd>${r.v}</dd>`).join('')}
           </dl>
           <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)">
-            ここではサンプルを表示しています。実際に入れるときは、投げ込んだファイルの中身をそのまま読みます。
+            ここではサンプルを表示しています。実際に入れるときは、アップロードしたファイルの中身をそのまま読みます。
           </p>
         </div>
       </div>`;
@@ -2072,7 +2072,7 @@ function renderPrep(gate) {
       <p style="line-height:var(--line-height-body)">
         ${esc(g.id)}の標準確認項目 ${curPrep.length} 件に対し、今回の変更点・過去不具合・前回DRの指摘を突き合わせました。
         ${high.length} 件が重点確認、${mid.length} 件が確認、残り ${std.length} 件は突き合わせの結果が付かなかった標準項目です。
-        <strong>標準項目もリストから削除していません。</strong>落とすかどうかは主査が判断してください。
+        <strong>標準項目もリストから削除していません。</strong>除外するかどうかは主査が判断してください。
       </p>
     </div>
 
@@ -2094,12 +2094,12 @@ function renderPrep(gate) {
 
     <div class="section">
       <h2 class="section__title">確認すべき項目</h2>
-      <p class="section__lead">優先度の高い順に表示しています。各項目には、なぜ今回確認が必要かの根拠を付けています。</p>
+      <p class="section__lead">確認区分の重い順に表示しています。各項目には、なぜ今回確認が必要かの根拠を付けています。</p>
       <div class="table-wrap">
         <table>
           <caption class="visually-hidden">確認すべき項目</caption>
           <thead><tr>
-            <th scope="col">優先度</th><th scope="col">区分</th><th scope="col">確認項目</th>
+            <th scope="col">確認区分</th><th scope="col">区分</th><th scope="col">確認項目</th>
             <th scope="col">今回確認が必要な理由</th><th scope="col">操作</th>
           </tr></thead>
           <tbody>${curPrep.map((p, i) => `
@@ -2126,13 +2126,13 @@ function renderPrep(gate) {
     <div class="callout callout--warn">
       <div>
         <p class="callout__title">この結果を使うときの注意</p>
-        <p>優先度は突き合わせの結果による並び替えであり、確認の要否を決めるものではありません。標準の確認項目は1件も削除していません。試験成績書が未登録のため、評価区分の項目は実績との突き合わせができていません。</p>
+        <p>確認区分は突き合わせの結果による並び替えであり、確認の要否を決めるものではありません。標準の確認項目は1件も削除していません。試験成績書が未登録のため、評価区分の項目は実績との突き合わせができていません。</p>
       </div>
     </div>`;
 
   $('#btnPrepCsv').addEventListener('click', () => {
     downloadXlsx(`DR審査シート_${gate}_${today()}.xlsx`, [
-      ['優先度', '項目番号', '区分', '確認項目', '今回確認が必要な理由', '突き合わせ元'],
+      ['確認区分', '項目番号', '区分', '確認項目', '今回確認が必要な理由', '突き合わせ元'],
       ...missed.out.map(m => ['再確認が必要', m.item.id, m.f.cat, m.item.item,
         `${m.f.id} を ${m.f.due} で完了としているが、${m.ecn.date} に ${m.ecn.no}（${m.ecn.title}）が発行されている`,
         '完了扱いの指摘']),
@@ -2155,7 +2155,7 @@ function openPrepEv(i) {
     <dl class="meta-list">
       <dt>項目番号</dt><dd class="mono">${esc(p.item.id)}</dd>
       <dt>区分</dt><dd>${esc(p.item.cat)}</dd>
-      <dt>優先度</dt><dd>${p.level === 'high' ? '重点確認' : p.level === 'mid' ? '確認' : '標準項目'}</dd>
+      <dt>確認区分</dt><dd>${p.level === 'high' ? '重点確認' : p.level === 'mid' ? '確認' : '標準項目'}</dd>
     </dl>
     ${p.hits.map(h => {
       if (h.kind === 'change') return `
@@ -2483,9 +2483,9 @@ document.addEventListener('click', e => {
   }
 });
 
-/* ===== 帳票の取り込み =====================================
+/* ===== レビュー観点の抽出 =====================================
    ここがこのデモの入口。過去のDR議事録を読ませて、
-   ベテランが毎回言っていたことをチェックリストの項目に起こす。
+   過去のDRで繰り返し指摘された観点を、チェックリストの項目として整理する。
    そのあと今回の帳票を読ませて、その項目に沿った指摘を出す。 */
 
 const PAST_SAMPLE = [
@@ -2539,12 +2539,12 @@ function renderPast() {
   $('#pastResult').innerHTML = `
     <div class="card" style="border-left:4px solid var(--color-primary);margin-bottom:var(--space-5)">
       <div style="display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap;margin-bottom:var(--space-3)">
-        <span class="status status--ai">議事録から起こしました</span>
+        <span class="status status--ai">過去のDRから抽出しました</span>
         <span class="cell-sub">${DATA.DR_PAST.length}件の発言を読み、${total}件が${groups.length}つの観点にまとまりました</span>
       </div>
       <p style="line-height:var(--line-height-body)">
         同じことを別の言い方で繰り返し言っている発言が ${total} 件ありました。これを ${groups.length} つの観点にまとめ、
-        チェックリストの項目に書き直しています。1回しか出ていない ${singles.length} 件は項目にしていません。
+        チェックリストの項目に書き直しています。出現が1回の ${singles.length} 件は、まとめずに確認候補として残しています。
       </p>
     </div>
 
@@ -2580,8 +2580,8 @@ function renderPast() {
     }).join('')}
 
     <div class="section">
-      <h2 class="section__title">項目にしなかった発言</h2>
-      <p class="section__lead">1回しか出ていないため、まとめていません。重要かどうかは人が担当者が判断してください。</p>
+      <h2 class="section__title">単発の指摘（確認候補として保持）</h2>
+      <p class="section__lead">出現が1回のため、チェックリスト項目にはまとめていません。除外はしていないので、重要かどうかは担当者が確認してください。</p>
       <div class="table-wrap">
         <table>
           <caption class="visually-hidden">項目にしなかった発言</caption>
@@ -2603,7 +2603,7 @@ function renderPast() {
     <div class="callout callout--warn" style="margin-top:var(--space-5)">
       <div>
         <p class="callout__title">この結果の見方</p>
-        <p>回数が多い観点ほど、設計側が毎回同じところで止まっているということです。項目の文はAIが書き直したものなので、社内の言い方に合わせて直してから使ってください。</p>
+        <p>繰り返し指摘されている観点は、標準的な確認項目として有効な可能性があります。指摘回数だけで重要度を判断せず、採用可否は担当者が確認してください。項目の文はAIが書き直したものなので、社内の言い方に合わせてから使ってください。</p>
       </div>
     </div>
 

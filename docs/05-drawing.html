@@ -314,7 +314,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
 .shot-zoom img{display:block;width:auto;min-width:1400px;max-width:none;margin:0 auto;background:#fff}
 .shot-zoom__close{position:fixed;top:var(--space-5);right:var(--space-5);z-index:71}
 
-/* 投げ込み（ファイル起点） */
+/* ファイル起点 */
 .filepick__input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
 .filepick{display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap}
 .filepick label{cursor:pointer}
@@ -453,7 +453,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
           <option value="">図面番号で選択してください</option>
         </select>
         <p class="field__error" id="dwgError" hidden>対象図面が選択されていません。図面を選んでから検図を開始してください。</p>
-        <p class="field__hint">登録済みの出図前図面です。投げ込んだ場合はその図面が選択されます。</p>
+        <p class="field__hint">登録済みの出図前図面です。アップロードした場合はその図面が選択されます。</p>
       </div>
       <div class="field">
         <span class="field__label">確認する観点</span>
@@ -1086,7 +1086,7 @@ const DR_PAST = [
 
 /* 過去議事録から起こす、チェックリストの候補 --------------
    min は「何回出たら項目にするか」のしきい値。デモでは2回。
-   1回しか出ていない観点は項目にせず、保留として見せる（作りすぎない）。 */
+   出現が1回の観点は項目にまとめず、確認候補として残す（除外はしない）。 */
 const DR_THEMES = [
   { key: 'tool', cat: '製造性', item: '締結部の工具アクセス性と作業姿勢が、実際の設備で成立することを確認したか',
     why: '「工具が入らない」「手が届かない」という指摘が、機種を変えて繰り返し出ている。設計側が図面上で成立と判断し、組む側の条件を見ていないときに起きる。' },
@@ -1482,9 +1482,9 @@ function wireShell() {
   });
 }
 
-/* ---- 投げ込み起点（ファイルを渡せば動くことを見せる） ----
+/* ---- ファイル起点（1ファイル渡せば動くことを見せる） ----
    プルダウンだけだと「うちのデータを全部入れないと使えないのか」と受け取られる。
-   1ファイルから始められることを、投げ込みの動作で示す。
+   1ファイルから始められることを、アップロードの動作で示す。
    opt: { file, sample, readout, target, onRead } */
 function wireDrop(opt) {
   const nameEl = $(opt.file + 'Name');
@@ -1500,7 +1500,7 @@ function wireDrop(opt) {
             ${opt.rows.map(r => `<dt>${esc(r.k)}</dt><dd>${r.v}</dd>`).join('')}
           </dl>
           <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)">
-            ここではサンプルを表示しています。実際に入れるときは、投げ込んだファイルの中身をそのまま読みます。
+            ここではサンプルを表示しています。実際に入れるときは、アップロードしたファイルの中身をそのまま読みます。
           </p>
         </div>
       </div>`;
@@ -2195,7 +2195,7 @@ function renderCheck() {
       </div>
       <div style="display:flex;gap:var(--space-3);margin-top:var(--space-4);flex-wrap:wrap">
         <button class="btn btn--primary" id="btnCkCsv">確認候補をExcelで出力する</button>
-        <button class="btn btn--secondary" id="btnCkReview">設計担当者へ確認を依頼する</button>
+        <button class="btn btn--secondary" id="btnCkReview">確認依頼のイメージを見る</button>
       </div>
     </div>
 
@@ -2215,7 +2215,7 @@ function renderCheck() {
     toast('確認候補を出力しました', `${curHits.length} 件を出力しました。`);
   });
   $('#btnCkReview').addEventListener('click', () => {
-    toast('確認を依頼しました', `${curNo} の確認候補 ${curHits.length} 件について、設計担当者へ確認依頼を作成しました。`);
+    toast('確認を依頼しました', `${curNo} の確認候補 ${curHits.length} 件について、ここで設計担当者への確認依頼が作られます。デモのため実際には送信されません。`);
   });
 }
 
@@ -2287,7 +2287,7 @@ function renderSearch(q) {
   }
 
   $('#sResult').innerHTML = `
-    <div class="table-meta">${hits.length} 件を関連度の高い順に表示しています</div>
+    <div class="table-meta">${hits.length} 件を関連度の高い順に表示しています（図面名・主要寸法・図番の文字一致による判定です）</div>
     <div class="table-wrap">
       <table>
         <caption class="visually-hidden">類似図面の検索結果</caption>
@@ -2297,7 +2297,7 @@ function renderSearch(q) {
         </tr></thead>
         <tbody>${hits.map(x => `
           <tr>
-            <td class="mono nowrap">${Math.round(x.score * 100)}%</td>
+            <td class="nowrap"><span class="status ${x.score >= 0.25 ? 'status--risk' : x.score >= 0.12 ? 'status--warn' : 'status--todo'}">${x.score >= 0.25 ? '高' : x.score >= 0.12 ? '中' : '低'}</span></td>
             <td class="mono nowrap">${esc(x.d.no)}</td>
             <td class="col-text">${esc(x.d.name)}</td>
             <td class="nowrap">${esc(x.d.prod)}<div class="cell-sub">${esc(x.d.rev)}版・${esc(x.d.date)}</div></td>

@@ -1,17 +1,17 @@
-<!-- ========== 帳票の取り込み（中核） ========== -->
+<!-- ========== レビュー観点の抽出（中核） ========== -->
 <section class="view" data-view="intake">
-  <p class="breadcrumb">帳票の取り込み</p>
+  <p class="breadcrumb">レビュー観点の抽出</p>
   <div class="page-head">
     <div>
-      <h1 class="page-title">帳票の取り込み</h1>
-      <p class="page-lead">やることは2つです。過去のDR記録を取り込んで、ベテランが毎回言っていたことをチェックリストに起こす。そのあと今回の図面や変更発議書を取り込んで、チェックリストに沿った指摘を出す。</p>
+      <h1 class="page-title">レビュー観点の抽出</h1>
+      <p class="page-lead">やることは2つです。過去のDR記録を取り込んで、過去のDRで繰り返し指摘された観点を、再利用できるチェックリストとして整理する。そのあと今回の図面や変更発議書を取り込んで、そのチェックリストに沿った指摘を出す。</p>
     </div>
   </div>
 
   <!-- ステップ1 -->
   <div class="section">
-    <h2 class="section__title">1. 過去のDR記録から、確認すべき観点を起こす</h2>
-    <p class="section__lead">これまでのDR議事録をアップロードすると、同じ観点が何度も出ているものを束ねて項目にします。1回しか出ていないものは項目にしません。</p>
+    <h2 class="section__title">1. 過去のDR記録から、確認すべきレビュー観点を抽出する</h2>
+    <p class="section__lead">これまでのDR議事録をアップロードすると、繰り返し指摘されている観点をチェックリスト候補として整理します。単発の指摘も除外せず、確認候補として残します。</p>
     <div class="grid split-grid" style="grid-template-columns:380px 1fr;align-items:start">
       <div class="card">
         <div class="field">
@@ -21,11 +21,11 @@
             <input type="file" id="pastFile" accept=".xlsx,.xls,.csv,.pdf,.docx" multiple hidden>
             <span class="filepick__name" id="pastFileName">選ばれていません</span>
           </div>
-          <p class="field__hint">Excel・Word・PDFのどれでも構いません。議事録の形式が揃っていなくても読みます。</p>
+          <p class="field__hint">Excel・Word・PDFなど、複数形式の議事録を対象にできます。</p>
           <button class="btn btn--quiet btn--small" type="button" id="btnPastSample" style="margin-top:var(--space-3)">手元にない場合はこちら（見本を使う）</button>
         </div>
         <div id="pastReadout" hidden></div>
-        <button class="btn btn--primary" type="button" id="btnPastRun" style="width:100%;margin-top:var(--space-4)" disabled>観点を起こす</button>
+        <button class="btn btn--primary" type="button" id="btnPastRun" style="width:100%;margin-top:var(--space-4)" disabled>レビュー観点を抽出する</button>
       </div>
 
       <div>
@@ -36,7 +36,7 @@
             <ul>
               <li>同じ観点が繰り返し出ているもの（何回・どの機種で出たか）</li>
               <li>その観点をチェックリストの項目に書き直した文</li>
-              <li>1回しか出ていないため、項目にしなかったもの</li>
+              <li>出現が1回のため、まとめずに確認候補として残したもの</li>
             </ul>
           </div>
         </div>
@@ -164,7 +164,7 @@
   <div class="page-head">
     <div>
       <h1 class="page-title">審査準備</h1>
-      <p class="page-lead">標準の確認項目に、今回の変更点・過去不具合・前回DRの指摘を突き合わせて、このDRで特に確認すべき項目を絞り込みます。項目を落とすかどうかは主査が判断します。</p>
+      <p class="page-lead">標準の確認項目に、今回の変更点・過去不具合・前回DRの指摘を突き合わせて、このDRで特に確認すべき項目を絞り込みます。項目を除外するかどうかは主査が判断します。</p>
     </div>
   </div>
 
@@ -213,7 +213,7 @@
           <li class="step" data-state="todo"><span class="step__mark">3</span><span class="step__text">過去不具合の記録と突き合わせています</span></li>
           <li class="step" data-state="todo"><span class="step__mark">4</span><span class="step__text">前回までのDR指摘の未完了を確認しています</span></li>
           <li class="step" data-state="todo"><span class="step__mark">5</span><span class="step__text">完了扱いの指摘に、完了後の設計変更がないかを確認しています</span></li>
-          <li class="step" data-state="todo"><span class="step__mark">6</span><span class="step__text">確認すべき項目の優先度をまとめています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">6</span><span class="step__text">確認区分をまとめています</span></li>
         </ol>
       </div>
 

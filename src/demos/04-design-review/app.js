@@ -180,7 +180,7 @@ function renderPrep(gate) {
       <p style="line-height:var(--line-height-body)">
         ${esc(g.id)}の標準確認項目 ${curPrep.length} 件に対し、今回の変更点・過去不具合・前回DRの指摘を突き合わせました。
         ${high.length} 件が重点確認、${mid.length} 件が確認、残り ${std.length} 件は突き合わせの結果が付かなかった標準項目です。
-        <strong>標準項目もリストから削除していません。</strong>落とすかどうかは主査が判断してください。
+        <strong>標準項目もリストから削除していません。</strong>除外するかどうかは主査が判断してください。
       </p>
     </div>
 
@@ -202,12 +202,12 @@ function renderPrep(gate) {
 
     <div class="section">
       <h2 class="section__title">確認すべき項目</h2>
-      <p class="section__lead">優先度の高い順に表示しています。各項目には、なぜ今回確認が必要かの根拠を付けています。</p>
+      <p class="section__lead">確認区分の重い順に表示しています。各項目には、なぜ今回確認が必要かの根拠を付けています。</p>
       <div class="table-wrap">
         <table>
           <caption class="visually-hidden">確認すべき項目</caption>
           <thead><tr>
-            <th scope="col">優先度</th><th scope="col">区分</th><th scope="col">確認項目</th>
+            <th scope="col">確認区分</th><th scope="col">区分</th><th scope="col">確認項目</th>
             <th scope="col">今回確認が必要な理由</th><th scope="col">操作</th>
           </tr></thead>
           <tbody>${curPrep.map((p, i) => `
@@ -234,13 +234,13 @@ function renderPrep(gate) {
     <div class="callout callout--warn">
       <div>
         <p class="callout__title">この結果を使うときの注意</p>
-        <p>優先度は突き合わせの結果による並び替えであり、確認の要否を決めるものではありません。標準の確認項目は1件も削除していません。試験成績書が未登録のため、評価区分の項目は実績との突き合わせができていません。</p>
+        <p>確認区分は突き合わせの結果による並び替えであり、確認の要否を決めるものではありません。標準の確認項目は1件も削除していません。試験成績書が未登録のため、評価区分の項目は実績との突き合わせができていません。</p>
       </div>
     </div>`;
 
   $('#btnPrepCsv').addEventListener('click', () => {
     downloadXlsx(`DR審査シート_${gate}_${today()}.xlsx`, [
-      ['優先度', '項目番号', '区分', '確認項目', '今回確認が必要な理由', '突き合わせ元'],
+      ['確認区分', '項目番号', '区分', '確認項目', '今回確認が必要な理由', '突き合わせ元'],
       ...missed.out.map(m => ['再確認が必要', m.item.id, m.f.cat, m.item.item,
         `${m.f.id} を ${m.f.due} で完了としているが、${m.ecn.date} に ${m.ecn.no}（${m.ecn.title}）が発行されている`,
         '完了扱いの指摘']),
@@ -263,7 +263,7 @@ function openPrepEv(i) {
     <dl class="meta-list">
       <dt>項目番号</dt><dd class="mono">${esc(p.item.id)}</dd>
       <dt>区分</dt><dd>${esc(p.item.cat)}</dd>
-      <dt>優先度</dt><dd>${p.level === 'high' ? '重点確認' : p.level === 'mid' ? '確認' : '標準項目'}</dd>
+      <dt>確認区分</dt><dd>${p.level === 'high' ? '重点確認' : p.level === 'mid' ? '確認' : '標準項目'}</dd>
     </dl>
     ${p.hits.map(h => {
       if (h.kind === 'change') return `
@@ -591,9 +591,9 @@ document.addEventListener('click', e => {
   }
 });
 
-/* ===== 帳票の取り込み =====================================
+/* ===== レビュー観点の抽出 =====================================
    ここがこのデモの入口。過去のDR議事録を読ませて、
-   ベテランが毎回言っていたことをチェックリストの項目に起こす。
+   過去のDRで繰り返し指摘された観点を、チェックリストの項目として整理する。
    そのあと今回の帳票を読ませて、その項目に沿った指摘を出す。 */
 
 const PAST_SAMPLE = [
@@ -647,12 +647,12 @@ function renderPast() {
   $('#pastResult').innerHTML = `
     <div class="card" style="border-left:4px solid var(--color-primary);margin-bottom:var(--space-5)">
       <div style="display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap;margin-bottom:var(--space-3)">
-        <span class="status status--ai">議事録から起こしました</span>
+        <span class="status status--ai">過去のDRから抽出しました</span>
         <span class="cell-sub">${DATA.DR_PAST.length}件の発言を読み、${total}件が${groups.length}つの観点にまとまりました</span>
       </div>
       <p style="line-height:var(--line-height-body)">
         同じことを別の言い方で繰り返し言っている発言が ${total} 件ありました。これを ${groups.length} つの観点にまとめ、
-        チェックリストの項目に書き直しています。1回しか出ていない ${singles.length} 件は項目にしていません。
+        チェックリストの項目に書き直しています。出現が1回の ${singles.length} 件は、まとめずに確認候補として残しています。
       </p>
     </div>
 
@@ -688,8 +688,8 @@ function renderPast() {
     }).join('')}
 
     <div class="section">
-      <h2 class="section__title">項目にしなかった発言</h2>
-      <p class="section__lead">1回しか出ていないため、まとめていません。重要かどうかは人が担当者が判断してください。</p>
+      <h2 class="section__title">単発の指摘（確認候補として保持）</h2>
+      <p class="section__lead">出現が1回のため、チェックリスト項目にはまとめていません。除外はしていないので、重要かどうかは担当者が確認してください。</p>
       <div class="table-wrap">
         <table>
           <caption class="visually-hidden">項目にしなかった発言</caption>
@@ -711,7 +711,7 @@ function renderPast() {
     <div class="callout callout--warn" style="margin-top:var(--space-5)">
       <div>
         <p class="callout__title">この結果の見方</p>
-        <p>回数が多い観点ほど、設計側が毎回同じところで止まっているということです。項目の文はAIが書き直したものなので、社内の言い方に合わせて直してから使ってください。</p>
+        <p>繰り返し指摘されている観点は、標準的な確認項目として有効な可能性があります。指摘回数だけで重要度を判断せず、採用可否は担当者が確認してください。項目の文はAIが書き直したものなので、社内の言い方に合わせてから使ってください。</p>
       </div>
     </div>
 

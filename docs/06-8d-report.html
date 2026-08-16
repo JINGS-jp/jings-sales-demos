@@ -314,7 +314,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
 .shot-zoom img{display:block;width:auto;min-width:1400px;max-width:none;margin:0 auto;background:#fff}
 .shot-zoom__close{position:fixed;top:var(--space-5);right:var(--space-5);z-index:71}
 
-/* 投げ込み（ファイル起点） */
+/* ファイル起点 */
 .filepick__input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
 .filepick{display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap}
 .filepick label{cursor:pointer}
@@ -430,7 +430,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
   <div class="grid split-grid" style="grid-template-columns:380px 1fr;align-items:start">
     <form class="card" id="genForm" novalidate style="position:sticky;top:calc(var(--header-height) + var(--space-5))">
       <div class="field">
-        <span class="field__label">起点をどこから取るか</span>
+        <span class="field__label">対象データ</span>
         <div class="drop">
           <label class="field__label" for="clFile" style="font-size:var(--font-caption)">顧客から届いたクレーム票をアップロードする</label>
           <input type="file" id="clFile" accept=".xlsx,.xls,.pdf" class="filepick__input">
@@ -438,7 +438,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
           <label class="btn btn--quiet btn--small" for="clFile">ファイルを選ぶ</label>
           <span class="filepick__name" id="clFileName">選択されていません</span>
         </div>
-          <p class="drop__hint">クレーム票から品番・現象・発生日を読み取り、該当する社内の不具合記録に突き合わせます。</p>
+          <p class="drop__hint">クレーム票から品番・現象・発生日を読み取り、該当する社内の不具合記録に突き合わせます。このデモでは、サンプルの読み取り結果を表示します。</p>
           <button type="button" class="btn btn--quiet btn--small" id="btnClSample" style="margin-top:var(--space-2)">サンプルのクレーム票で試す</button>
         </div>
         <div id="clReadout" hidden style="margin-top:var(--space-3)"></div>
@@ -450,7 +450,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
           <option value="">管理番号で選択してください</option>
         </select>
         <p class="field__error" id="trError" hidden>対象の不具合が選択されていません。不具合を選んでから作成を開始してください。</p>
-        <p class="field__hint">登録済みの記録です。顧客流出のあったものを先頭に表示しています。クレーム票を投げ込んだ場合は該当する記録が選択されます。</p>
+        <p class="field__hint">登録済みの記録です。顧客流出のあったものを先頭に表示しています。クレーム票をアップロードした場合は該当する記録が選択されます。</p>
       </div>
       <div class="field">
         <label class="field__label" for="dest">提出先</label>
@@ -464,7 +464,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
         <span class="field__label">参照する情報</span>
         <label class="check-row"><input type="checkbox" id="rfTrouble" checked disabled> 不具合記録（必須）</label>
         <label class="check-row"><input type="checkbox" id="rfFmea" checked> 工程FMEA（対策の裏付け）</label>
-        <label class="check-row"><input type="checkbox" id="rfSim" checked> 類似不具合（水平展開の範囲）</label>
+        <label class="check-row"><input type="checkbox" id="rfSim" checked> 類似不具合（水平展開の確認候補）</label>
       </div>
       <button class="btn btn--primary" type="submit" style="width:100%">8D報告書の初稿を作成する</button>
     </form>
@@ -477,7 +477,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
           <ul>
             <li>記録に書かれている内容だけを使います</li>
             <li>記録から書けない項目は空欄にし、何を追記すべきかを示します</li>
-            <li>水平展開（D7）は、類似する不具合の有無から範囲を提示します</li>
+            <li>水平展開（D7）は、類似不具合から、水平展開を検討すべき対象候補を提示します</li>
           </ul>
         </div>
       </div>
@@ -490,7 +490,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
           <li class="step" data-state="todo"><span class="step__mark">2</span><span class="step__text">発生の経緯と暫定処置を整理しています</span></li>
           <li class="step" data-state="todo"><span class="step__mark">3</span><span class="step__text">原因の記載を発生原因と流出原因に分けています</span></li>
           <li class="step" data-state="todo"><span class="step__mark">4</span><span class="step__text">工程FMEAで対策の裏付けを確認しています</span></li>
-          <li class="step" data-state="todo"><span class="step__mark">5</span><span class="step__text">類似する不具合から水平展開の範囲を調べています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">5</span><span class="step__text">類似する不具合から水平展開の確認候補を調べています</span></li>
           <li class="step" data-state="todo"><span class="step__mark">6</span><span class="step__text">各項目に割り当てて初稿をまとめています</span></li>
         </ol>
       </div>
@@ -1074,7 +1074,7 @@ const DR_PAST = [
 
 /* 過去議事録から起こす、チェックリストの候補 --------------
    min は「何回出たら項目にするか」のしきい値。デモでは2回。
-   1回しか出ていない観点は項目にせず、保留として見せる（作りすぎない）。 */
+   出現が1回の観点は項目にまとめず、確認候補として残す（除外はしない）。 */
 const DR_THEMES = [
   { key: 'tool', cat: '製造性', item: '締結部の工具アクセス性と作業姿勢が、実際の設備で成立することを確認したか',
     why: '「工具が入らない」「手が届かない」という指摘が、機種を変えて繰り返し出ている。設計側が図面上で成立と判断し、組む側の条件を見ていないときに起きる。' },
@@ -1470,9 +1470,9 @@ function wireShell() {
   });
 }
 
-/* ---- 投げ込み起点（ファイルを渡せば動くことを見せる） ----
+/* ---- ファイル起点（1ファイル渡せば動くことを見せる） ----
    プルダウンだけだと「うちのデータを全部入れないと使えないのか」と受け取られる。
-   1ファイルから始められることを、投げ込みの動作で示す。
+   1ファイルから始められることを、アップロードの動作で示す。
    opt: { file, sample, readout, target, onRead } */
 function wireDrop(opt) {
   const nameEl = $(opt.file + 'Name');
@@ -1488,7 +1488,7 @@ function wireDrop(opt) {
             ${opt.rows.map(r => `<dt>${esc(r.k)}</dt><dd>${r.v}</dd>`).join('')}
           </dl>
           <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)">
-            ここではサンプルを表示しています。実際に入れるときは、投げ込んだファイルの中身をそのまま読みます。
+            ここではサンプルを表示しています。実際に入れるときは、アップロードしたファイルの中身をそのまま読みます。
           </p>
         </div>
       </div>`;
@@ -1785,36 +1785,40 @@ function buildDoc(t) {
     dice(grams(t.cause), grams(o.cause)) >= 0.30);
 
   const doc = [];
+  // 状態は「本文が書けたか」と「追記が要るか」から決める。
+  // filled を別に持つと、本文に「調査中」と書いてあるのに記入済みと数える、といったずれが出る。
 
-  doc.push({ id: 'D1', name: 'チーム編成', text: '', filled: false,
+  doc.push({ id: 'D1', name: 'チーム編成', text: '',
     missing: '対応チームの構成員が不具合記録に含まれていません。担当部門と責任者を記入してください。',
     ref: '' });
 
-  doc.push({ id: 'D2', name: '問題の記述', filled: true,
+  doc.push({ id: 'D2', name: '問題の記述',
     text: `${t.date}、${t.prod}の${procLabel(t.proc)}において、${t.part}に関し「${t.sym}」が発生しました。`
       + `影響度の評価はS${t.s}、発生度O${t.o}、検出度D${t.d}です。`
       + (t.leak ? '本件は顧客への流出に至っています。' : '社内で検出し、顧客への流出はありません。'),
     ref: `不具合記録 ${t.id}` });
 
-  doc.push({ id: 'D3', name: '暫定処置', filled: !!t.tmp,
+  doc.push({ id: 'D3', name: '暫定処置',
     text: t.tmp ? `${t.tmp}を実施しました。` : '',
     missing: t.tmp ? '' : '暫定処置の記載が不具合記録にありません。実施した内容と実施日を記入してください。',
     ref: `不具合記録 ${t.id} 暫定対策欄` });
 
   // 原因は「発生原因」と「流出原因」に分ける。記録が1つしかない場合は流出原因を空欄にする。
   const detHint = fmeaRows.length ? fmeaRows[0].det : '';
-  doc.push({ id: 'D4', name: '根本原因の特定', filled: true,
+  doc.push({ id: 'D4', name: '根本原因の特定',
     text: `【発生原因】${t.cause}\n【流出原因】`
-      + (detHint ? `現行の検出手段は「${detHint}」ですが、本件を検出できませんでした。検出できなかった条件は調査中です。` : ''),
-    missing: detHint ? '' : '流出原因（なぜ検出できなかったか）が不具合記録から特定できません。検査記録を確認して記入してください。',
+      + (detHint ? `（確認材料）現行の検出手段は「${detHint}」ですが、本件は検出できていません。` : ''),
+    missing: detHint
+      ? '流出原因（なぜ検出できなかったか）は特定できていません。上の検出手段は確認材料であり、流出原因そのものではありません。検査記録を確認して記入してください。'
+      : '流出原因（なぜ検出できなかったか）が不具合記録から特定できません。検査記録を確認して記入してください。',
     ref: `不具合記録 ${t.id} 原因欄` + (fmeaRows.length ? ` ／ 工程FMEA ${procLabel(t.proc)}` : '') });
 
-  doc.push({ id: 'D5', name: '恒久対策の選定', filled: !!t.perm,
+  doc.push({ id: 'D5', name: '恒久対策の選定',
     text: t.perm ? `${t.perm}を恒久対策として選定しました。` : '',
     missing: t.perm ? '' : '恒久対策が不具合記録に記載されていません。対策内容を記入してください。',
     ref: `不具合記録 ${t.id} 恒久対策欄` });
 
-  doc.push({ id: 'D6', name: '恒久対策の実施と検証', filled: t.status === '完了',
+  doc.push({ id: 'D6', name: '恒久対策の実施と検証',
     text: t.status === '完了'
       ? `対策を実施し、対応を完了しています。`
       : '',
@@ -1826,21 +1830,37 @@ function buildDoc(t) {
   const scope = [];
   if (similar.length) scope.push(`類似する不具合が ${similar.length} 件あります（${similar.map(x => x.o.id).join('、')}）。`);
   if (sameProcOther.length) scope.push(`同じ原因が他工程でも記録されています（${sameProcOther.map(o => procLabel(o.proc)).join('、')}）。同種の確認が必要です。`);
-  doc.push({ id: 'D7', name: '再発防止（水平展開）', filled: scope.length > 0,
+  doc.push({ id: 'D7', name: '再発防止（水平展開の確認候補）',
     text: scope.join('\n'),
-    missing: scope.length ? '' : '類似する不具合の記録がないため、水平展開の範囲を機械的に特定できません。対象機種・工程を検討して記入してください。',
+    missing: scope.length
+      ? '記録から抽出した確認候補です。実際に展開する対象は担当者が確定してください。'
+      : '類似する不具合の記録がないため、水平展開の候補を機械的に抽出できません。対象機種・工程を検討して記入してください。',
     ref: similar.length ? `類似記録 ${similar.map(x => x.o.id).join('、')}` : '' });
 
-  doc.push({ id: 'D8', name: 'チームの認識と完了', text: '', filled: false,
+  doc.push({ id: 'D8', name: 'チームの認識と完了', text: '',
     missing: '承認者と完了日は記録から特定できません。関係者の確認後に記入してください。',
     ref: '' });
 
   return doc;
 }
 
+/* 記入済み／一部記入（確認が必要）／未記入 の3状態。
+   本文が書けていても追記が要るものを、記入済みとして数えない。 */
+function stateOf(d) {
+  if (!d.text) return 'none';
+  return d.missing ? 'partial' : 'done';
+}
+const STATE_LABEL = {
+  done: '<span class="status status--done">記入済み</span>',
+  partial: '<span class="status status--warn">一部記入・確認必要</span>',
+  none: '<span class="status status--todo">未記入</span>'
+};
+
 /* ---- 描画 ---- */
 function renderDoc() {
-  const filled = curDoc.filter(d => d.filled).length;
+  const nDone = curDoc.filter(d => stateOf(d) === 'done').length;
+  const nPart = curDoc.filter(d => stateOf(d) === 'partial').length;
+  const nNone = curDoc.filter(d => stateOf(d) === 'none').length;
   const t = curTr;
   const dest = $('#dest').value;
 
@@ -1851,14 +1871,16 @@ function renderDoc() {
         <span class="cell-sub">対象 ${esc(t.id)}　／　提出先 ${esc(dest)}　／　作成 ${today()}</span>
       </div>
       <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:var(--space-4);margin-bottom:var(--space-4)">
-        <div><p class="kpi__label">記入できた項目</p><p class="kpi__value" style="font-size:var(--font-section-title)">${filled}<span class="kpi__unit"> / 8</span></p></div>
-        <div><p class="kpi__label">追記が必要な項目</p><p class="kpi__value" style="font-size:var(--font-section-title)">${8 - filled}<span class="kpi__unit"> 件</span></p></div>
+        <div><p class="kpi__label">記入済み</p><p class="kpi__value" style="font-size:var(--font-section-title)">${nDone}<span class="kpi__unit"> / 8</span></p></div>
+        <div><p class="kpi__label"><span class="kpi__dot"></span>一部記入・確認必要</p><p class="kpi__value" style="font-size:var(--font-section-title)">${nPart}<span class="kpi__unit"> 件</span></p></div>
+        <div><p class="kpi__label"><span class="kpi__dot"></span>未記入</p><p class="kpi__value" style="font-size:var(--font-section-title)">${nNone}<span class="kpi__unit"> 件</span></p></div>
         <div><p class="kpi__label">状態</p><p class="kpi__value" style="font-size:var(--font-section-title)">未確定</p><p class="kpi__note">担当者の確認が必要</p></div>
       </div>
       <p style="line-height:var(--line-height-body)">
         不具合記録 <span class="mono">${esc(t.id)}</span> の内容を8Dの各項目へ割り当てました。
-        記録から書ける ${filled} 項目を記入し、残り ${8 - filled} 項目は<strong>推測で埋めず空欄にしています</strong>。
-        空欄の項目には、何を追記すべきかを表示しています。
+        記録から書ける ${nDone} 項目を記入しました。${nPart} 項目は本文を書けたものの<strong>確認が済んでいません</strong>。
+        残り ${nNone} 項目は<strong>推測で埋めず空欄にしています</strong>。
+        記入済み以外の項目には、何を確認・追記すべきかを表示しています。
       </p>
     </div>
 
@@ -1875,17 +1897,16 @@ function renderDoc() {
             <tr data-i="${i}">
               <td class="nowrap"><strong>${esc(d.id)}</strong><div class="cell-sub">${esc(d.name)}</div></td>
               <td class="col-text">
-                ${d.filled
-                  ? `<span class="editcell" contenteditable="true" role="textbox" aria-label="${esc(d.id)}の内容を編集" style="white-space:pre-wrap">${esc(d.text)}</span>`
-                  : `<span class="editcell" contenteditable="true" role="textbox" aria-label="${esc(d.id)}の内容を入力" style="white-space:pre-wrap;min-height:2.4em"></span>
+                <span class="editcell" contenteditable="true" role="textbox"
+                      aria-label="${esc(d.id)}の内容を編集"
+                      style="white-space:pre-wrap${d.text ? '' : ';min-height:2.4em'}">${esc(d.text || '')}</span>
+                ${d.missing ? `
                      <div class="callout callout--warn" style="margin-top:var(--space-2);padding:var(--space-2) var(--space-3);font-size:var(--font-caption)">
-                       <div><strong>追記が必要です</strong>　${esc(d.missing)}</div>
-                     </div>`}
+                       <div><strong>${d.text ? '確認が必要です' : '追記が必要です'}</strong>　${esc(d.missing)}</div>
+                     </div>` : ''}
               </td>
               <td class="col-text cell-sub">${d.ref ? esc(d.ref) : '<span class="cell-empty">—</span>'}</td>
-              <td class="nowrap">${d.filled
-                ? '<span class="status status--ai">AI初稿</span>'
-                : '<span class="status status--warn">未記入</span>'}</td>
+              <td class="nowrap">${STATE_LABEL[stateOf(d)]}</td>
             </tr>`).join('')}
           </tbody>
         </table>
@@ -1910,7 +1931,7 @@ function renderDoc() {
     <div class="callout callout--warn">
       <div>
         <p class="callout__title">顧客提出前の確認</p>
-        <p>この報告書はAIによる初稿です。空欄の項目を埋めずに提出しないでください。D4の流出原因、D6の効果検証、D7の水平展開の範囲は、記録だけでは確定できないため担当者の判断が必要です。提出前に品質保証部の承認を受けてください。</p>
+        <p>この報告書はAIによる初稿です。未記入項目を確認・補完したうえで提出してください。D4の流出原因、D6の効果検証、D7の水平展開の確認候補は、記録だけでは確定できないため担当者の判断が必要です。提出前に品質保証部の承認を受けてください。</p>
       </div>
     </div>`;
 
@@ -1934,7 +1955,7 @@ function exportDoc() {
     ['項目', '名称', '内容', '出典', '状態'],
     ...curDoc.map((d, i) => {
       const txt = cells[i] ? cells[i].textContent.trim() : d.text;
-      return [d.id, d.name, txt, d.ref, txt ? (d.filled ? 'AI初稿' : '担当者記入') : '未記入'];
+      return [d.id, d.name, txt, d.ref, txt ? (stateOf(d) === 'done' ? '記入済み' : '一部記入・確認必要') : '未記入'];
     }),
     [],
     ['対象不具合', curTr.id, curTr.sym, '', ''],

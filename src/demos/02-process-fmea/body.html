@@ -1,6 +1,6 @@
 <!-- ========== FMEAドラフト生成（中核） ========== -->
 <section class="view" data-view="draft">
-  <p class="breadcrumb">製造FMEAドラフト生成</p>
+  <p class="breadcrumb">工程FMEAドラフト生成</p>
   <div class="page-head">
     <div>
       <h1 class="page-title">FMEAドラフト生成</h1>
@@ -19,7 +19,7 @@
           <label class="btn btn--quiet btn--small" for="flowFile">ファイルを選ぶ</label>
           <span class="filepick__name" id="flowFileName">選択されていません</span>
         </div>
-          <p class="drop__hint">アップロードすると工程の一覧を読み取り、下の対象工程に反映します。</p>
+          <p class="drop__hint">アップロードすると工程の一覧を読み取り、下の対象工程に反映します。このデモでは、サンプルの読み取り結果を表示します。</p>
           <button type="button" class="btn btn--quiet btn--small" id="btnFlowSample" style="margin-top:var(--space-2)">サンプルの工程フロー表で試す</button>
         </div>
         <div id="flowReadout" hidden style="margin-top:var(--space-3)"></div>
@@ -30,15 +30,15 @@
         <select class="select" id="procSelect" required aria-describedby="procHint">
           <option value="">工程番号・工程名で選択してください</option>
         </select>
-        <p class="field__error" id="procError" hidden>対象工程が選択されていません。工程を選択してから、製造FMEAドラフトを生成してください。</p>
-        <p class="field__hint" id="procHint">登録済みの ACT-220 第一工場 組立ライン（工程10〜19）を工程フロー順に表示しています。投げ込んだ場合はその内容に切り替わります。</p>
+        <p class="field__error" id="procError" hidden>対象工程が選択されていません。工程を選択してから、工程FMEAドラフトを生成してください。</p>
+        <p class="field__hint" id="procHint">登録済みの ACT-220 第一工場 組立ライン（工程10〜19）を工程フロー順に表示しています。アップロードした場合はその内容に切り替わります。</p>
       </div>
 
       <div class="field">
         <span class="field__label" id="modeLabel">展開モード</span>
         <label class="radio-row">
           <input type="radio" name="genMode" value="std">
-          <span><strong>標準生成</strong><span>選択した工程の工程フロー・図面・条件表・作業標準から製造FMEAドラフトを作成します</span></span>
+          <span><strong>標準生成</strong><span>選択した工程の工程フロー・図面・条件表・作業標準から工程FMEAドラフトを作成します</span></span>
         </label>
         <label class="radio-row">
           <input type="radio" name="genMode" value="wide" checked>
@@ -56,13 +56,13 @@
         <p class="field__hint">外すと結果が変わります。どの文書が何に効いているかを確認できます。</p>
       </div>
 
-      <button class="btn btn--primary" type="submit" style="width:100%">製造FMEAドラフトを生成する</button>
+      <button class="btn btn--primary" type="submit" style="width:100%">工程FMEAドラフトを生成する</button>
       <p class="field__hint" id="critNote"></p>
     </form>
 
     <div>
       <div class="empty" id="genIdle">
-        <h2 class="empty__title">工程を選択して、製造FMEAドラフトを生成してください</h2>
+        <h2 class="empty__title">工程を選択して、工程FMEAドラフトを生成してください</h2>
         <div class="empty__body">
           <p>工程フローから機能を整理し、図面・条件表・作業標準から要求事項を抽出します。要求事項からの逸脱として故障モードを生成し、根拠資料とともに表示します。</p>
           <ul>
@@ -74,7 +74,7 @@
       </div>
 
       <div class="card" id="genLoading" hidden aria-live="polite">
-        <h2 style="font-size:var(--font-subsection-title);margin-bottom:var(--space-2)">製造FMEAドラフトを生成しています</h2>
+        <h2 style="font-size:var(--font-subsection-title);margin-bottom:var(--space-2)">工程FMEAドラフトを生成しています</h2>
         <p style="font-size:var(--font-caption);color:var(--color-text-secondary);margin-bottom:var(--space-4)" id="genLoadMeta"></p>
         <ol class="stepper" id="genStepper">
           <li class="step" data-state="todo"><span class="step__mark">1</span><span class="step__text">選択した工程の情報を読み込んでいます</span></li>
@@ -83,7 +83,7 @@
           <li class="step" data-state="todo"><span class="step__mark">4</span><span class="step__text">要求事項からの逸脱を整理しています</span></li>
           <li class="step" data-state="todo"><span class="step__mark">5</span><span class="step__text">故障モードと影響候補を生成しています</span></li>
           <li class="step" data-state="todo"><span class="step__mark">6</span><span class="step__text">類似工程のFMEAから抜け漏れ候補を検索しています</span></li>
-          <li class="step" data-state="todo"><span class="step__mark">7</span><span class="step__text">製造FMEAドラフトをまとめています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">7</span><span class="step__text">工程FMEAドラフトをまとめています</span></li>
         </ol>
       </div>
 

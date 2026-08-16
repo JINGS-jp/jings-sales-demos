@@ -11,7 +11,7 @@
   <div class="grid split-grid" style="grid-template-columns:380px 1fr;align-items:start">
     <form class="card" id="genForm" novalidate style="position:sticky;top:calc(var(--header-height) + var(--space-5))">
       <div class="field">
-        <span class="field__label">起点をどこから取るか</span>
+        <span class="field__label">対象データ</span>
         <div class="drop">
           <label class="field__label" for="clFile" style="font-size:var(--font-caption)">顧客から届いたクレーム票をアップロードする</label>
           <input type="file" id="clFile" accept=".xlsx,.xls,.pdf" class="filepick__input">
@@ -19,7 +19,7 @@
           <label class="btn btn--quiet btn--small" for="clFile">ファイルを選ぶ</label>
           <span class="filepick__name" id="clFileName">選択されていません</span>
         </div>
-          <p class="drop__hint">クレーム票から品番・現象・発生日を読み取り、該当する社内の不具合記録に突き合わせます。</p>
+          <p class="drop__hint">クレーム票から品番・現象・発生日を読み取り、該当する社内の不具合記録に突き合わせます。このデモでは、サンプルの読み取り結果を表示します。</p>
           <button type="button" class="btn btn--quiet btn--small" id="btnClSample" style="margin-top:var(--space-2)">サンプルのクレーム票で試す</button>
         </div>
         <div id="clReadout" hidden style="margin-top:var(--space-3)"></div>
@@ -31,7 +31,7 @@
           <option value="">管理番号で選択してください</option>
         </select>
         <p class="field__error" id="trError" hidden>対象の不具合が選択されていません。不具合を選んでから作成を開始してください。</p>
-        <p class="field__hint">登録済みの記録です。顧客流出のあったものを先頭に表示しています。クレーム票を投げ込んだ場合は該当する記録が選択されます。</p>
+        <p class="field__hint">登録済みの記録です。顧客流出のあったものを先頭に表示しています。クレーム票をアップロードした場合は該当する記録が選択されます。</p>
       </div>
       <div class="field">
         <label class="field__label" for="dest">提出先</label>
@@ -45,7 +45,7 @@
         <span class="field__label">参照する情報</span>
         <label class="check-row"><input type="checkbox" id="rfTrouble" checked disabled> 不具合記録（必須）</label>
         <label class="check-row"><input type="checkbox" id="rfFmea" checked> 工程FMEA（対策の裏付け）</label>
-        <label class="check-row"><input type="checkbox" id="rfSim" checked> 類似不具合（水平展開の範囲）</label>
+        <label class="check-row"><input type="checkbox" id="rfSim" checked> 類似不具合（水平展開の確認候補）</label>
       </div>
       <button class="btn btn--primary" type="submit" style="width:100%">8D報告書の初稿を作成する</button>
     </form>
@@ -58,7 +58,7 @@
           <ul>
             <li>記録に書かれている内容だけを使います</li>
             <li>記録から書けない項目は空欄にし、何を追記すべきかを示します</li>
-            <li>水平展開（D7）は、類似する不具合の有無から範囲を提示します</li>
+            <li>水平展開（D7）は、類似不具合から、水平展開を検討すべき対象候補を提示します</li>
           </ul>
         </div>
       </div>
@@ -71,7 +71,7 @@
           <li class="step" data-state="todo"><span class="step__mark">2</span><span class="step__text">発生の経緯と暫定処置を整理しています</span></li>
           <li class="step" data-state="todo"><span class="step__mark">3</span><span class="step__text">原因の記載を発生原因と流出原因に分けています</span></li>
           <li class="step" data-state="todo"><span class="step__mark">4</span><span class="step__text">工程FMEAで対策の裏付けを確認しています</span></li>
-          <li class="step" data-state="todo"><span class="step__mark">5</span><span class="step__text">類似する不具合から水平展開の範囲を調べています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">5</span><span class="step__text">類似する不具合から水平展開の確認候補を調べています</span></li>
           <li class="step" data-state="todo"><span class="step__mark">6</span><span class="step__text">各項目に割り当てて初稿をまとめています</span></li>
         </ol>
       </div>

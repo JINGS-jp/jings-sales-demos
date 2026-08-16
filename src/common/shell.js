@@ -164,9 +164,9 @@ function wireShell() {
   });
 }
 
-/* ---- 投げ込み起点（ファイルを渡せば動くことを見せる） ----
+/* ---- ファイル起点（1ファイル渡せば動くことを見せる） ----
    プルダウンだけだと「うちのデータを全部入れないと使えないのか」と受け取られる。
-   1ファイルから始められることを、投げ込みの動作で示す。
+   1ファイルから始められることを、アップロードの動作で示す。
    opt: { file, sample, readout, target, onRead } */
 function wireDrop(opt) {
   const nameEl = $(opt.file + 'Name');
@@ -182,7 +182,7 @@ function wireDrop(opt) {
             ${opt.rows.map(r => `<dt>${esc(r.k)}</dt><dd>${r.v}</dd>`).join('')}
           </dl>
           <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)">
-            ここではサンプルを表示しています。実際に入れるときは、投げ込んだファイルの中身をそのまま読みます。
+            ここではサンプルを表示しています。実際に入れるときは、アップロードしたファイルの中身をそのまま読みます。
           </p>
         </div>
       </div>`;

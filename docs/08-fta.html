@@ -315,7 +315,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
 .shot-zoom img{display:block;width:auto;min-width:1400px;max-width:none;margin:0 auto;background:#fff}
 .shot-zoom__close{position:fixed;top:var(--space-5);right:var(--space-5);z-index:71}
 
-/* 投げ込み（ファイル起点） */
+/* ファイル起点 */
 .filepick__input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
 .filepick{display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap}
 .filepick label{cursor:pointer}
@@ -1093,7 +1093,7 @@ const DR_PAST = [
 
 /* 過去議事録から起こす、チェックリストの候補 --------------
    min は「何回出たら項目にするか」のしきい値。デモでは2回。
-   1回しか出ていない観点は項目にせず、保留として見せる（作りすぎない）。 */
+   出現が1回の観点は項目にまとめず、確認候補として残す（除外はしない）。 */
 const DR_THEMES = [
   { key: 'tool', cat: '製造性', item: '締結部の工具アクセス性と作業姿勢が、実際の設備で成立することを確認したか',
     why: '「工具が入らない」「手が届かない」という指摘が、機種を変えて繰り返し出ている。設計側が図面上で成立と判断し、組む側の条件を見ていないときに起きる。' },
@@ -1489,9 +1489,9 @@ function wireShell() {
   });
 }
 
-/* ---- 投げ込み起点（ファイルを渡せば動くことを見せる） ----
+/* ---- ファイル起点（1ファイル渡せば動くことを見せる） ----
    プルダウンだけだと「うちのデータを全部入れないと使えないのか」と受け取られる。
-   1ファイルから始められることを、投げ込みの動作で示す。
+   1ファイルから始められることを、アップロードの動作で示す。
    opt: { file, sample, readout, target, onRead } */
 function wireDrop(opt) {
   const nameEl = $(opt.file + 'Name');
@@ -1507,7 +1507,7 @@ function wireDrop(opt) {
             ${opt.rows.map(r => `<dt>${esc(r.k)}</dt><dd>${r.v}</dd>`).join('')}
           </dl>
           <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)">
-            ここではサンプルを表示しています。実際に入れるときは、投げ込んだファイルの中身をそのまま読みます。
+            ここではサンプルを表示しています。実際に入れるときは、アップロードしたファイルの中身をそのまま読みます。
           </p>
         </div>
       </div>`;
@@ -2307,7 +2307,7 @@ function showReadout(best, scored, conds, decided) {
         <dl class="meta-list" style="margin-top:var(--space-2)">
           <dt>頂上に置く現象</dt><dd>${esc(best.t.top)}</dd>
           <dt>対象</dt><dd>${esc(best.t.prod)}</dd>
-          <dt>近さ</dt><dd>${Math.round(best.score * 100)}%${decided ? '（人が選択）' : ''}</dd>
+          <dt>文面の一致</dt><dd>${best.score >= 0.25 ? '高' : best.score >= 0.12 ? '中' : '低'}${decided ? '（現象は人が選択）' : ''}</dd>
         </dl>
         ${conds.length ? `
           <p style="margin-top:var(--space-3);font-size:var(--font-caption)">
@@ -2343,7 +2343,7 @@ function applyRead(text) {
       + 'AIが勝手に決めると、木の頂上が実際とずれます。近いものを選んでください。',
       scored.slice(0, 3).map((x, i) => ({
         label: x.t.top,
-        desc: `${x.t.prod}　文章との近さ ${Math.round(x.score * 100)}%`,
+        desc: `${x.t.prod}　文面の一致：${x.score >= 0.25 ? '高' : x.score >= 0.12 ? '中' : '低'}`,
         rec: i === 0,
         onPick: () => go(x, true)
       })));

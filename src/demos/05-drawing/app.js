@@ -441,7 +441,7 @@ function renderCheck() {
       </div>
       <div style="display:flex;gap:var(--space-3);margin-top:var(--space-4);flex-wrap:wrap">
         <button class="btn btn--primary" id="btnCkCsv">確認候補をExcelで出力する</button>
-        <button class="btn btn--secondary" id="btnCkReview">設計担当者へ確認を依頼する</button>
+        <button class="btn btn--secondary" id="btnCkReview">確認依頼のイメージを見る</button>
       </div>
     </div>
 
@@ -461,7 +461,7 @@ function renderCheck() {
     toast('確認候補を出力しました', `${curHits.length} 件を出力しました。`);
   });
   $('#btnCkReview').addEventListener('click', () => {
-    toast('確認を依頼しました', `${curNo} の確認候補 ${curHits.length} 件について、設計担当者へ確認依頼を作成しました。`);
+    toast('確認を依頼しました', `${curNo} の確認候補 ${curHits.length} 件について、ここで設計担当者への確認依頼が作られます。デモのため実際には送信されません。`);
   });
 }
 
@@ -533,7 +533,7 @@ function renderSearch(q) {
   }
 
   $('#sResult').innerHTML = `
-    <div class="table-meta">${hits.length} 件を関連度の高い順に表示しています</div>
+    <div class="table-meta">${hits.length} 件を関連度の高い順に表示しています（図面名・主要寸法・図番の文字一致による判定です）</div>
     <div class="table-wrap">
       <table>
         <caption class="visually-hidden">類似図面の検索結果</caption>
@@ -543,7 +543,7 @@ function renderSearch(q) {
         </tr></thead>
         <tbody>${hits.map(x => `
           <tr>
-            <td class="mono nowrap">${Math.round(x.score * 100)}%</td>
+            <td class="nowrap"><span class="status ${x.score >= 0.25 ? 'status--risk' : x.score >= 0.12 ? 'status--warn' : 'status--todo'}">${x.score >= 0.25 ? '高' : x.score >= 0.12 ? '中' : '低'}</span></td>
             <td class="mono nowrap">${esc(x.d.no)}</td>
             <td class="col-text">${esc(x.d.name)}</td>
             <td class="nowrap">${esc(x.d.prod)}<div class="cell-sub">${esc(x.d.rev)}版・${esc(x.d.date)}</div></td>

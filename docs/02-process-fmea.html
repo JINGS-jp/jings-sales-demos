@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>製造FMEAドラフト生成AI｜JINGS デモ</title>
+<title>工程FMEAドラフト生成AI｜JINGS デモ</title>
 <style>
 /* JINGS 営業標準デモ 共通スタイル — design-system.md 準拠 */
 :root{
@@ -314,7 +314,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
 .shot-zoom img{display:block;width:auto;min-width:1400px;max-width:none;margin:0 auto;background:#fff}
 .shot-zoom__close{position:fixed;top:var(--space-5);right:var(--space-5);z-index:71}
 
-/* 投げ込み（ファイル起点） */
+/* ファイル起点 */
 .filepick__input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
 .filepick{display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap}
 .filepick label{cursor:pointer}
@@ -409,8 +409,8 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
   </button>
   <div class="app-header__main">
-    <h1 class="app-header__title">製造FMEAドラフト生成AI</h1>
-    <p class="app-header__crumb"><a href="index.html">JINGS 営業デモ</a><span aria-hidden="true">›</span>製造FMEAドラフト生成AI</p>
+    <h1 class="app-header__title">工程FMEAドラフト生成AI</h1>
+    <p class="app-header__crumb"><a href="index.html">JINGS 営業デモ</a><span aria-hidden="true">›</span>工程FMEAドラフト生成AI</p>
   </div>
   <dl class="hmeta">
     <div><dt><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 21h18M5 21V7l7-4 7 4v14"/><path d="M9 21v-5h6v5"/></svg>想定部署</dt><dd>生産技術部</dd></div>
@@ -422,7 +422,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
 <main class="app-main" id="main">
 <!-- ========== FMEAドラフト生成（中核） ========== -->
 <section class="view" data-view="draft">
-  <p class="breadcrumb">製造FMEAドラフト生成</p>
+  <p class="breadcrumb">工程FMEAドラフト生成</p>
   <div class="page-head">
     <div>
       <h1 class="page-title">FMEAドラフト生成</h1>
@@ -441,7 +441,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
           <label class="btn btn--quiet btn--small" for="flowFile">ファイルを選ぶ</label>
           <span class="filepick__name" id="flowFileName">選択されていません</span>
         </div>
-          <p class="drop__hint">アップロードすると工程の一覧を読み取り、下の対象工程に反映します。</p>
+          <p class="drop__hint">アップロードすると工程の一覧を読み取り、下の対象工程に反映します。このデモでは、サンプルの読み取り結果を表示します。</p>
           <button type="button" class="btn btn--quiet btn--small" id="btnFlowSample" style="margin-top:var(--space-2)">サンプルの工程フロー表で試す</button>
         </div>
         <div id="flowReadout" hidden style="margin-top:var(--space-3)"></div>
@@ -452,15 +452,15 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
         <select class="select" id="procSelect" required aria-describedby="procHint">
           <option value="">工程番号・工程名で選択してください</option>
         </select>
-        <p class="field__error" id="procError" hidden>対象工程が選択されていません。工程を選択してから、製造FMEAドラフトを生成してください。</p>
-        <p class="field__hint" id="procHint">登録済みの ACT-220 第一工場 組立ライン（工程10〜19）を工程フロー順に表示しています。投げ込んだ場合はその内容に切り替わります。</p>
+        <p class="field__error" id="procError" hidden>対象工程が選択されていません。工程を選択してから、工程FMEAドラフトを生成してください。</p>
+        <p class="field__hint" id="procHint">登録済みの ACT-220 第一工場 組立ライン（工程10〜19）を工程フロー順に表示しています。アップロードした場合はその内容に切り替わります。</p>
       </div>
 
       <div class="field">
         <span class="field__label" id="modeLabel">展開モード</span>
         <label class="radio-row">
           <input type="radio" name="genMode" value="std">
-          <span><strong>標準生成</strong><span>選択した工程の工程フロー・図面・条件表・作業標準から製造FMEAドラフトを作成します</span></span>
+          <span><strong>標準生成</strong><span>選択した工程の工程フロー・図面・条件表・作業標準から工程FMEAドラフトを作成します</span></span>
         </label>
         <label class="radio-row">
           <input type="radio" name="genMode" value="wide" checked>
@@ -478,13 +478,13 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
         <p class="field__hint">外すと結果が変わります。どの文書が何に効いているかを確認できます。</p>
       </div>
 
-      <button class="btn btn--primary" type="submit" style="width:100%">製造FMEAドラフトを生成する</button>
+      <button class="btn btn--primary" type="submit" style="width:100%">工程FMEAドラフトを生成する</button>
       <p class="field__hint" id="critNote"></p>
     </form>
 
     <div>
       <div class="empty" id="genIdle">
-        <h2 class="empty__title">工程を選択して、製造FMEAドラフトを生成してください</h2>
+        <h2 class="empty__title">工程を選択して、工程FMEAドラフトを生成してください</h2>
         <div class="empty__body">
           <p>工程フローから機能を整理し、図面・条件表・作業標準から要求事項を抽出します。要求事項からの逸脱として故障モードを生成し、根拠資料とともに表示します。</p>
           <ul>
@@ -496,7 +496,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
       </div>
 
       <div class="card" id="genLoading" hidden aria-live="polite">
-        <h2 style="font-size:var(--font-subsection-title);margin-bottom:var(--space-2)">製造FMEAドラフトを生成しています</h2>
+        <h2 style="font-size:var(--font-subsection-title);margin-bottom:var(--space-2)">工程FMEAドラフトを生成しています</h2>
         <p style="font-size:var(--font-caption);color:var(--color-text-secondary);margin-bottom:var(--space-4)" id="genLoadMeta"></p>
         <ol class="stepper" id="genStepper">
           <li class="step" data-state="todo"><span class="step__mark">1</span><span class="step__text">選択した工程の情報を読み込んでいます</span></li>
@@ -505,7 +505,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
           <li class="step" data-state="todo"><span class="step__mark">4</span><span class="step__text">要求事項からの逸脱を整理しています</span></li>
           <li class="step" data-state="todo"><span class="step__mark">5</span><span class="step__text">故障モードと影響候補を生成しています</span></li>
           <li class="step" data-state="todo"><span class="step__mark">6</span><span class="step__text">類似工程のFMEAから抜け漏れ候補を検索しています</span></li>
-          <li class="step" data-state="todo"><span class="step__mark">7</span><span class="step__text">製造FMEAドラフトをまとめています</span></li>
+          <li class="step" data-state="todo"><span class="step__mark">7</span><span class="step__text">工程FMEAドラフトをまとめています</span></li>
         </ol>
       </div>
 
@@ -1113,7 +1113,7 @@ const DR_PAST = [
 
 /* 過去議事録から起こす、チェックリストの候補 --------------
    min は「何回出たら項目にするか」のしきい値。デモでは2回。
-   1回しか出ていない観点は項目にせず、保留として見せる（作りすぎない）。 */
+   出現が1回の観点は項目にまとめず、確認候補として残す（除外はしない）。 */
 const DR_THEMES = [
   { key: 'tool', cat: '製造性', item: '締結部の工具アクセス性と作業姿勢が、実際の設備で成立することを確認したか',
     why: '「工具が入らない」「手が届かない」という指摘が、機種を変えて繰り返し出ている。設計側が図面上で成立と判断し、組む側の条件を見ていないときに起きる。' },
@@ -1509,9 +1509,9 @@ function wireShell() {
   });
 }
 
-/* ---- 投げ込み起点（ファイルを渡せば動くことを見せる） ----
+/* ---- ファイル起点（1ファイル渡せば動くことを見せる） ----
    プルダウンだけだと「うちのデータを全部入れないと使えないのか」と受け取られる。
-   1ファイルから始められることを、投げ込みの動作で示す。
+   1ファイルから始められることを、アップロードの動作で示す。
    opt: { file, sample, readout, target, onRead } */
 function wireDrop(opt) {
   const nameEl = $(opt.file + 'Name');
@@ -1527,7 +1527,7 @@ function wireDrop(opt) {
             ${opt.rows.map(r => `<dt>${esc(r.k)}</dt><dd>${r.v}</dd>`).join('')}
           </dl>
           <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)">
-            ここではサンプルを表示しています。実際に入れるときは、投げ込んだファイルの中身をそのまま読みます。
+            ここではサンプルを表示しています。実際に入れるときは、アップロードしたファイルの中身をそのまま読みます。
           </p>
         </div>
       </div>`;
@@ -1779,7 +1779,7 @@ function today() {
 }
 
 (function(){
-/* デモ2：製造FMEAドラフト生成
+/* デモ2：工程FMEAドラフト生成
    起点は必ず「工程」。工程 → 機能 → 要求事項 → 逸脱 → 故障モードの連鎖を画面上で追跡できるようにする。
    影響・原因・予防・検出は既存の工程FMEA行から引き当て、出典を示す。引き当てできない場合は推定と明示する。 */
 
@@ -1995,7 +1995,7 @@ function renderResult() {
       </div>
       <p style="line-height:var(--line-height-body)">
         ${esc(procLabel(curProc))}について、工程フローから機能を整理し、${esc(docs.join('・'))}から要求事項を抽出しました。
-        要求事項を満たせない状態を逸脱として展開し、製造FMEAの故障モード候補を生成しています。
+        要求事項を満たせない状態を逸脱として展開し、工程FMEAの故障モード候補を生成しています。
         ${aiReqs.length ? `うち ${aiReqs.length} 件の要求事項は資料に明記がなく、AIによる推定です。` : ''}
       </p>
     </div>`;
@@ -2126,13 +2126,13 @@ function renderResult() {
 
   const draftSec = `
     <div class="section">
-      <h2 class="section__title">製造FMEAドラフト</h2>
-      <p class="section__lead">採用した内容を製造FMEAドラフトとしてまとめています。行の状態はすべて未確定です。担当者の確認後に確定してください。</p>
+      <h2 class="section__title">工程FMEAドラフト</h2>
+      <p class="section__lead">採用した内容を工程FMEAドラフトとしてまとめています。行の状態はすべて未確定です。担当者の確認後に確定してください。</p>
       <div class="table-meta" id="draftMeta"></div>
       <div id="draftArea"></div>
       <div style="display:flex;gap:var(--space-3);margin-top:var(--space-4);flex-wrap:wrap">
-        <button class="btn btn--primary" id="btnDraftCsv">製造FMEAドラフトをExcelで出力する</button>
-        <button class="btn btn--secondary" id="btnReview">レビューを依頼する</button>
+        <button class="btn btn--primary" id="btnDraftCsv">工程FMEAドラフトをExcelで出力する</button>
+        <button class="btn btn--secondary" id="btnReview">レビュー依頼のイメージを見る</button>
       </div>
     </div>
 
@@ -2148,7 +2148,7 @@ function renderResult() {
   $('#btnDraftCsv').addEventListener('click', exportDraft);
   $('#btnReview').addEventListener('click', () => {
     if (!draft.length) { toast('採用された行がありません', 'ドラフトへ採用した行がないため、レビュー依頼は送れません。', 'warn'); return; }
-    toast('レビュー依頼を作成しました', `${draft.length} 行のドラフトについて、生産技術部の承認者へレビュー依頼を作成しました。`);
+    toast('レビュー依頼を作成しました', `${draft.length} 行のドラフトについて、ここでレビュー依頼が作られます。デモのため実際には送信されません。`);
   });
 }
 
@@ -2175,7 +2175,7 @@ function renderDraft() {
   area.innerHTML = `
     <div class="table-wrap">
       <table>
-        <caption class="visually-hidden">製造FMEAドラフト</caption>
+        <caption class="visually-hidden">工程FMEAドラフト</caption>
         <thead><tr>
           <th scope="col">工程</th><th scope="col">要求事項</th><th scope="col">故障モード</th>
           <th scope="col">故障影響</th><th scope="col">S・O・D</th>
@@ -2204,7 +2204,7 @@ function exportDraft() {
     toast('出力できる行がありません', 'ドラフトへ採用した行がないため、出力する内容がありません。', 'warn');
     return;
   }
-  downloadXlsx(`製造FMEAドラフト_工程${curProc}_${today()}.xlsx`, [
+  downloadXlsx(`工程FMEAドラフト_工程${curProc}_${today()}.xlsx`, [
     ['工程番号', '工程名', '工程機能', '要求事項', '規格値・条件', '逸脱の型', '故障モード', '故障影響',
      '重大度S', '故障原因', '発生度O', '現在の予防管理', '現在の検出管理', '検出度D', 'RPN',
      '推奨対応', '担当者', '参照資料', 'AI提案／人による確定の区分', '確認状態'],
@@ -2216,7 +2216,7 @@ function exportDraft() {
       '', '', d.ref || '', d.src, '未確定'
     ])
   ]);
-  toast('製造FMEAドラフトを出力しました', `${draft.length} 行を20列の様式で出力しました。AI提案と人による確定の区分を列に含めています。`);
+  toast('工程FMEAドラフトを出力しました', `${draft.length} 行を20列の様式で出力しました。AI提案と人による確定の区分を列に含めています。`);
 }
 
 /* ---- 根拠パネル ---- */
@@ -2429,7 +2429,7 @@ wireDrop({
   ],
   toast: `工程 ${DATA.PROCESSES.length} 件を読み取りました。対象工程から選べます。`,
   onRead: () => { $('#procHint').textContent =
-    '投げ込んだ工程フロー表から読み取った工程です。登録済みの内容と同じ並びになっています。'; }
+    'アップロードした工程フロー表から読み取った工程です。登録済みの内容と同じ並びになっています。'; }
 });
 
 $('#exProc').addEventListener('change', renderExisting);
@@ -2452,7 +2452,7 @@ $('#genForm').addEventListener('submit', e => {
   if (!proc) {
     $('#procError').hidden = false;
     $('#procSelect').setAttribute('aria-invalid', 'true');
-    toast('対象工程を選択してください', '工程を選択すると、製造FMEAドラフトを生成できます。', 'error');
+    toast('対象工程を選択してください', '工程を選択すると、工程FMEAドラフトを生成できます。', 'error');
     $('#procSelect').focus();
     return;
   }
@@ -2505,7 +2505,7 @@ document.addEventListener('click', e => {
       cause: r.cause, prev: r.prev, det: r.det, s: r.s, o: r.o, d: r.d,
       ref: r.req.src, src: 'AI提案' });
     renderDraft();
-    toast('製造FMEAドラフトへ追加しました', `${r.mode}　状態は未確定です。担当者の確認後に確定してください。`);
+    toast('工程FMEAドラフトへ追加しました', `${r.mode}　状態は未確定です。担当者の確認後に確定してください。`);
     return;
   }
   const ga = e.target.closest('[data-gapadopt]');
@@ -2521,7 +2521,7 @@ document.addEventListener('click', e => {
       s: g.rec.s, o: g.rec.o, d: g.rec.d,
       ref: `既存の工程FMEA ${procLabel(g.rec.proc)}`, src: 'AI提案（類似工程）' });
     renderDraft();
-    toast('製造FMEAドラフトへ追加しました', `${g.rec.mode}　出典：${procLabel(g.rec.proc)}。状態は未確定です。`);
+    toast('工程FMEAドラフトへ追加しました', `${g.rec.mode}　出典：${procLabel(g.rec.proc)}。状態は未確定です。`);
     return;
   }
   const gh = e.target.closest('[data-gaphold]');

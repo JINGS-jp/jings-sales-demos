@@ -314,7 +314,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
 .shot-zoom img{display:block;width:auto;min-width:1400px;max-width:none;margin:0 auto;background:#fff}
 .shot-zoom__close{position:fixed;top:var(--space-5);right:var(--space-5);z-index:71}
 
-/* 投げ込み（ファイル起点） */
+/* ファイル起点 */
 .filepick__input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
 .filepick{display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap}
 .filepick label{cursor:pointer}
@@ -516,14 +516,14 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
     <section class="dept">
       <h2 class="dept__title">生産技術部の方へ</h2>
       <p class="dept__lead">工程FMEAの作成と改訂、設計変更の工程への反映</p>
-      <p class="dept__order">この順に見ると流れがつながります：製造FMEAドラフト生成AI → 変更影響・変化点管理AI
+      <p class="dept__order">この順に見ると流れがつながります：工程FMEAドラフト生成AI → 変更影響・変化点管理AI
         <span class="dept__time">（合計 10分）</span></p>
       <div class="demo-list">
       <a class="demo-card" href="02-process-fmea.html">
         <span class="demo-card__no">1</span>
         <span class="demo-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg></span>
         <span class="demo-card__main">
-          <span class="demo-card__title">製造FMEAドラフト生成AI</span>
+          <span class="demo-card__title">工程FMEAドラフト生成AI</span>
           <span class="demo-card__role">工程フローから要求事項を抽出し、故障モード候補を生成</span>
           <span class="demo-card__desc">工程を選ぶと、その工程が何をする工程かを整理し、図面・条件表・作業標準から守るべきことを抜き出します。それを満たせない状態を故障モードの候補にします。</span>
           
@@ -539,7 +539,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
         <span class="demo-card__main">
           <span class="demo-card__title">変更影響・変化点管理AI</span>
           <span class="demo-card__role">変更の反映漏れと関連影響を洗い出す</span>
-          <span class="demo-card__desc">変更の帳票を投げ込むか内容を書くと、直すべき帳票と工程を洗い出して、直せているかを並べます。関連して見直すべき工程・帳票・条件も提示します。</span>
+          <span class="demo-card__desc">変更の帳票をアップロードするか内容を書くと、直すべき帳票と工程を洗い出して、直せているかを並べます。関連して見直すべき工程・帳票・条件も提示します。</span>
           <span class="demo-card__also">品質保証部での活用例：反映漏れの追跡</span>
           <span class="demo-card__meta">想定業務：技術部・品質保証部 ／ 設計変更の影響追跡　／　所要 5分</span>
         </span>
@@ -561,7 +561,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
         <span class="demo-card__main">
           <span class="demo-card__title">変更点起点の設計品質AI（DRBFM）</span>
           <span class="demo-card__role">変更発議書から心配点・故障モード・対策の初版を生成</span>
-          <span class="demo-card__desc">変更発議書を投げ込むと、変更点ごとの心配点・故障モード・対策の初版ができます。過去に例のない変更でも、部品の役割と材料の性質から候補を立てます。</span>
+          <span class="demo-card__desc">変更発議書をアップロードすると、変更点ごとの心配点・故障モード・対策の初版ができます。過去に例のない変更でも、部品の役割と材料の性質から候補を立てます。</span>
           
           <span class="demo-card__meta">想定業務：技術部 ／ 設計変更時のリスク検討　／　所要 5分</span>
         </span>
@@ -589,7 +589,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
         <span class="demo-card__main">
           <span class="demo-card__title">設計レビュー支援AI</span>
           <span class="demo-card__role">過去のDRからレビュー観点を抽出し、今回の設計を確認</span>
-          <span class="demo-card__desc">過去のDR議事録を投げ込むと、ベテランが毎回言っていたことをチェックリストに起こします。そのあと今回の図面や発議書を投げ込むと、そのリストに沿って指摘が出ます。</span>
+          <span class="demo-card__desc">過去のDR議事録をアップロードすると、繰り返し指摘された観点を再利用できるチェックリストとして整理します。そのあと今回の図面や変更発議書をアップロードすると、そのチェックリストに沿って指摘が出ます。</span>
           <span class="demo-card__also">品質保証部での活用例：指摘事項の追跡</span>
           <span class="demo-card__meta">想定業務：技術部・品質保証部 ／ 設計審査の準備と指摘管理　／　所要 5分</span>
         </span>
@@ -621,7 +621,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
         
         <span class="demo-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg></span>
         <span class="demo-card__main">
-          <span class="demo-card__title">製造FMEAドラフト生成AI</span>
+          <span class="demo-card__title">工程FMEAドラフト生成AI</span>
           <span class="demo-card__role">工程フローから要求事項を抽出し、故障モード候補を生成</span>
           <span class="demo-card__desc">工程を選ぶと、その工程が何をする工程かを整理し、図面・条件表・作業標準から守るべきことを抜き出します。それを満たせない状態を故障モードの候補にします。</span>
           
@@ -637,7 +637,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
         <span class="demo-card__main">
           <span class="demo-card__title">変更点起点の設計品質AI（DRBFM）</span>
           <span class="demo-card__role">変更発議書から心配点・故障モード・対策の初版を生成</span>
-          <span class="demo-card__desc">変更発議書を投げ込むと、変更点ごとの心配点・故障モード・対策の初版ができます。過去に例のない変更でも、部品の役割と材料の性質から候補を立てます。</span>
+          <span class="demo-card__desc">変更発議書をアップロードすると、変更点ごとの心配点・故障モード・対策の初版ができます。過去に例のない変更でも、部品の役割と材料の性質から候補を立てます。</span>
           
           <span class="demo-card__meta">想定業務：技術部 ／ 設計変更時のリスク検討　／　所要 5分</span>
         </span>
@@ -651,7 +651,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
         <span class="demo-card__main">
           <span class="demo-card__title">設計レビュー支援AI</span>
           <span class="demo-card__role">過去のDRからレビュー観点を抽出し、今回の設計を確認</span>
-          <span class="demo-card__desc">過去のDR議事録を投げ込むと、ベテランが毎回言っていたことをチェックリストに起こします。そのあと今回の図面や発議書を投げ込むと、そのリストに沿って指摘が出ます。</span>
+          <span class="demo-card__desc">過去のDR議事録をアップロードすると、繰り返し指摘された観点を再利用できるチェックリストとして整理します。そのあと今回の図面や変更発議書をアップロードすると、そのチェックリストに沿って指摘が出ます。</span>
           <span class="demo-card__also">品質保証部での活用例：指摘事項の追跡</span>
           <span class="demo-card__meta">想定業務：技術部・品質保証部 ／ 設計審査の準備と指摘管理　／　所要 5分</span>
         </span>
@@ -693,7 +693,7 @@ tr[data-edited="true"] td{border-bottom-color:var(--color-success-line)}
         <span class="demo-card__main">
           <span class="demo-card__title">変更影響・変化点管理AI</span>
           <span class="demo-card__role">変更の反映漏れと関連影響を洗い出す</span>
-          <span class="demo-card__desc">変更の帳票を投げ込むか内容を書くと、直すべき帳票と工程を洗い出して、直せているかを並べます。関連して見直すべき工程・帳票・条件も提示します。</span>
+          <span class="demo-card__desc">変更の帳票をアップロードするか内容を書くと、直すべき帳票と工程を洗い出して、直せているかを並べます。関連して見直すべき工程・帳票・条件も提示します。</span>
           <span class="demo-card__also">品質保証部での活用例：反映漏れの追跡</span>
           <span class="demo-card__meta">想定業務：技術部・品質保証部 ／ 設計変更の影響追跡　／　所要 5分</span>
         </span>

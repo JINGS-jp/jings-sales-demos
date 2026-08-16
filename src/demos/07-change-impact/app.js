@@ -393,7 +393,7 @@ function pickEcn(e, score, how) {
           <dt>変更通知</dt><dd class="mono">${esc(e.no)}</dd>
           <dt>内容</dt><dd>${esc(e.title)}</dd>
           <dt>段階</dt><dd>${esc(e.stage)}${e.stage === '暫定' ? '（暫定のまま止まっています）' : ''}</dd>
-          <dt>決め方</dt><dd>${esc(how)}${score != null ? `　近さ ${Math.round(score * 100)}%` : ''}</dd>
+          <dt>決め方</dt><dd>${esc(how)}${score != null ? `　文面の一致：${score >= 0.25 ? '高' : score >= 0.12 ? '中' : '低'}` : ''}</dd>
         </dl>
         <p style="margin-top:var(--space-3);font-size:var(--font-caption)">
           違っていれば、下の「対象の設計変更」で選び直してください。
@@ -408,7 +408,7 @@ function askEcn(cands, lead) {
   openModal('どの変更のことですか', lead,
     cands.slice(0, 3).map((c, i) => ({
       label: `${c.e.no}　${c.e.title}`,
-      desc: `${c.e.date}　${c.e.stage}　近さ ${Math.round(c.score * 100)}%`,
+      desc: `${c.e.date}　${c.e.stage}　文面の一致：${c.score >= 0.25 ? '高' : c.score >= 0.12 ? '中' : '低'}`,
       rec: i === 0,
       onPick: () => pickEcn(c.e, c.score, '候補から人が選択')
     })));

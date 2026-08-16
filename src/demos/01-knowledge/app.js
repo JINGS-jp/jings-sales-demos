@@ -117,7 +117,13 @@ function renderDashboard() {
 }
 
 /* ---- 検索結果 ---- */
-function pct(x) { return Math.round(x * 100); }
+/* 関連度は文字の重なり具合から出している。％で見せると精度と誤解されるため、
+   説明できる範囲の段階で示す。並び順にはスコアをそのまま使う。 */
+function matchLevel(score) {
+  if (score >= 0.25) return { label: '高', cls: 'status--risk' };
+  if (score >= 0.12) return { label: '中', cls: 'status--warn' };
+  return { label: '低', cls: 'status--todo' };
+}
 
 /* 会話の文脈。直前の話題（工程・製品・記録）を覚えて追加質問の解釈に使う */
 let ctx = { proc: '', prod: '', ids: [], turns: 0 };
@@ -168,7 +174,7 @@ function buildAnswer(qRaw) {
   const trTable = trs.length ? `
     <div class="section">
       <h2 class="section__title">類似する不具合記録</h2>
-      <p class="section__lead">関連度は文章の重なり具合です。順番はあくまで目安なので、採否は担当者が判断してください。</p>
+      <p class="section__lead">関連度は、入力文と記録の文字の重なり具合を高・中・低で示したものです。原因の一致を意味しません。順番は目安なので、採否は担当者が判断してください。</p>
       <div class="table-wrap">
         <table>
           <caption class="visually-hidden">類似する不具合記録</caption>
@@ -178,7 +184,7 @@ function buildAnswer(qRaw) {
           </tr></thead>
           <tbody>${trs.map(x => `
             <tr>
-              <td class="mono nowrap">${pct(x.score)}%</td>
+              <td class="nowrap"><span class="status ${matchLevel(x.score).cls}">${matchLevel(x.score).label}</span></td>
               <td class="nowrap">
                 <span class="mono">${esc(x.rec.id)}</span>
                 <div class="cell-sub mono">${esc(x.rec.date)}</div>

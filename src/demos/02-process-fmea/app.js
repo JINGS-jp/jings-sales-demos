@@ -1,4 +1,4 @@
-/* デモ2：製造FMEAドラフト生成
+/* デモ2：工程FMEAドラフト生成
    起点は必ず「工程」。工程 → 機能 → 要求事項 → 逸脱 → 故障モードの連鎖を画面上で追跡できるようにする。
    影響・原因・予防・検出は既存の工程FMEA行から引き当て、出典を示す。引き当てできない場合は推定と明示する。 */
 
@@ -214,7 +214,7 @@ function renderResult() {
       </div>
       <p style="line-height:var(--line-height-body)">
         ${esc(procLabel(curProc))}について、工程フローから機能を整理し、${esc(docs.join('・'))}から要求事項を抽出しました。
-        要求事項を満たせない状態を逸脱として展開し、製造FMEAの故障モード候補を生成しています。
+        要求事項を満たせない状態を逸脱として展開し、工程FMEAの故障モード候補を生成しています。
         ${aiReqs.length ? `うち ${aiReqs.length} 件の要求事項は資料に明記がなく、AIによる推定です。` : ''}
       </p>
     </div>`;
@@ -345,13 +345,13 @@ function renderResult() {
 
   const draftSec = `
     <div class="section">
-      <h2 class="section__title">製造FMEAドラフト</h2>
-      <p class="section__lead">採用した内容を製造FMEAドラフトとしてまとめています。行の状態はすべて未確定です。担当者の確認後に確定してください。</p>
+      <h2 class="section__title">工程FMEAドラフト</h2>
+      <p class="section__lead">採用した内容を工程FMEAドラフトとしてまとめています。行の状態はすべて未確定です。担当者の確認後に確定してください。</p>
       <div class="table-meta" id="draftMeta"></div>
       <div id="draftArea"></div>
       <div style="display:flex;gap:var(--space-3);margin-top:var(--space-4);flex-wrap:wrap">
-        <button class="btn btn--primary" id="btnDraftCsv">製造FMEAドラフトをExcelで出力する</button>
-        <button class="btn btn--secondary" id="btnReview">レビューを依頼する</button>
+        <button class="btn btn--primary" id="btnDraftCsv">工程FMEAドラフトをExcelで出力する</button>
+        <button class="btn btn--secondary" id="btnReview">レビュー依頼のイメージを見る</button>
       </div>
     </div>
 
@@ -367,7 +367,7 @@ function renderResult() {
   $('#btnDraftCsv').addEventListener('click', exportDraft);
   $('#btnReview').addEventListener('click', () => {
     if (!draft.length) { toast('採用された行がありません', 'ドラフトへ採用した行がないため、レビュー依頼は送れません。', 'warn'); return; }
-    toast('レビュー依頼を作成しました', `${draft.length} 行のドラフトについて、生産技術部の承認者へレビュー依頼を作成しました。`);
+    toast('レビュー依頼を作成しました', `${draft.length} 行のドラフトについて、ここでレビュー依頼が作られます。デモのため実際には送信されません。`);
   });
 }
 
@@ -394,7 +394,7 @@ function renderDraft() {
   area.innerHTML = `
     <div class="table-wrap">
       <table>
-        <caption class="visually-hidden">製造FMEAドラフト</caption>
+        <caption class="visually-hidden">工程FMEAドラフト</caption>
         <thead><tr>
           <th scope="col">工程</th><th scope="col">要求事項</th><th scope="col">故障モード</th>
           <th scope="col">故障影響</th><th scope="col">S・O・D</th>
@@ -423,7 +423,7 @@ function exportDraft() {
     toast('出力できる行がありません', 'ドラフトへ採用した行がないため、出力する内容がありません。', 'warn');
     return;
   }
-  downloadXlsx(`製造FMEAドラフト_工程${curProc}_${today()}.xlsx`, [
+  downloadXlsx(`工程FMEAドラフト_工程${curProc}_${today()}.xlsx`, [
     ['工程番号', '工程名', '工程機能', '要求事項', '規格値・条件', '逸脱の型', '故障モード', '故障影響',
      '重大度S', '故障原因', '発生度O', '現在の予防管理', '現在の検出管理', '検出度D', 'RPN',
      '推奨対応', '担当者', '参照資料', 'AI提案／人による確定の区分', '確認状態'],
@@ -435,7 +435,7 @@ function exportDraft() {
       '', '', d.ref || '', d.src, '未確定'
     ])
   ]);
-  toast('製造FMEAドラフトを出力しました', `${draft.length} 行を20列の様式で出力しました。AI提案と人による確定の区分を列に含めています。`);
+  toast('工程FMEAドラフトを出力しました', `${draft.length} 行を20列の様式で出力しました。AI提案と人による確定の区分を列に含めています。`);
 }
 
 /* ---- 根拠パネル ---- */
@@ -648,7 +648,7 @@ wireDrop({
   ],
   toast: `工程 ${DATA.PROCESSES.length} 件を読み取りました。対象工程から選べます。`,
   onRead: () => { $('#procHint').textContent =
-    '投げ込んだ工程フロー表から読み取った工程です。登録済みの内容と同じ並びになっています。'; }
+    'アップロードした工程フロー表から読み取った工程です。登録済みの内容と同じ並びになっています。'; }
 });
 
 $('#exProc').addEventListener('change', renderExisting);
@@ -671,7 +671,7 @@ $('#genForm').addEventListener('submit', e => {
   if (!proc) {
     $('#procError').hidden = false;
     $('#procSelect').setAttribute('aria-invalid', 'true');
-    toast('対象工程を選択してください', '工程を選択すると、製造FMEAドラフトを生成できます。', 'error');
+    toast('対象工程を選択してください', '工程を選択すると、工程FMEAドラフトを生成できます。', 'error');
     $('#procSelect').focus();
     return;
   }
@@ -724,7 +724,7 @@ document.addEventListener('click', e => {
       cause: r.cause, prev: r.prev, det: r.det, s: r.s, o: r.o, d: r.d,
       ref: r.req.src, src: 'AI提案' });
     renderDraft();
-    toast('製造FMEAドラフトへ追加しました', `${r.mode}　状態は未確定です。担当者の確認後に確定してください。`);
+    toast('工程FMEAドラフトへ追加しました', `${r.mode}　状態は未確定です。担当者の確認後に確定してください。`);
     return;
   }
   const ga = e.target.closest('[data-gapadopt]');
@@ -740,7 +740,7 @@ document.addEventListener('click', e => {
       s: g.rec.s, o: g.rec.o, d: g.rec.d,
       ref: `既存の工程FMEA ${procLabel(g.rec.proc)}`, src: 'AI提案（類似工程）' });
     renderDraft();
-    toast('製造FMEAドラフトへ追加しました', `${g.rec.mode}　出典：${procLabel(g.rec.proc)}。状態は未確定です。`);
+    toast('工程FMEAドラフトへ追加しました', `${g.rec.mode}　出典：${procLabel(g.rec.proc)}。状態は未確定です。`);
     return;
   }
   const gh = e.target.closest('[data-gaphold]');
