@@ -44,7 +44,14 @@ def flat(s: str) -> str:
 async def check_index(pg, errors):
     await pg.goto((DIST / "index.html").as_uri())
     txt = await pg.inner_text(".lp")
-    assert "製造業向けAIデモ" in txt, "トップの見出しがない"
+    assert "製造業向けAI活用デモ" in txt, "トップの見出しがない"
+    # 顧客課題 → 業務価値 → どう実現するか の順で読めること
+    assert "このデモについて" in txt, "デモの位置づけの説明がない"
+    assert "不具合で得た知見を、次の設計・製造に戻す" in txt, "品質情報の循環が示されていない"
+    vals = await pg.eval_on_selector_all(".dept .demo-card__value", "e => e.map(x => x.innerText.trim())")
+    assert len(vals) == 8, f"業務価値が全カードに出ていない: {len(vals)}"
+    issues = await pg.eval_on_selector_all(".dept .demo-card__issue", "e => e.length")
+    assert issues == 8, f"顧客課題が全カードに出ていない: {issues}"
     cards = await pg.eval_on_selector_all(".demo-card", "els => els.map(e => e.getAttribute('href'))")
     assert cards, "デモカードが1件もない"
     for href in cards:

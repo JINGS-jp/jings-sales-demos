@@ -106,7 +106,7 @@ def build_demo(demo_dir: Path, css: str, shell_js: str, data_js: str,
     # ヘッダー右のメタ。context は「部署 ／ 業務」で書いてある。
     parts = [x.strip() for x in meta["context"].split("／")]
     dept_label = parts[0]
-    biz_label = parts[1] if len(parts) > 1 else meta.get("role", "—")
+    biz_label = parts[1] if len(parts) > 1 else "—"
 
     html = f"""<!DOCTYPE html>
 <html lang="ja">
@@ -196,8 +196,6 @@ def build_index(css: str, metas: list) -> Path:
 
     def card(m, i=None):
         no = f'<span class="demo-card__no">{i}</span>' if i is not None else ""
-        role = (f'<span class="demo-card__role">{m["role"]}</span>'
-                if m.get("role") else "")
         also = (f'<span class="demo-card__also">{m["alsoFor"]}</span>'
                 if m.get("alsoFor") else "")
         return f"""
@@ -206,8 +204,9 @@ def build_index(css: str, metas: list) -> Path:
         <span class="demo-card__icon">{icon_svg(m.get('icon', 'doc'))}</span>
         <span class="demo-card__main">
           <span class="demo-card__title">{m['title']}</span>
-          {role}
-          <span class="demo-card__desc">{m['pitch']}</span>
+          <span class="demo-card__issue">{m['issue']}</span>
+          <span class="demo-card__value">{m['value']}</span>
+          <span class="demo-card__desc">{m['how']}</span>
           {also}
           <span class="demo-card__meta">想定業務：{m['context']}　／　所要 {m['minutes']}分</span>
         </span>
@@ -226,8 +225,8 @@ def build_index(css: str, metas: list) -> Path:
     <section class="dept">
       <h2 class="dept__title">{title}</h2>
       <p class="dept__lead">{lead}</p>
-      <p class="dept__order">この順に見ると流れがつながります：{' → '.join(m['title'] for m in mine)}
-        <span class="dept__time">（合計 {sum(m['minutes'] for m in mine)}分）</span></p>
+      <p class="dept__order">この順に見ると業務の流れがつながります
+        <span class="dept__time">（{len(mine)}本・合計 {sum(m['minutes'] for m in mine)}分）</span></p>
       <div class="demo-list">{''.join(card(m, i + 1) for i, m in enumerate(mine))}
       </div>
     </section>"""
@@ -263,6 +262,8 @@ def build_index(css: str, metas: list) -> Path:
 .demo-card__main{{flex:1;min-width:0}}
 .demo-card__title{{display:block;font-size:var(--font-body-large);font-weight:700}}
 .demo-card__role{{display:block;margin-top:var(--space-1);font-size:var(--font-caption);font-weight:700;color:var(--color-primary)}}
+.demo-card__issue{{display:block;margin-top:var(--space-2);font-size:var(--font-caption);line-height:var(--line-height-body);color:var(--color-text-secondary)}}
+.demo-card__value{{display:block;margin-top:var(--space-3);font-size:var(--font-body);font-weight:700;line-height:var(--line-height-body);color:var(--color-primary)}}
 .demo-card__desc{{display:block;margin-top:var(--space-1);font-size:var(--font-caption);color:var(--color-text-secondary);line-height:var(--line-height-body)}}
 .demo-card__meta{{display:block;margin-top:var(--space-2);font-size:var(--font-caption);color:var(--color-text-tertiary)}}
 .demo-card__also{{display:inline-block;margin-top:var(--space-2);padding:2px var(--space-2);border-radius:var(--radius-small);background:var(--color-background-muted);font-size:var(--font-caption);color:var(--color-text-secondary)}}
@@ -273,13 +274,26 @@ def build_index(css: str, metas: list) -> Path:
 .lp__note h2{{font-size:var(--font-body-large);margin-bottom:var(--space-3)}}
 .lp__note ul{{margin:0;padding-left:1.2em;font-size:var(--font-caption);line-height:var(--line-height-body)}}
 .lp__lead{{margin-top:var(--space-3);font-size:var(--font-body-large);line-height:var(--line-height-body);color:var(--color-text-secondary);max-width:62ch}}
-.flow{{margin-bottom:var(--space-8);padding:var(--space-5);background:var(--color-background);border:1px solid var(--color-border-light);border-radius:var(--radius-large)}}
-.flow__title{{font-size:var(--font-body-large);margin-bottom:var(--space-4)}}
-.flow__grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:var(--space-5)}}
-.flow__when{{font-size:var(--font-caption);font-weight:700;color:var(--color-primary);padding-bottom:var(--space-2);border-bottom:1px solid var(--color-border-light);margin-bottom:var(--space-3)}}
-.flow__steps{{margin:0;padding-left:1.3em;font-size:var(--font-caption);line-height:var(--line-height-body);color:var(--color-text-secondary)}}
-.flow__steps li + li{{margin-top:var(--space-2)}}
-.flow__note{{margin-top:var(--space-5);padding-top:var(--space-4);border-top:1px solid var(--color-border-light);font-size:var(--font-caption);line-height:var(--line-height-body);color:var(--color-text-secondary)}}
+.lp__about{{margin-bottom:var(--space-7);padding:var(--space-5);background:var(--color-background);border:1px solid var(--color-border-light);border-radius:var(--radius-large)}}
+.lp__about h2{{font-size:var(--font-body-large);margin-bottom:var(--space-3)}}
+.lp__about p{{font-size:var(--font-caption);line-height:var(--line-height-body);color:var(--color-text-secondary);max-width:76ch}}
+.lp__about-note{{margin-top:var(--space-3);color:var(--color-text-tertiary)}}
+
+/* 品質情報の循環。左から右へ4段、最後は最初へ戻る。 */
+.cycle{{margin-bottom:var(--space-8);padding:var(--space-5);background:var(--color-background);border:1px solid var(--color-border-light);border-radius:var(--radius-large)}}
+.cycle__title{{font-size:var(--font-body-large);margin-bottom:var(--space-5)}}
+.cycle__row{{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-4);margin:0;padding:0;list-style:none;counter-reset:cy}}
+.cycle__step{{position:relative;padding:var(--space-4);background:var(--color-background-subtle);border:1px solid var(--color-border-light);border-radius:var(--radius-medium)}}
+.cycle__step::after{{content:"";position:absolute;top:50%;right:calc(var(--space-4) * -1);width:var(--space-4);height:2px;background:var(--color-border);transform:translateY(-50%)}}
+.cycle__step:last-child::after{{display:none}}
+.cycle__when{{font-size:var(--font-caption);font-weight:700;color:var(--color-primary);margin-bottom:var(--space-2)}}
+.cycle__what{{font-size:var(--font-caption);line-height:var(--line-height-body);color:var(--color-text-primary)}}
+.cycle__back{{position:relative;margin-top:var(--space-4);padding:var(--space-3) var(--space-4);border:1px dashed var(--color-border);border-radius:var(--radius-medium);font-size:var(--font-caption);color:var(--color-text-secondary);text-align:center}}
+.cycle__back::before{{content:"←";margin-right:var(--space-2);color:var(--color-primary);font-weight:700}}
+.cycle__note{{margin-top:var(--space-4);padding-top:var(--space-4);border-top:1px solid var(--color-border-light);font-size:var(--font-caption);line-height:var(--line-height-body);color:var(--color-text-secondary);max-width:76ch}}
+@media (max-width:900px){{.cycle__row{{grid-template-columns:1fr}}
+  .cycle__step::after{{top:auto;right:auto;bottom:calc(var(--space-4) * -1);left:50%;width:2px;height:var(--space-4);transform:translateX(-50%)}}}}
+
 .lp__note summary{{font-weight:700;cursor:pointer;color:var(--color-text-secondary)}}
 .lp__note ul{{margin-top:var(--space-4)}}
 .lp__foot{{margin-top:var(--space-7);font-size:var(--font-caption);color:var(--color-text-tertiary)}}
@@ -294,42 +308,40 @@ def build_index(css: str, metas: list) -> Path:
 <main class="lp">
   <header class="lp__head">
     <p class="lp__brand">{BRAND_ICON}</p>
-    <h1 class="lp__title">製造業向けAIデモ</h1>
-    <p class="lp__lead">設計・製造・品質保証に散らばった過去の知見を、日々の判断に使える形でつなぐAIです。
-      どのデモも同じ製品・同じ工程・同じ不具合記録の上で動いています。</p>
+    <h1 class="lp__title">製造業向けAI活用デモ</h1>
+    <p class="lp__lead">設計・製造・品質保証に蓄積された知見を、日々の判断や業務にどう活用できるかをご覧いただけます。</p>
   </header>
 
-  <section class="flow">
-    <h2 class="flow__title">3つの場面がつながっています</h2>
-    <div class="flow__grid">
-      <div class="flow__col">
-        <p class="flow__when">変える前に確かめる</p>
-        <ol class="flow__steps">
-          <li>変更点から心配点を洗い出す（DRBFM）</li>
-          <li>工程への影響を故障モードにする（工程FMEA）</li>
-          <li>設計レビューで観点を確認する</li>
-          <li>出図前に図面を照合する</li>
-        </ol>
-      </div>
-      <div class="flow__col">
-        <p class="flow__when">変えたあとを追う</p>
-        <ol class="flow__steps">
-          <li>変更が及ぶ帳票と工程を洗い出す</li>
-          <li>直せているかを追跡する</li>
-          <li>関連して見直すべき箇所を出す</li>
-        </ol>
-      </div>
-      <div class="flow__col">
-        <p class="flow__when">起きてしまったあと</p>
-        <ol class="flow__steps">
-          <li>似た事例を横断検索する</li>
-          <li>原因を5M1Eに展開する（FTA）</li>
-          <li>8D報告書にまとめる</li>
-        </ol>
-      </div>
-    </div>
-    <p class="flow__note">ここで確定した原因と対策は、次の工程FMEAと設計レビューの観点として戻ります。
-      個別のAIを並べたものではなく、同じ品質情報の上で前後がつながる形にしてあります。</p>
+  <section class="lp__about">
+    <h2>このデモについて</h2>
+    <p>本デモは、お打ち合わせの中でAI活用のイメージを具体的に共有するため、代表的な業務フローとサンプルデータを用いて作成しています。
+      実際の導入では、お客様の業務フロー、帳票、判断基準、既存システム、データ環境に合わせて、対象業務と実装範囲を設計します。</p>
+    <p class="lp__about-note">※ 本デモは、AIを業務に組み込んだ際の活用イメージを共有するためのサンプルです。</p>
+  </section>
+
+  <section class="cycle">
+    <h2 class="cycle__title">不具合で得た知見を、次の設計・製造に戻す</h2>
+    <ol class="cycle__row">
+      <li class="cycle__step">
+        <p class="cycle__when">変更前</p>
+        <p class="cycle__what">過去の知見を使って、変更によるリスクを確認する</p>
+      </li>
+      <li class="cycle__step">
+        <p class="cycle__when">変更後</p>
+        <p class="cycle__what">必要な工程・帳票に変更が反映されたか確認する</p>
+      </li>
+      <li class="cycle__step">
+        <p class="cycle__when">不具合発生後</p>
+        <p class="cycle__what">過去事例を参照しながら原因を整理し、対策を記録する</p>
+      </li>
+      <li class="cycle__step">
+        <p class="cycle__when">次の設計・製造へ</p>
+        <p class="cycle__what">得られた原因・対策を、次のFMEA・設計レビュー・検図に再利用する</p>
+      </li>
+    </ol>
+    <p class="cycle__back">得られた知見は、次のサイクルの「変更前」に戻ります</p>
+    <p class="cycle__note">不具合対応で得られた原因や対策は、次の工程FMEAや設計レビュー、検図でも再利用します。
+      対応して終わりではなく、得られた知見を次の設計・製造に戻すことで、品質情報を継続的に活用できる構成です。</p>
   </section>
 
 {groups}
