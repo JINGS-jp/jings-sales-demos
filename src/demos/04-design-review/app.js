@@ -174,8 +174,8 @@ function renderPrep(gate) {
       </div>
       <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:var(--space-4);margin-bottom:var(--space-4)">
         <div><p class="kpi__label">標準の確認項目</p><p class="kpi__value" style="font-size:var(--font-section-title)">${curPrep.length}<span class="kpi__unit"> 件</span></p></div>
-        <div><p class="kpi__label">重点確認</p><p class="kpi__value" style="font-size:var(--font-section-title);color:var(--color-error)">${high.length}<span class="kpi__unit"> 件</span></p></div>
-        <div><p class="kpi__label">確認</p><p class="kpi__value" style="font-size:var(--font-section-title);color:var(--color-warning)">${mid.length}<span class="kpi__unit"> 件</span></p></div>
+        <div><p class="kpi__label">重点確認</p><p class="kpi__value" style="font-size:var(--font-section-title)">${high.length}<span class="kpi__unit"> 件</span></p></div>
+        <div><p class="kpi__label">確認</p><p class="kpi__value" style="font-size:var(--font-section-title)">${mid.length}<span class="kpi__unit"> 件</span></p></div>
       </div>
       <p style="line-height:var(--line-height-body)">
         ${esc(g.id)}の標準確認項目 ${curPrep.length} 件に対し、今回の変更点・過去不具合・前回DRの指摘を突き合わせました。
@@ -292,7 +292,7 @@ function openPrepEv(i) {
     }).join('')}
     ${sheetShot('dr', '設計審査記録 DR3（ACT-230 詳細設計審査）',
        '標準の確認項目は、この帳票の該当行から読み込んでいます。')}
-    <p style="margin-top:var(--space-5);font-size:var(--font-caption);color:var(--color-text-secondary)">突き合わせは記載内容の一致度によるものです。実際に確認が必要かどうかは主査が判断してください。</p>`);
+    <p style="margin-top:var(--space-5);font-size:var(--font-caption)">突き合わせは記載内容の一致度によるものです。実際に確認が必要かどうかは主査が判断してください。</p>`);
 }
 
 /* ---- 審査ゲート ---- */
@@ -309,8 +309,8 @@ function renderGates() {
   ];
   $('#kpiGrid').innerHTML = kpis.map(k => `
     <div class="card">
-      <p class="kpi__label">${esc(k.label)}</p>
-      <p class="kpi__value"${k.warn ? ' style="color:var(--color-warning)"' : k.risk ? ' style="color:var(--color-error)"' : ''}>${esc(k.value)}<span class="kpi__unit">${esc(k.unit)}</span></p>
+      <p class="kpi__label">${k.warn || k.risk ? `<span class="kpi__dot kpi__dot--${k.risk ? 'risk' : 'warn'}"></span>` : ''}${esc(k.label)}</p>
+      <p class="kpi__value">${esc(k.value)}<span class="kpi__unit">${esc(k.unit)}</span></p>
       <p class="kpi__note">${esc(k.note)}</p>
     </div>`).join('');
 
@@ -522,7 +522,7 @@ document.addEventListener('click', e => {
       </div>
       ${sheetShot('dr', '設計審査記録 DR3（ACT-230 詳細設計審査）',
          '指摘の状態と期限は、この帳票の指摘事項欄から読み込んでいます。')}
-      <p style="margin-top:var(--space-5);font-size:var(--font-caption);color:var(--color-text-secondary)">この判定は日付と根拠記録のつながりによるものです。実際に再確認が必要かどうかは主査が判断してください。設計変更の内容が指摘の確認範囲に影響しない場合もあります。</p>`);
+      <p style="margin-top:var(--space-5);font-size:var(--font-caption)">この判定は日付と根拠記録のつながりによるものです。実際に再確認が必要かどうかは主査が判断してください。設計変更の内容が指摘の確認範囲に影響しない場合もあります。</p>`);
     return;
   }
 

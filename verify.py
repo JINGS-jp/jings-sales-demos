@@ -636,11 +636,11 @@ async def check_08(pg, errors):
     assert ok, "帳票スクショが読み込めていない"
     await pg.click("#panelClose")
     # 紐づける実績のチェックボックスが実際に効くこと
-    hit_on = await pg.eval_on_selector_all("#ftResult .bx--basic-hit", "e => e.length")
+    hit_on = await pg.eval_on_selector_all("#ftResult .bx-flag", "e => e.length")
     await pg.uncheck("#lkTr")
     await pg.click("#ftForm button[type=submit]")
     await pg.wait_for_selector("#ftResult:not([hidden])", timeout=12000)
-    hit_off = await pg.eval_on_selector_all("#ftResult .bx--basic-hit", "e => e.length")
+    hit_off = await pg.eval_on_selector_all("#ftResult .bx-flag", "e => e.length")
     assert hit_on != hit_off, f"実績の参照を外しても変わらない（飾りになっている）: {hit_on} vs {hit_off}"
     await pg.check("#lkTr")
     await pg.click("#ftForm button[type=submit]")

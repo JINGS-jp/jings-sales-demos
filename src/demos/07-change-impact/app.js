@@ -63,9 +63,9 @@ function renderImpact() {
       <p class="cell-sub" style="margin-bottom:var(--space-4)">発行理由：${esc(e.reason)}</p>
       <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:var(--space-4);margin-bottom:var(--space-4)">
         <div><p class="kpi__label">反映先</p><p class="kpi__value" style="font-size:var(--font-section-title)">${curRows.length}<span class="kpi__unit"> 件</span></p></div>
-        <div><p class="kpi__label">未反映</p><p class="kpi__value" style="font-size:var(--font-section-title);color:var(--color-error)">${open.length}<span class="kpi__unit"> 件</span></p></div>
-        <div><p class="kpi__label">確認できず</p><p class="kpi__value" style="font-size:var(--font-section-title);color:var(--color-text-secondary)">${unk.length}<span class="kpi__unit"> 件</span></p><p class="kpi__note">文書が未登録</p></div>
-        <div><p class="kpi__label">反映済み</p><p class="kpi__value" style="font-size:var(--font-section-title);color:var(--color-success)">${done.length}<span class="kpi__unit"> 件</span></p></div>
+        <div><p class="kpi__label">未反映</p><p class="kpi__value" style="font-size:var(--font-section-title)">${open.length}<span class="kpi__unit"> 件</span></p></div>
+        <div><p class="kpi__label">確認できず</p><p class="kpi__value" style="font-size:var(--font-section-title)">${unk.length}<span class="kpi__unit"> 件</span></p><p class="kpi__note">文書が未登録</p></div>
+        <div><p class="kpi__label">反映済み</p><p class="kpi__value" style="font-size:var(--font-section-title)">${done.length}<span class="kpi__unit"> 件</span></p></div>
       </div>
       <p style="line-height:var(--line-height-body)">
         ${esc(e.no)}の反映先を ${curRows.length} 件洗い出しました。
@@ -223,8 +223,8 @@ function renderList() {
   ];
   $('#kpiGrid').innerHTML = kpis.map(k => `
     <div class="card">
-      <p class="kpi__label">${esc(k.label)}</p>
-      <p class="kpi__value"${k.warn ? ' style="color:var(--color-warning)"' : ''}>${esc(k.value)}<span class="kpi__unit">${esc(k.unit)}</span></p>
+      <p class="kpi__label">${k.warn || k.risk ? `<span class="kpi__dot kpi__dot--${k.risk ? 'risk' : 'warn'}"></span>` : ''}${esc(k.label)}</p>
+      <p class="kpi__value">${esc(k.value)}<span class="kpi__unit">${esc(k.unit)}</span></p>
       <p class="kpi__note">${esc(k.note)}</p>
     </div>`).join('');
 
@@ -395,7 +395,7 @@ function pickEcn(e, score, how) {
           <dt>段階</dt><dd>${esc(e.stage)}${e.stage === '暫定' ? '（暫定のまま止まっています）' : ''}</dd>
           <dt>決め方</dt><dd>${esc(how)}${score != null ? `　近さ ${Math.round(score * 100)}%` : ''}</dd>
         </dl>
-        <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)">
+        <p style="margin-top:var(--space-3);font-size:var(--font-caption)">
           違っていれば、下の「対象の設計変更」で選び直してください。
         </p>
       </div>

@@ -121,12 +121,7 @@ def build_demo(demo_dir: Path, css: str, shell_js: str, data_js: str,
   <div class="sb-nav">
 {nav}
   </div>
-  <div class="nav-note">
-    <p class="nav-note__role">{meta.get("role", meta["pitch"])}</p>
-    <p class="nav-note__time">ひととおり見て {meta["minutes"]}分</p>
-  </div>
   <div class="sb-foot">
-    <span class="env-badge">データはすべて架空</span>
     <a class="nav-back" href="index.html">
       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
       デモ一覧へ戻る
@@ -249,7 +244,7 @@ def build_index(css: str, metas: list) -> Path:
 .dept{{margin-bottom:var(--space-9)}}
 .dept__title{{display:flex;align-items:center;gap:var(--space-3);font-size:var(--font-subsection-title);margin-bottom:var(--space-2)}}
 .dept__lead{{font-size:var(--font-caption);color:var(--color-text-secondary);margin-bottom:var(--space-3)}}
-.dept__order{{padding:var(--space-3) var(--space-4);margin-bottom:var(--space-4);background:var(--color-primary-subtle);border-radius:var(--radius-medium);font-size:var(--font-caption);font-weight:700;line-height:var(--line-height-body);color:var(--color-primary)}}
+.dept__order{{padding:var(--space-3) var(--space-4);margin-bottom:var(--space-4);background:var(--color-background);border:1px solid var(--color-border-light);border-left:3px solid var(--color-primary);border-radius:var(--radius-medium);font-size:var(--font-caption);font-weight:700;line-height:var(--line-height-body);color:var(--color-primary)}}
 .dept__time{{font-weight:400;color:var(--color-text-secondary)}}
 .demo-list{{display:flex;flex-direction:column;gap:var(--space-3)}}
 .demo-card{{display:flex;align-items:center;gap:var(--space-4);padding:var(--space-4) var(--space-5);background:var(--color-background);border:1px solid var(--color-border-light);border-radius:var(--radius-medium);text-decoration:none;color:inherit;transition:border-color .15s ease,box-shadow .15s ease}}
@@ -266,7 +261,7 @@ def build_index(css: str, metas: list) -> Path:
 .demo-card__go{{flex:none;display:inline-flex;align-items:center;gap:var(--space-1);color:var(--color-primary);font-weight:700;font-size:var(--font-caption)}}
 .lp__all{{margin-top:var(--space-8)}}
 .lp__all summary{{cursor:pointer;font-size:var(--font-body);font-weight:700;padding:var(--space-3) var(--space-4);background:var(--color-background);border:1px solid var(--color-border-light);border-radius:var(--radius-medium)}}
-.lp__note{{margin-top:var(--space-8);padding:var(--space-5);background:var(--color-warning-bg);border-radius:var(--radius-large)}}
+.lp__note{{margin-top:var(--space-8);padding:var(--space-5);background:var(--color-background);border:1px solid var(--color-border-light);border-left:3px solid var(--color-warning);border-radius:var(--radius-medium)}}
 .lp__note h2{{font-size:var(--font-body-large);margin-bottom:var(--space-3)}}
 .lp__note ul{{margin:0;padding-left:1.2em;font-size:var(--font-caption);line-height:var(--line-height-body)}}
 .lp__foot{{margin-top:var(--space-7);font-size:var(--font-caption);color:var(--color-text-tertiary)}}

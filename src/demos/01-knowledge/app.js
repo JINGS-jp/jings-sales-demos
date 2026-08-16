@@ -80,8 +80,8 @@ function renderDashboard() {
   ];
   $('#kpiGrid').innerHTML = kpis.map(k => `
     <div class="card">
-      <p class="kpi__label">${esc(k.label)}</p>
-      <p class="kpi__value"${k.warn ? ' style="color:var(--color-warning)"' : ''}>${esc(k.value)}<span class="kpi__unit">${esc(k.unit)}</span></p>
+      <p class="kpi__label">${k.warn || k.risk ? `<span class="kpi__dot kpi__dot--${k.risk ? 'risk' : 'warn'}"></span>` : ''}${esc(k.label)}</p>
+      <p class="kpi__value">${esc(k.value)}<span class="kpi__unit">${esc(k.unit)}</span></p>
       <p class="kpi__note">${esc(k.note)}</p>
     </div>`).join('');
 
@@ -353,7 +353,7 @@ function chatGreeting() {
         <li>今回確認すべき項目</li>
       </ul>
     </div>
-    <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)">
+    <p style="margin-top:var(--space-3);font-size:var(--font-caption)">
       答えには必ず出典を付けます。原因の断定はしません。続けて聞けば、前のやりとりを踏まえて絞り込みます。
     </p>`);
 }
@@ -365,7 +365,7 @@ function ask(qRaw) {
 
   const thinking = addMsg('ai',
     `<span class="typing" aria-label="回答を作成しています"><span></span><span></span><span></span></span>
-     <span style="margin-left:var(--space-2);color:var(--color-text-secondary)" id="thinkStep">記録を検索しています</span>`);
+     <span style="margin-left:var(--space-2)" id="thinkStep">記録を検索しています</span>`);
   const steps = ['記録を検索しています', '工程FMEAと照合しています', '設計変更を確認しています', '回答をまとめています'];
   let si = 0;
   const timer = setInterval(() => {
@@ -434,10 +434,10 @@ function openTroublePanel(id) {
       ? sheetShot(COMPLAINT_SHOT[t.id],
           '苦情報告書 ' + t.id + '（品質苦情処理規定 QR-2201）',
           '上で引用した文は、この帳票のこの欄から取っています。')
-      : `<p style="margin-top:var(--space-5);font-size:var(--font-caption);color:var(--color-text-secondary)">
+      : `<p style="margin-top:var(--space-5);font-size:var(--font-caption)">
            この記録の帳票そのものは、まだ取り込んでいません（代表の ${Object.keys(COMPLAINT_SHOT).length} 件だけ入れてあります）。
          </p>`}
-    <p style="margin-top:var(--space-5);font-size:var(--font-caption);color:var(--color-text-secondary)">出典：不具合記録（架空データ）。帳票の記載をそのまま出しています。</p>`);
+    <p style="margin-top:var(--space-5);font-size:var(--font-caption)">出典：不具合記録（架空データ）。帳票の記載をそのまま出しています。</p>`);
 }
 
 function openFmeaPanel(key) {
@@ -465,10 +465,10 @@ function openFmeaPanel(key) {
       <h3 style="font-size:var(--font-body);margin:var(--space-5) 0 var(--space-2)">この行の登録契機となった不具合</h3>
       <p><span class="mono">${esc(src.id)}</span>（${esc(src.date)}）${esc(src.sym)}</p>
       <p style="margin-top:var(--space-2)"><button class="btn btn--quiet btn--small" data-tr="${esc(src.id)}">この不具合記録を確認する</button></p>` : `
-      <p style="margin-top:var(--space-5);font-size:var(--font-caption);color:var(--color-text-secondary)">この行に紐づく不具合記録はありません。過去の設計知見または類似機種からの流用で登録された行です。</p>`}
+      <p style="margin-top:var(--space-5);font-size:var(--font-caption)">この行に紐づく不具合記録はありません。過去の設計知見または類似機種からの流用で登録された行です。</p>`}
     ${sheetShot('pfmea', '工程FMEA ACT-220 Ver.09（様式1）',
        'この行は帳票の同じ行から取っています。実際に入れるときは、押すとそのセルへ飛びます。')}
-    <p style="margin-top:var(--space-5);font-size:var(--font-caption);color:var(--color-text-secondary)">出典：工程FMEA ACT-220（架空データ）。</p>`);
+    <p style="margin-top:var(--space-5);font-size:var(--font-caption)">出典：工程FMEA ACT-220（架空データ）。</p>`);
 }
 
 /* ---- 不具合記録一覧 ---- */

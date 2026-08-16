@@ -351,7 +351,7 @@ function renderCheck() {
         <span class="status status--done">確認完了</span>
         <h2 style="font-size:var(--font-subsection-title);margin:var(--space-3) 0 var(--space-2)">検図ルールに対する不足は見つかりませんでした</h2>
         <p>${esc(curNo)}（${esc(d.name)}）について、${DATA.DWG_RULES.length} 件の検図ルールと過去不具合の対策内容を確認しましたが、確認候補はありませんでした。</p>
-        <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)">
+        <p style="margin-top:var(--space-3);font-size:var(--font-caption)">
           ルールにない観点は確認していません。設計意図の妥当性は、この確認の対象外です。
         </p>
       </div>`;
@@ -366,7 +366,7 @@ function renderCheck() {
       </div>
       <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:var(--space-4);margin-bottom:var(--space-4)">
         <div><p class="kpi__label">確認候補</p><p class="kpi__value" style="font-size:var(--font-section-title)">${curHits.length}<span class="kpi__unit"> 件</span></p></div>
-        <div><p class="kpi__label">重要度「重要」</p><p class="kpi__value" style="font-size:var(--font-section-title);color:var(--color-error)">${heavy.length}<span class="kpi__unit"> 件</span></p></div>
+        <div><p class="kpi__label">重要度「重要」</p><p class="kpi__value" style="font-size:var(--font-section-title)">${heavy.length}<span class="kpi__unit"> 件</span></p></div>
         <div><p class="kpi__label">照合したルール</p><p class="kpi__value" style="font-size:var(--font-section-title)">${DATA.DWG_RULES.length}<span class="kpi__unit"> 件</span></p></div>
       </div>
       <p style="line-height:var(--line-height-body)">
@@ -375,7 +375,7 @@ function renderCheck() {
         ${heavy.length ? `重要度が「重要」の候補が ${heavy.length} 件あります。出図前に確認してください。` : ''}
       </p>
       <div style="margin-top:var(--space-4)">${drawSvg(curNo, curHits)}</div>
-      <p style="margin-top:var(--space-2);font-size:var(--font-caption);color:var(--color-text-secondary)">
+      <p style="margin-top:var(--space-2);font-size:var(--font-caption)">
         図はデモ用に描いた架空の部品図です。赤丸がAIの確認候補で、番号は下の一覧と対応しています。実際の運用では、CADから出したPDF図面に同じ印を重ねます。
       </p>
     </div>
@@ -456,10 +456,10 @@ function openEv(i) {
         <p style="margin-top:var(--space-2)">${esc(src.sym)}</p>
         <p style="margin-top:var(--space-3)"><strong>恒久対策</strong><br>${esc(src.perm)}</p>
       </div>
-      <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)">
+      <p style="margin-top:var(--space-3);font-size:var(--font-caption)">
         この対策が今回の図面に反映されているかを確認しています。
       </p>` : `
-      <p style="margin-top:var(--space-4);font-size:var(--font-caption);color:var(--color-text-secondary)">
+      <p style="margin-top:var(--space-4);font-size:var(--font-caption)">
         この確認候補に対応する過去不具合はありません。検図ルールに対する不足としてのみ検出しています。
       </p>`}
     ${curNo === 'ACT-230-300' ? sheetShot('drawing',

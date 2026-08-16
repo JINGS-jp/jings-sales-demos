@@ -83,8 +83,8 @@ function treeSvg(groups) {
     const idx = curTree.causes.indexOf(c);
     return `<g class="node" tabindex="0" role="button" data-cause="${idx}"
         aria-label="${esc(c.label)}の根拠を見る">
-      <rect class="bx ${hit ? 'bx--basic-hit' : 'bx--basic'}"
-        x="${x2}" y="${cy - RH / 2}" width="${CAUW}" height="${RH}"/>
+      <rect class="bx bx--basic" x="${x2}" y="${cy - RH / 2}" width="${CAUW}" height="${RH}"/>
+      ${hit ? `<rect class="bx-flag" x="${x2 + 1.5}" y="${cy - RH / 2 + 1.5}" width="4" height="${RH - 3}"/>` : ''}
       ${wrapText(c.label, 20).slice(0, 2).map((t, k) => `<text x="${x2 + 10}"
         y="${cy - 6 + k * 18}">${esc(t)}</text>`).join('')}
       <text x="${x2 + CAUW - 8}" y="${cy + RH / 2 - 6}" text-anchor="end"
@@ -97,8 +97,8 @@ function treeSvg(groups) {
     ${links}${topBox}${catBoxes}${cauBoxes}
   </svg></div>
   <div class="fta-legend">
-    <span><i style="background:var(--color-error-bg);border-color:var(--color-error)"></i>現象</span>
-    <span><i style="background:var(--color-primary-subtle);border-color:var(--color-primary)"></i>分類（候補あり）</span>
+    <span><i style="border-color:var(--color-error)"></i>現象</span>
+    <span><i style="border-color:var(--color-primary)"></i>分類（候補あり）</span>
     <span><i style="background:var(--color-warning-bg);border-color:var(--color-warning)"></i>◆ 文章に手がかりがあった分類</span>
     <span><i style="background:var(--color-background-muted);border-color:var(--color-border)"></i>分類（候補なし）</span>
     <span><i style="background:var(--color-warning-bg);border-color:var(--color-warning)"></i>原因（過去実績あり）</span>
@@ -138,8 +138,8 @@ function renderTree() {
       <p class="cell-sub" style="margin-bottom:var(--space-4)">${esc(curTree.scope)}</p>
       <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:var(--space-4);margin-bottom:var(--space-4)">
         <div><p class="kpi__label">原因の候補</p><p class="kpi__value" style="font-size:var(--font-section-title)">${curTree.causes.length}<span class="kpi__unit"> 件</span></p></div>
-        <div><p class="kpi__label">過去実績あり</p><p class="kpi__value" style="font-size:var(--font-section-title);color:var(--color-warning)">${withTr.length}<span class="kpi__unit"> 件</span></p><p class="kpi__note">残り ${curTree.causes.length - withTr.length} 件は推定</p></div>
-        <div><p class="kpi__label">候補なしの分類</p><p class="kpi__value" style="font-size:var(--font-section-title)${empty.length ? ';color:var(--color-warning)' : ''}">${empty.length}<span class="kpi__unit"> / 6</span></p><p class="kpi__note">${empty.length ? esc(empty.map(g => g.m.label).join('・')) : 'すべての分類に候補あり'}</p></div>
+        <div><p class="kpi__label">過去実績あり</p><p class="kpi__value" style="font-size:var(--font-section-title)">${withTr.length}<span class="kpi__unit"> 件</span></p><p class="kpi__note">残り ${curTree.causes.length - withTr.length} 件は推定</p></div>
+        <div><p class="kpi__label">候補なしの分類</p><p class="kpi__value" style="font-size:var(--font-section-title)">${empty.length}<span class="kpi__unit"> / 6</span></p><p class="kpi__note">${empty.length ? esc(empty.map(g => g.m.label).join('・')) : 'すべての分類に候補あり'}</p></div>
         <div><p class="kpi__label">工程FMEAに登録なし</p><p class="kpi__value" style="font-size:var(--font-section-title)">${noFmea.length}<span class="kpi__unit"> 件</span></p></div>
       </div>
       <p style="line-height:var(--line-height-body)">
@@ -554,9 +554,9 @@ function showReadout(best, scored, conds, decided) {
           <p style="margin-top:var(--space-1)">
             ${conds.map(c => `<span class="status status--warn" style="margin-right:var(--space-2)">${esc(M[c.m].label)}：${esc(c.hit.join('・'))}</span>`).join('')}
           </p>`
-        : `<p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)">
+        : `<p style="margin-top:var(--space-3);font-size:var(--font-caption)">
              分類を絞り込める手がかりは、文章の中にありませんでした。6分類を平らに見ます。</p>`}
-        <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)">
+        <p style="margin-top:var(--space-3);font-size:var(--font-caption)">
           読み取りが違っていれば、下の「現象」で選び直してください。
         </p>
       </div>

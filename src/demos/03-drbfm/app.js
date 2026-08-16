@@ -31,7 +31,7 @@ function showReadout(fileName) {
           <dt>読み取った変更点</dt><dd>${CHANGES.length} 件</dd>
           <dt>変更理由</dt><dd>小型軽量化と応答速度の向上、および耐熱性の確保</dd>
         </dl>
-        <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)">
+        <p style="margin-top:var(--space-3);font-size:var(--font-caption)">
           ここではサンプルを表示しています。実際に入れるときは、投げ込んだファイルの中身をそのまま読みます。
         </p>
       </div>
@@ -177,7 +177,7 @@ function renderResult() {
         <button class="btn btn--primary" id="btnCsv">DRBFMをExcelで出力する</button>
         <button class="btn btn--secondary" id="btnReview">設計審査へ提出する</button>
       </div>
-      <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)" id="editNote">
+      <p style="margin-top:var(--space-3);font-size:var(--font-caption)" id="editNote">
         設計・評価・製造の各欄は画面上で直接編集できます。編集した行は「担当者修正済み」として記録されます。
       </p>
     </div>

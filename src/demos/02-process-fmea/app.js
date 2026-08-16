@@ -457,7 +457,7 @@ function evFlow() {
     </div>
     ${sheetShot('flow', '工程フロー図 ACT-220（QC工程表を同一帳票に含む）',
        '工程の機能は、この帳票の該当行の作業内容欄から整理しています。')}
-    <p style="margin-top:var(--space-4);font-size:var(--font-caption);color:var(--color-text-secondary)">この情報を根拠とした理由：工程の機能は工程フローの作業内容欄から整理しています。工程FMEAの起点を工程に固定するため、機能の出典は必ず工程フローとしています。</p>`);
+    <p style="margin-top:var(--space-4);font-size:var(--font-caption)">この情報を根拠とした理由：工程の機能は工程フローの作業内容欄から整理しています。工程FMEAの起点を工程に固定するため、機能の出典は必ず工程フローとしています。</p>`);
 }
 
 function evReq(i) {
@@ -482,7 +482,7 @@ function evReq(i) {
           <p>類似工程の記載と部品表からAIが推定した内容です。規格値は未確認として扱ってください。確認先：条件表または品質基準の原本。</p>
         </div>
       </div>` : `
-      <p style="margin-top:var(--space-4);font-size:var(--font-caption);color:var(--color-text-secondary)">この情報を根拠とした理由：${esc(r.src)} の ${esc(r.loc)} に規格値が明記されているため、確定した要求事項として扱っています。</p>`}`);
+      <p style="margin-top:var(--space-4);font-size:var(--font-caption)">この情報を根拠とした理由：${esc(r.src)} の ${esc(r.loc)} に規格値が明記されているため、確定した要求事項として扱っています。</p>`}`);
 }
 
 function evRow(key) {
@@ -519,7 +519,7 @@ function evRow(key) {
         <dt>発生度O：${b.o}（AI候補）</dt><dd>${esc(critLabel('o', b.o))}</dd>
         <dt>検出度D：${b.d}（AI候補）</dt><dd>${esc(critLabel('d', b.d))}</dd>
       </dl>
-      <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)">判定基準：${esc(DATA.SOD_CRITERIA.doc)}。引き当て元の行と同じ影響区分と仮定した候補値です。担当者による確認が必要です。</p>
+      <p style="margin-top:var(--space-3);font-size:var(--font-caption)">判定基準：${esc(DATA.SOD_CRITERIA.doc)}。引き当て元の行と同じ影響区分と仮定した候補値です。担当者による確認が必要です。</p>
       ${sheetShot('pfmea', '工程FMEA ACT-220 Ver.09（様式1）— 引き当て元の帳票',
         '影響・原因・予防・検出は、この帳票の該当行から引き当てています。')}
       ${b.src && TR_BY_ID[b.src] ? `
@@ -552,7 +552,7 @@ function evGap(i) {
       <p style="margin-top:var(--space-3)"><strong>現行の予防 ／ 検出</strong><br>${esc(r.prev)} ／ ${esc(r.det)}</p>
       <p style="margin-top:var(--space-3)"><strong>評価</strong><br><span class="mono">S${r.s}　O${r.o}　D${r.d}　RPN ${r.s * r.o * r.d}</span></p>
     </div>
-    <p style="margin-top:var(--space-4);font-size:var(--font-caption);color:var(--color-text-secondary)">拾った理由：この工程の要求「${esc(g.relReq.req)}」に対しても「${esc(g.dev)}」は起こりうるのに、この工程のFMEAに同じ型の行がありません。本当に起こりうるかは見て判断してください。</p>`);
+    <p style="margin-top:var(--space-4);font-size:var(--font-caption)">拾った理由：この工程の要求「${esc(g.relReq.req)}」に対しても「${esc(g.dev)}」は起こりうるのに、この工程のFMEAに同じ型の行がありません。本当に起こりうるかは見て判断してください。</p>`);
 }
 
 /* ---- 工程フロー画面 ---- */

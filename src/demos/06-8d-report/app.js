@@ -110,7 +110,7 @@ function renderDoc() {
       </div>
       <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:var(--space-4);margin-bottom:var(--space-4)">
         <div><p class="kpi__label">記入できた項目</p><p class="kpi__value" style="font-size:var(--font-section-title)">${filled}<span class="kpi__unit"> / 8</span></p></div>
-        <div><p class="kpi__label">追記が必要な項目</p><p class="kpi__value" style="font-size:var(--font-section-title);color:var(--color-warning)">${8 - filled}<span class="kpi__unit"> 件</span></p></div>
+        <div><p class="kpi__label">追記が必要な項目</p><p class="kpi__value" style="font-size:var(--font-section-title)">${8 - filled}<span class="kpi__unit"> 件</span></p></div>
         <div><p class="kpi__label">状態</p><p class="kpi__value" style="font-size:var(--font-section-title)">未確定</p><p class="kpi__note">担当者の確認が必要</p></div>
       </div>
       <p style="line-height:var(--line-height-body)">
@@ -152,7 +152,7 @@ function renderDoc() {
         <button class="btn btn--primary" id="btnCsv">報告書をExcelで出力する</button>
         <button class="btn btn--secondary" id="btnSave">この内容で保存する</button>
       </div>
-      <p style="margin-top:var(--space-3);font-size:var(--font-caption);color:var(--color-text-secondary)" id="editNote">
+      <p style="margin-top:var(--space-3);font-size:var(--font-caption)" id="editNote">
         編集した項目は緑色で表示されます。
       </p>
     </div>
